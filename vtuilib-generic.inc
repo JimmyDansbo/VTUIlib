@@ -1,5 +1,26 @@
 !cpu w65c02
+; Program counter is set to 0 to make it easier to calculate the addresses
+; in the jumptable as all that needs to be done is add the actual offset.
 *=$0000
+
+; ******************************* Jumptable *******************************
+	bra	initialize	; No inputs
+	jmp	screen_set	; .A = Screenmode ($00, $02 or $FF)
+	jmp	clear		; .A = bg-/fg-color
+	jmp	set_stride	; .A = Stride value
+	jmp	set_decr	; .A (1 = decrement, 0 = increment)
+	jmp	plot_char	; .A = character, .X = bg-/fg-color
+	jmp	scan_char	; like plot_char
+	jmp	hline		; x16l	= Character, .Y = length, .X = color
+	jmp	vline		; x16l	= Character, .Y = height, .X = color
+	jmp	gotoxy		; .A = x coordinate, .Y = y coordinate
+	jmp	print_str	; x16 = pointer to string, .X = color
+	jmp	fill_box	; x16h=Char,x17l=width,x17h=height,.X=color
+	jmp	pet2scr		; .A = character to convert
+	jmp	scr2pet		; .A = character to convert
+	jmp	$0000		; Show that there are no more jumps
+
+; ******************************* Constants *******************************
 VERA_ADDR_L		= $9F20
 VERA_ADDR_M		= $9F21
 VERA_ADDR_H		= $9F22
@@ -45,20 +66,62 @@ x19		= $28
 x19l		= x19
 x19h		= x19+1
 
-	bra	initialize
-	jmp	screen_set
-	jmp	clear
-	jmp	set_stride
-	jmp	set_decr
-	jmp	hline
-	jmp	vline
-	jmp	gotoxy
-	jmp	print_str
-	jmp	fill_box
-	jmp	$0000		; Show that there are no more jumps
+; ******************************* Macros *******************************
 
 ; *****************************************************************************
-; Initialize the jumptable with correct address calculated from the address
+; Set VERA address to point to specific point on screen
+; *****************************************************************************
+; INPUTS:	.A = x coordinate
+;		.Y = y coordinate
+; *****************************************************************************
+!macro GOTOXY {
+	sty	VERA_ADDR_M	; Set y coordinate
+	asl			; Multiply x coord with 2 for correct coordinate
+	sta	VERA_ADDR_L	; Set x coordinate
+}
+; *****************************************************************************
+; Convert PETSCII codes between $20 and $5F to screencodes.
+; *****************************************************************************
+; INPUTS:	.A = character to convert
+; OUTPUS:	.A = converted character or $56 if invalid input
+; *****************************************************************************
+!macro PET2SCR {
+	cmp	#$20
+	bcc	.nonprintable	; .A < $20
+	cmp	#$40
+	bcc	.end		; .A < $40 means screen code is the same
+	; .A >= $40 - might be letter
+	cmp	#$60
+	bcs	.nonprintable	; .A < $60 so it is a letter, subtract ($3F+1)
+	sbc	#$3F		; to convert to screencode
+	bra	.end
+.nonprintable:
+	lda	#$56
+.end:
+}
+; *****************************************************************************
+; Convert screencodes between $00 and $3F to PETSCII.
+; *****************************************************************************
+; INPUTS:	.A = character to convert
+; OUTPUS:	.A = converted character or $76 if invalid input
+; *****************************************************************************
+!macro SCR2PET {
+	cmp	#$40
+	bcs	.nonprintable	; .A >= $40
+	cmp	#$20
+	bcs	.end		; .A >=$20 & < $40 means petscii is the same
+	; .A < $20 and is a letter
+	adc	#$40
+	bra	.end
+.nonprintable:
+	lda	#$76
+.end:
+}
+
+; ******************************* Functions *******************************
+
+; *****************************************************************************
+; Initialize the jumptable with correct addresses calculated from the address
 ; where this code is loaded.
 ; *****************************************************************************
 ; USES:		.A, .X & .Y
@@ -66,7 +129,7 @@ x19h		= x19+1
 ; *****************************************************************************
 initialize:
 	; Write code to ZP to figure out where the library is loaded.
-	; This is done by jsr'ing to the code in ZP and reading the
+	; This is done by jsr'ing to the code in ZP which in turn reads the
 	; return address from the stack.
 	lda	#$BA		; TSX
 	sta	x16
@@ -75,14 +138,15 @@ initialize:
 	lda	#$01		; $0101
 	sta	x16+2
 	sta	x16+3
+	sta	x16+6
 	lda	#$BC		; LDY absolute,x
 	sta	x16+4
 	lda	#$02		; $0102
 	sta	x16+5
-	lda	#$01
-	sta	x16+6
 	lda	#$60		; RTS
 	sta	x16+7
+	; Jump to the code in ZP that was just copied there by the code above.
+	; This is to get the return address stored on stack
 	jsr	x16		; Get current PC value
 	sec
 	sbc	#*-2		; Calculate start of our program
@@ -90,7 +154,6 @@ initialize:
 	tya
 	sbc	#$00
 	sta	x16+1
-
 	lda	x16		; Calculate location of first address in
 	clc			; jump table
 	adc	#$03
@@ -98,7 +161,6 @@ initialize:
 	lda	x16+1
 	adc	#$00
 	sta	x17+1
-
 	ldy	#$01		; .Y used for indexing high byte of pointers
 @loop:	clc
 	lda	(x17)		; Low part of jumptable address
@@ -163,6 +225,7 @@ clear:
 	dec	VERA_ADDR_M
 	bpl	@yloop
 	rts
+
 ; *****************************************************************************
 ; Set the stride without changing other values in VERA_ADDR_H
 ; *****************************************************************************
@@ -201,20 +264,38 @@ set_decr:
 	rts
 
 ; *****************************************************************************
+; Write character and color to current VERA address
+; Function assumes that stride is set to 1 and decrement set to 0
+; *****************************************************************************
+; INPUTS:	.A = character
+;		.X = bg-/fg-color
+; *****************************************************************************
+plot_char:
+	sta	VERA_DATA0
+	stx	VERA_DATA0
+	rts
+
+; *****************************************************************************
+; Read character and color from current VERA address
+; Function assumes that stride is set to 1 and decrement set to 0
+; *****************************************************************************
+; OUTPUS:	.A = character
+;		.X = bg-/fg-color
+; *****************************************************************************
+scan_char:
+	lda	VERA_DATA0
+	ldx	VERA_DATA0
+	rts
+
+; *****************************************************************************
 ; Create a horizontal line going from left to right.
 ; *****************************************************************************
-; INPUTS:	x16l	= X coordinate
-;		.A	= Y coordinate
-;		x16h	= Character to use for drawing the line
+; INPUTS:	x16l	= Character to use for drawing the line
 ;		.Y	= Length of the line
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
 hline:
-	sta	VERA_ADDR_M	; Set y coordinate
-	lda	x16l		; Load x coordinate
-	asl			; Multiply by 2 for correct coordinate
-	sta	VERA_ADDR_L	; Set x coordinate
-	lda	x16h
+	lda	x16l
 @loop:	sta	VERA_DATA0	; Write character
 	stx	VERA_DATA0	; Write bg-/fg-color
 	dey
@@ -224,18 +305,12 @@ hline:
 ; *****************************************************************************
 ; Create a vertical line going from top to bottom.
 ; *****************************************************************************
-; INPUTS:	x16l	= X coordinate
-;		.A	= Y coordinate
-;		x16h	= Character to use for drawing the line
+; INPUTS:	x16l	= Character to use for drawing the line
 ;		.Y	= Height of the line
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
 vline:
-	sta	VERA_ADDR_M	; Set y coordinate
-	lda	x16l		; Load x coordinate
-	asl			; Multiply by 2 for correct coordinate
-	sta	VERA_ADDR_L	; Set x coordinate
-	lda	x16h
+	lda	x16l
 @loop:	sta	VERA_DATA0	; Write character
 	stx	VERA_DATA0	; Write bg-/fg-color
 	dec	VERA_ADDR_L	; Return to original X coordinate
@@ -252,41 +327,59 @@ vline:
 ;		.Y = y coordinate
 ; *****************************************************************************
 gotoxy:
-	sty	VERA_ADDR_M	; Set y coordinate
-	asl			; Multiply x coord with 2 for correct coordinate
-	sta	VERA_ADDR_L	; Set x coordinate
+	+GOTOXY
 	rts
 
 ; *****************************************************************************
-; Print a 0 terminated string
+; Convert PETSCII codes between $20 and $5F to screencodes.
+; *****************************************************************************
+; INPUTS:	.A = character to convert
+; OUTPUS:	.A = converted character or $56 if invalid input
+; *****************************************************************************
+pet2scr:
+	+PET2SCR
+	rts
+
+; *****************************************************************************
+; Convert screencodes between $00 and $3F to PETSCII.
+; *****************************************************************************
+; INPUTS:	.A = character to convert
+; OUTPUS:	.A = converted character or $76 if invalid input
+; *****************************************************************************
+scr2pet:
+	+SCR2PET
+	rts
+
+; *****************************************************************************
+; Print a 0 terminated string PETSCII string
 ; *****************************************************************************
 ; INPUTS	x16 = pointer to string
-;		.Y  = bg-/fg color
-; USES:		.X
+;		.X  = bg-/fg color
+; USES:		.Y
 ; *****************************************************************************
 print_str:
-	lda	(x16),y		; Load character
+	ldy	#0
+@loop:	lda	(x16),y		; Load character
 	beq	@end		; If 0, we are done
+	+PET2SCR
 	sta	VERA_DATA0	; Write character
-	sty	VERA_DATA0	; Write bg-/fg-color
+	stx	VERA_DATA0	; Write bg-/fg-color
 	iny
-	bne	print_str	; Get next character
+	bne	@loop		; Get next character
 @end:	rts
 
 ; *****************************************************************************
 ; Create a filled box drawn from top left to bottom right
 ; *****************************************************************************
-; INPUTS:	x16l	= X coordinate of upper left corner
-;		.A	= Y coordinate of upper left corner
-;		x16h	= Character to use for drawing the line
+; INPUTS:	x16h	= Character to use for drawing the line
 ;		x17l	= Width of box
 ;		x17h	= Height of box
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
 fill_box:
-	sta	VERA_ADDR_M	; Set y coordinate
+	lda	VERA_ADDR_L
+	sta	x16l
 @vloop:	lda	x16l		; Load x coordinate
-	asl			; Multiply by 2 for correct coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
 	lda	x16h
 	ldy	x17l
@@ -294,6 +387,7 @@ fill_box:
 	stx	VERA_DATA0	; Write bg-/fg-color
 	dey
 	bne	@hloop
+	inc	VERA_ADDR_M
 	dec	x17h
 	bne	@vloop
 	rts
