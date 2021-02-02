@@ -1,5 +1,5 @@
 !cpu w65c02
-*=0
+*=$0000
 VERA_ADDR_L		= $9F20
 VERA_ADDR_M		= $9F21
 VERA_ADDR_H		= $9F22
@@ -45,12 +45,84 @@ x19		= $28
 x19l		= x19
 x19h		= x19+1
 
-	bra	screen_set
-	bra	set_stride
-	bra	set_decr
-	bra	hline
-	bra	vline
-	bra	fill_box
+	bra	initialize
+	jmp	screen_set
+	jmp	clear
+	jmp	set_stride
+	jmp	set_decr
+	jmp	hline
+	jmp	vline
+	jmp	gotoxy
+	jmp	print_str
+	jmp	fill_box
+	jmp	$0000		; Show that there are no more jumps
+
+; *****************************************************************************
+; Initialize the jumptable with correct address calculated from the address
+; where this code is loaded.
+; *****************************************************************************
+; USES:		.A, .X & .Y
+;		x16, x17, x18 & x19 (ZP addresses $22-$29)
+; *****************************************************************************
+initialize:
+	lda	#$BA		; TSX
+	sta	x16
+	lda	#$BD		; LDA absolute,x
+	sta	x16+1
+	lda	#$01		; $0101
+	sta	x16+2
+	sta	x16+3
+	lda	#$BC		; LDY absolute,x
+	sta	x16+4
+	lda	#$02		; $0102
+	sta	x16+5
+	lda	#$01
+	sta	x16+6
+	lda	#$60		; RTS
+	sta	x16+7
+	jsr	x16		; Get current PC value
+	sec
+	sbc	#*-2		; Calculate start of our program
+	sta	x16		; And store it in x16
+	tya
+	sbc	#$00
+	sta	x16+1
+
+	lda	x16		; Calculate location of first address in
+	clc			; jump table
+	adc	#$03
+	sta	x17
+	lda	x16+1
+	adc	#$00
+	sta	x17+1
+
+	ldy	#$01		; .Y used for indexing high byte of pointers
+@loop:	clc
+	lda	(x17)		; Low part of jumptable address
+	beq	@mightend	; If it is zero, we might have reaced the end of jumptable
+	adc	x16l		; Add start address of our program to the jumptable address
+	sta	(x17)
+	lda	(x17),y
+	adc	x16h
+	sta	(x17),y
+	bra	@prepnext
+@mightend:
+	adc	x16l		; Add start address of our program to the jumptable address
+	sta	(x17)
+	lda	(x17),y		; High part of jumptable address
+	beq	@end		; If it is zero, we have reaced end of jumptable
+	adc	x16h
+	sta	(x17),y
+@prepnext:			; Prepare x17 pointer for next entry in jumptable
+	clc			; (add 3 to current value)
+	lda	x17l
+	adc	#$03
+	sta	x17l
+	lda	x17h
+	adc	#$00
+	sta	x17h
+	bra	@loop
+@end:	rts
 
 ; *****************************************************************************
 ; Use KERNAL API to set screen to 80x60 or 40x30 or swap between them.
@@ -68,6 +140,26 @@ screen_set:
 @doset:	jsr	$FF5F
 @end:	rts
 
+; *****************************************************************************
+; Clear the screen with certain bg-/fg-color
+; Assumes stride is 1 and decr is 0
+; *****************************************************************************
+; INPUTS:	.A = bg-/fg-color
+; USES:		.X & .Y
+; *****************************************************************************
+clear:
+	ldy	#60		; 60 lines is the maximum
+	sty	VERA_ADDR_M
+	ldy	#' '
+@yloop:	ldx	#80		; 80 columns is maximum
+	stz	VERA_ADDR_L
+@xloop:	sty	VERA_DATA0	; - Character
+	sta	VERA_DATA0	; - bg-/fg-color
+	dex
+	bne	@xloop
+	dec	VERA_ADDR_M
+	bpl	@yloop
+	rts
 ; *****************************************************************************
 ; Set the stride without changing other values in VERA_ADDR_H
 ; *****************************************************************************
@@ -150,5 +242,55 @@ vline:
 	bne	@loop
 	rts
 
+; *****************************************************************************
+; Set VERA address to point to specific point on screen
+; *****************************************************************************
+; INPUTS:	.A = x coordinate
+;		.Y = y coordinate
+; *****************************************************************************
+gotoxy:
+	sty	VERA_ADDR_M	; Set y coordinate
+	asl			; Multiply x coord with 2 for correct coordinate
+	sta	VERA_ADDR_L	; Set x coordinate
+	rts
+
+; *****************************************************************************
+; Print a 0 terminated string
+; *****************************************************************************
+; INPUTS	x16 = pointer to string
+;		.Y  = bg-/fg color
+; USES:		.X
+; *****************************************************************************
+print_str:
+	lda	(x16),y		; Load character
+	beq	@end		; If 0, we are done
+	sta	VERA_DATA0	; Write character
+	sty	VERA_DATA0	; Write bg-/fg-color
+	iny
+	bne	print_str	; Get next character
+@end:	rts
+
+; *****************************************************************************
+; Create a filled box drawn from top left to bottom right
+; *****************************************************************************
+; INPUTS:	x16l	= X coordinate of upper left corner
+;		.A	= Y coordinate of upper left corner
+;		x16h	= Character to use for drawing the line
+;		x17l	= Width of box
+;		x17h	= Height of box
+;		.X	= bg- & fg-color
+; *****************************************************************************
 fill_box:
+	sta	VERA_ADDR_M	; Set y coordinate
+@vloop:	lda	x16l		; Load x coordinate
+	asl			; Multiply by 2 for correct coordinate
+	sta	VERA_ADDR_L	; Set x coordinate
+	lda	x16h
+	ldy	x17l
+@hloop:	sta	VERA_DATA0	; Write character
+	stx	VERA_DATA0	; Write bg-/fg-color
+	dey
+	bne	@hloop
+	dec	x17h
+	bne	@vloop
 	rts
