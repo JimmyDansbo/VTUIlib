@@ -65,6 +65,9 @@ x19h		= x19+1
 ;		x16, x17, x18 & x19 (ZP addresses $22-$29)
 ; *****************************************************************************
 initialize:
+	; Write code to ZP to figure out where the library is loaded.
+	; This is done by jsr'ing to the code in ZP and reading the
+	; return address from the stack.
 	lda	#$BA		; TSX
 	sta	x16
 	lda	#$BD		; LDA absolute,x
