@@ -176,6 +176,7 @@ Registers affected: .A & .Y<br>
 ZP registers affected: none<br>
 
 **Description** Draw a filled box starting at current position.<br>
+
 | x16h | Character for filling |
 --------------------------------
 | x17l | Width of box          |
