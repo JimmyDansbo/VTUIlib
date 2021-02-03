@@ -92,3 +92,35 @@ Registers affected: .X<br>
 ZP registers affected: none<br>
 
 **Description** Set the VERA stride value. Stride is the amount the VERA address is incremented or decremented on each access. Stride is a 4 bit value and the routine will ensure that the number is converted to fit in VERA_ADDR_H. For more information about VERA stride, see the [VERA Documentation](https://github.com/commanderx16/x16-docs/blob/master/VERA%20Programmer's%20Reference.md#video-ram-access) about 'Address Increment'
+
+## Function name: set_decr
+Purpose: Set the VERA decrement bit<br>
+Call address: `VTUILIB+11`<br>
+Communication registers: .C<br>
+Preparatory routines: none<br>
+Registers affected: .A
+ZP registers affected: none<br>
+
+**Description** Set the VERA decrement bit. The decrement bit decides if the stride value is added to- or subtracted from the current VERA address. Carry Clear (.C=0) means increment by stride value. Carry Set (.C=1) means decrement by stride value.
+
+## Function name: gotoxy
+Purpose: Set VERA address to point to specific coordinates on screen.<br>
+Call address: `VTUILIB+14`<br>
+Communication registers: .A & .Y<br>
+Preparatory routines: none<br>
+Registers affected: none<br>
+ZP registers affected: none<br>
+
+**Description** Point the VERA address to a specific set of coordinates on screen. This works in both 80x60 mode and 40x30 mode. If the point is outside of visible area and character is plotted, it will not be visible. There is no error handling. .Y is the y-coordinate (0-29/59) and .A is the x-coordinate (0-39/79). This function does not actually display anything on screen.
+
+## Function name: plot_char
+Purpose: Write a screencode character and color to screen.<br>
+Call address: `VTUILIB+17`<br>
+Communication registers: .A & .X
+Preparatory routines: gotoxy<br>
+Registers affected: none<br>
+ZP registers affected: none<br>
+
+**Description** Write the screencode character in .A to the screen at current address. The routine expects VERA to increment by one as it writes the foreground-/background-color in .X to VERA without touching VERA addresses.<br>
+![VERA charactermap](https://cx16.dk/veratext/verachars.jpg)<br>
+![VERA colors](https://cx16.dk/veratext/veracolors.jpg)
