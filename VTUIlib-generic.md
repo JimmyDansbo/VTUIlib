@@ -177,8 +177,29 @@ ZP registers affected: none<br>
 
 **Description** Draw a filled box starting at current position.<br>
 
-| x16h | Character for filling |
+| reg  | purpose               |
 |------|-----------------------|
+| x16h | Character for filling |
 | x17l | Width of box          |
 | x17h | Height of box         |
 |  .X  | bg-/fg-color          |
+
+## Function name: pet2scr
+Purpose: Convert PETSCII to screencode<br>
+Call address: `VTUILIB+35`<br>
+Communication registers: .A<br>
+Preparatory routines: none<br>
+Registers affected: none<br>
+ZP registers affected: none<br>
+
+**Description** Convert the PETSCII character in .A to screencode. Supported range is $20-$59. Other characters will be converted to a large X-like character.
+
+## Function name: scr2pet
+Purpose: Convert screencode to PETSCII<br>
+Call address: `VTUILIB+38`<br>
+Communication registers: .A<br>
+Preparatory routines: none<br>
+Registers affected: none<br>
+ZP registers affected: none<br>
+
+**Description** Convert the screencode in .A to PETSCII. Supported range is $00-$39. Other characters will be converted to a large X-like character.
