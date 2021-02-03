@@ -118,6 +118,55 @@ x19h		= x19+1
 	lda	#$76
 .end:
 }
+; *****************************************************************************
+; Create a vertical line going from top to bottom.
+; *****************************************************************************
+; INPUTS:	.A	= Character to use for drawing the line
+;		.Y	= Height of the line
+;		.X	= bg- & fg-color
+; *****************************************************************************
+!macro VLINE {
+.loop:	+PLOT_CHAR
+	dec	VERA_ADDR_L	; Return to original X coordinate
+	dec	VERA_ADDR_L
+	inc	VERA_ADDR_M	; Increment Y coordinate
+	dey
+	bne	.loop
+}
+; *****************************************************************************
+; Create a horizontal line going from left to right.
+; *****************************************************************************
+; INPUTS:	.A	= Character to use for drawing the line
+;		.Y	= Length of the line
+;		.X	= bg- & fg-color
+; *****************************************************************************
+!macro HLINE {
+.loop:	+PLOT_CHAR
+	dey
+	bne	.loop
+}
+; *****************************************************************************
+; Write character and color to current VERA address
+; Function assumes that stride is set to 1 and decrement set to 0
+; *****************************************************************************
+; INPUTS:	.A = character
+;		.X = bg-/fg-color
+; *****************************************************************************
+!macro PLOT_CHAR {
+	sta	VERA_DATA0
+	stx	VERA_DATA0
+}
+; *****************************************************************************
+; Read character and color from current VERA address
+; Function assumes that stride is set to 1 and decrement set to 0
+; *****************************************************************************
+; OUTPUS:	.A = character
+;		.X = bg-/fg-color
+; *****************************************************************************
+!macro SCAN_CHAR {
+	lda	VERA_DATA0
+	ldx	VERA_DATA0
+}
 
 ; ******************************* Functions *******************************
 
@@ -271,10 +320,6 @@ set_decr:
 ; INPUTS:	.A = character
 ;		.X = bg-/fg-color
 ; *****************************************************************************
-!macro PLOT_CHAR {
-	sta	VERA_DATA0
-	stx	VERA_DATA0
-}
 plot_char:
 	+PLOT_CHAR
 	rts
@@ -286,10 +331,6 @@ plot_char:
 ; OUTPUS:	.A = character
 ;		.X = bg-/fg-color
 ; *****************************************************************************
-!macro SCAN_CHAR {
-	lda	VERA_DATA0
-	ldx	VERA_DATA0
-}
 scan_char:
 	+SCAN_CHAR
 	rts
@@ -301,11 +342,6 @@ scan_char:
 ;		.Y	= Length of the line
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
-!macro HLINE {
-.loop:	+PLOT_CHAR
-	dey
-	bne	.loop
-}
 hline:
 	lda	x16l
 	+HLINE
@@ -318,14 +354,6 @@ hline:
 ;		.Y	= Height of the line
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
-!macro VLINE {
-.loop:	+PLOT_CHAR
-	dec	VERA_ADDR_L	; Return to original X coordinate
-	dec	VERA_ADDR_L
-	inc	VERA_ADDR_M	; Increment Y coordinate
-	dey
-	bne	.loop
-}
 vline:
 	lda	x16l
 	+VLINE
