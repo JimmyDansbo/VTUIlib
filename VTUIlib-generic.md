@@ -160,9 +160,27 @@ ZP registers affected: none<br>
 ## Function name: print_str
 Purpose: Print a string to screen.<br>
 Call address: `VTUILIB+29`<br>
-Communication registers: x16 & .X
+Communication registers: x16 & .X<br>
 Preparatory routines: gotoxy (optional)<br>
-Registers affected: .A & .Y
+Registers affected: .A & .Y<br>
 ZP registers affected: none<br>
 
 **Description** Print a 0-terminated PETSCII encoded string to screen. The routine will convert PETSCII characters in the range $20-$59. Other characters will be converted to a large X-like character. x16 ($22 & $23) is a 16bit zeropage pointer to the string. Background-/foreground color for the string must be provided in .X register.
+
+## Function name: fill_box
+Purpose: Draw a filled box<br>
+Call address: `VTUILIB+32`<br>
+Communication registers: x16h, x17l, x17h & .X<br>
+Preparatory routines: gotoxy (optional)<br>
+Registers affected: .A & .Y<br>
+ZP registers affected: none<br>
+
+**Description** Draw a filled box starting at current position.<br>
+| x16h | Character for filling |
+--------------------------------
+| x17l | Width of box          |
+--------------------------------
+| x17h | Height of box         |
+--------------------------------
+|  .X  | bg-/fg-color          |
+--------------------------------
