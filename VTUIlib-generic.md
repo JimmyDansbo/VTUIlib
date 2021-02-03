@@ -52,3 +52,13 @@ The VTUI library only uses the zeropage addresses inside it's own function or as
 In addition to the zeropage memory, the VTUI library uses CPU registers for transferring arguments to the functions as well as temporary space and indexing.
 
 ## Functions
+
+### Function name: initialize
+Purpose: Initialize jump table in preparation for library use.
+Call address: `VTUILIB + 0`
+Communication registers: none
+Preparatory routines: none
+Registers affected: .A, .X & .Y
+ZP registers affected: x16, x17, x18 & x19
+
+** Description: ** The routine initialize writes a very small subroutine in zeropage memory $22-$29, calls it to get the return address off of the stack. This is the way the library figures out the correct addresses and update the builin jumptable.
