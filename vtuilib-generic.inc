@@ -16,8 +16,9 @@
 	jmp	gotoxy		; .A = x coordinate, .Y = y coordinate
 	jmp	print_str	; x16 = pointer to string, .X = color
 	jmp	fill_box	; x16h=Char,x17l=width,x17h=height,.X=color
-	jmp	pet2scr		; .A = character to convert
-	jmp	scr2pet		; .A = character to convert
+	jmp	pet2scr		; .A = character to convert to screencode
+	jmp	scr2pet		; .A = character to convert to petscii
+	jmp	border		;
 	jmp	$0000		; Show that there are no more jumps
 
 ; ******************************* Constants *******************************
@@ -270,9 +271,12 @@ set_decr:
 ; INPUTS:	.A = character
 ;		.X = bg-/fg-color
 ; *****************************************************************************
-plot_char:
+!macro PLOT_CHAR {
 	sta	VERA_DATA0
 	stx	VERA_DATA0
+}
+plot_char:
+	+PLOT_CHAR
 	rts
 
 ; *****************************************************************************
@@ -282,9 +286,12 @@ plot_char:
 ; OUTPUS:	.A = character
 ;		.X = bg-/fg-color
 ; *****************************************************************************
-scan_char:
+!macro SCAN_CHAR {
 	lda	VERA_DATA0
 	ldx	VERA_DATA0
+}
+scan_char:
+	+SCAN_CHAR
 	rts
 
 ; *****************************************************************************
@@ -294,12 +301,14 @@ scan_char:
 ;		.Y	= Length of the line
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
+!macro HLINE {
+.loop:	+PLOT_CHAR
+	dey
+	bne	.loop
+}
 hline:
 	lda	x16l
-@loop:	sta	VERA_DATA0	; Write character
-	stx	VERA_DATA0	; Write bg-/fg-color
-	dey
-	bne	@loop
+	+HLINE
 	rts
 
 ; *****************************************************************************
@@ -309,15 +318,17 @@ hline:
 ;		.Y	= Height of the line
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
-vline:
-	lda	x16l
-@loop:	sta	VERA_DATA0	; Write character
-	stx	VERA_DATA0	; Write bg-/fg-color
+!macro VLINE {
+.loop:	+PLOT_CHAR
 	dec	VERA_ADDR_L	; Return to original X coordinate
 	dec	VERA_ADDR_L
 	inc	VERA_ADDR_M	; Increment Y coordinate
 	dey
-	bne	@loop
+	bne	.loop
+}
+vline:
+	lda	x16l
+	+VLINE
 	rts
 
 ; *****************************************************************************
@@ -362,8 +373,7 @@ print_str:
 @loop:	lda	(x16),y		; Load character
 	beq	@end		; If 0, we are done
 	+PET2SCR
-	sta	VERA_DATA0	; Write character
-	stx	VERA_DATA0	; Write bg-/fg-color
+	+PLOT_CHAR
 	iny
 	bne	@loop		; Get next character
 @end:	rts
@@ -383,11 +393,151 @@ fill_box:
 	sta	VERA_ADDR_L	; Set x coordinate
 	lda	x16h
 	ldy	x17l
-@hloop:	sta	VERA_DATA0	; Write character
-	stx	VERA_DATA0	; Write bg-/fg-color
+@hloop:	+PLOT_CHAR
 	dey
 	bne	@hloop
 	inc	VERA_ADDR_M
 	dec	x17h
 	bne	@vloop
+	rts
+
+; *****************************************************************************
+; Create a box with a specific border
+; *****************************************************************************
+; INPUTS:	.A	= Border mode (0-5) any other will default to mode 0
+;		x17l	= width
+;		x17h	= height
+;		.X	= bg-/fg-color
+; USES		.Y, x16l & x16h
+; *****************************************************************************
+border:
+	; Define local variable names for ZP variables
+	; Makes the source a bit more readable
+@top_right=x18l
+@top_left =x18h
+@bot_right=x19l
+@bot_left =x19h
+@top	  =x19h+1		; z20l
+@bottom   =x19h+2		; z20h
+@left	  =x19h+3		; z21l
+@right	  =x19h+4		; z21h
+
+	; Set the border drawing characters according to the border mode in .A
+@mode1: cmp	#1
+	bne	@mode2
+	lda	#$66
+	bra	@def
+@mode2: cmp	#2
+	bne	@mode3
+	lda	#$6E
+	sta	@top_right
+	lda	#$70
+	sta	@top_left
+	lda	#$7D
+	sta	@bot_right
+	lda	#$6D
+	sta	@bot_left
+@clines	lda	#$40		; centered lines
+	sta	@top
+	sta	@bottom
+	lda	#$42
+	sta	@left
+	sta	@right
+	bra	@dodraw
+@mode3	cmp	#3
+	bne	@mode4
+	lda	#$49
+	sta	@top_right
+	lda	#$55
+	sta	@top_left
+	lda	#$4B
+	sta	@bot_right
+	lda	#$4A
+	sta	@bot_left
+	bra	@clines
+@mode4	cmp	#4
+	bne	@mode5
+	lda	#$50
+	sta	@top_right
+	lda	#$4F
+	sta	@top_left
+	lda	#$7A
+	sta	@bot_right
+	lda	#$4C
+	sta	@bot_left
+@elines	lda	#$77		; lines on edges
+	sta	@top
+	lda	#$6F
+	sta	@bottom
+	lda	#$74
+	sta	@left
+	lda	#$6A
+	sta	@right
+	bra	@dodraw
+@mode5	cmp	#5
+	bne	@default
+	lda	#$5F
+	sta	@top_right
+	lda	#$69
+	sta	@top_left
+	lda	#$E9
+	sta	@bot_right
+	lda	#$DF
+	sta	@bot_left
+	bra	@elines
+@default:
+	lda	#$20
+@def	sta	@top_right
+	sta	@top_left
+	sta	@bot_right
+	sta	@bot_left
+	sta	@top
+	sta	@bottom
+	sta	@left
+	sta	@right
+@dodraw:
+	; Save initial position
+	lda	VERA_ADDR_L
+	sta	x16l
+	lda	VERA_ADDR_M
+	sta	x16h
+
+	ldy	x17l		; width
+	dey
+	lda	@top_left
+	+PLOT_CHAR		; Top left corner
+	dey
+	lda	@top
+	+HLINE			; Top line
+	lda	@top_right
+	+PLOT_CHAR		; Top right corner
+	dec	VERA_ADDR_L
+	dec	VERA_ADDR_L
+	inc	VERA_ADDR_M
+	ldy	x17h		;height
+	dey
+	dey
+	lda	@right
+	+VLINE			; Right line
+	; Restore initial VERA address
+	lda	x16l
+	sta	VERA_ADDR_L
+	lda	x16h
+	sta	VERA_ADDR_M
+	inc	VERA_ADDR_M
+	ldy	x17h		;height
+	dey
+	lda	@left
+	+VLINE			; Left line
+	dec	VERA_ADDR_M
+	lda	@bot_left
+	+PLOT_CHAR		; Bottom left corner
+	ldy	x17l
+	dey
+	lda	@bottom
+	+HLINE			; Bottom line
+	dec	VERA_ADDR_L
+	dec	VERA_ADDR_L
+	lda	@bot_right
+	+PLOT_CHAR		; Bottom right corner
 	rts
