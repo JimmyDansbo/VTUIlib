@@ -122,5 +122,7 @@ Registers affected: none<br>
 ZP registers affected: none<br>
 
 **Description** Write the screencode character in .A to the screen at current address. The routine expects VERA to increment by one as it writes the foreground-/background-color in .X to VERA without touching VERA addresses.<br>
+**VERA screencodes**
 ![VERA charactermap](https://cx16.dk/veratext/verachars.jpg)<br>
+**VERA colors**
 ![VERA colors](https://cx16.dk/veratext/veracolors.jpg)
