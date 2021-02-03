@@ -54,46 +54,31 @@ In addition to the zeropage memory, the VTUI library uses CPU registers for tran
 ## Functions
 
 ### Function name: initialize
-Purpose: Initialize jump table in preparation for library use.
-
-Call address: `VTUILIB + 0`
-
-Communication registers: none
-
-Preparatory routines: none
-
-Registers affected: .A, .X & .Y
-
-ZP registers affected: x16, x17, x18 & x19
+Purpose: Initialize jump table in preparation for library use.<br>
+Call address: `VTUILIB + 0`<br>
+Communication registers: none<br>
+Preparatory routines: none<br>
+Registers affected: .A, .X & .Y<br>
+ZP registers affected: x16, x17, x18 & x19<br>
 
 **Description:** The routine initialize writes a very small subroutine in zeropage memory $22-$29, calls it to get the return address off of the stack. This is the way the library figures out the correct addresses and update the builtin jumptable.
 
 ### Function name: screen_set
-Purpose: Set the screen mode to supported text mode
-
-Call address: `VTUILIB+2`
-
-Communication registers: .A
-
-Preparatory routines: none
-
-Registers affected: .A, .X & .Y
-
-ZP registers affected: none
+Purpose: Set the screen mode to supported text mode<br>
+Call address: `VTUILIB+2`<br>
+Communication registers: .A<br>
+Preparatory routines: none<br>
+Registers affected: .A, .X & .Y<br>
+ZP registers affected: none<br>
 
 **Description** This function sets or toggles the screenmode. Supported modes are 0 = 40x30 & 2 80x60. Mode 255 ($FF) will toggle between the two modes. Any other mode will fail silently.
 
 ## Function name: clear
-Purpose: Clear screen with specific background-/foreground-color
-
-Call address: `VTUILIB+5`
-
-Communication registers: .A
-
-Preparatory routines: none
-
-Registers affected: .X & .Y
-
-ZP registers affected: none
+Purpose: Clear screen with specific background-/foreground-color<br>
+Call address: `VTUILIB+5`<br>
+Communication registers: .A<br>
+Preparatory routines: none<br>
+Registers affected: .X & .Y<br>
+ZP registers affected: none<br>
 
 **Description** Clear the screen with specific background-/foreground-color in .A. high-nibble is the background color $0-$F, low-nibble is the foreground color $0-$F. The routine fills the screen with spaces (character $20) and sets each characters color.
