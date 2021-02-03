@@ -203,3 +203,31 @@ Registers affected: none<br>
 ZP registers affected: none<br>
 
 **Description** Convert the screencode in .A to PETSCII. Supported range is $00-$39. Other characters will be converted to a large X-like character.
+
+## Function name: border
+Purpose: Draw a box with border<br>
+Call address: `VTUILIB+41`<br>
+Communication registers: .A, .X, x17l & x17h<br>
+Preparatory routines: gotoxy (optional)<br>
+Registers affected: .Y
+ZP registers affected: x16l, x16h, x18l-x19h + 4 more addresses ($22,$23,$26-$2D)
+
+**Description** Create a box with a specific border.<br>
+
+| reg  | purpose       |
+|------|---------------|
+|  .A  | Border mode   |
+| x17l | Width of box  |
+| x17h | Height of box |
+|  .X  | bg-/fg-color  |
+
+***Supported Modes***<br>
+
+| Mode | visual  |
+|------|---------|
+|   0  |         |
+|   1  |         |
+|   2  |         |
+|   3  |         |
+|   4  |         |
+|   5  |         |
