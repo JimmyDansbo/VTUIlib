@@ -178,10 +178,6 @@ ZP registers affected: none<br>
 **Description** Draw a filled box starting at current position.<br>
 
 | x16h | Character for filling |
---------------------------------
 | x17l | Width of box          |
---------------------------------
 | x17h | Height of box         |
---------------------------------
 |  .X  | bg-/fg-color          |
---------------------------------
