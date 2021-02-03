@@ -9,16 +9,18 @@
 	jmp	clear		; .A = bg-/fg-color
 	jmp	set_stride	; .A = Stride value
 	jmp	set_decr	; .A (1 = decrement, 0 = increment)
+	jmp	gotoxy		; .A = x coordinate, .Y = y coordinate
 	jmp	plot_char	; .A = character, .X = bg-/fg-color
 	jmp	scan_char	; like plot_char
 	jmp	hline		; x16l	= Character, .Y = length, .X = color
 	jmp	vline		; x16l	= Character, .Y = height, .X = color
-	jmp	gotoxy		; .A = x coordinate, .Y = y coordinate
 	jmp	print_str	; x16 = pointer to string, .X = color
 	jmp	fill_box	; x16h=Char,x17l=width,x17h=height,.X=color
 	jmp	pet2scr		; .A = character to convert to screencode
 	jmp	scr2pet		; .A = character to convert to petscii
-	jmp	border		;
+	jmp	border		; .A=border,x17l=width,x17h=height,.X=color
+;	jmp	save_rect	;
+;	jmp	rest_rect	;
 	jmp	$0000		; Show that there are no more jumps
 
 ; ******************************* Constants *******************************
