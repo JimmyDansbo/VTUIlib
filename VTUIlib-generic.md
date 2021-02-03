@@ -225,9 +225,9 @@ ZP registers affected: x16l, x16h, x18l-x19h + 4 more addresses ($22,$23,$26-$2D
 
 | Mode | visual  |
 |------|---------|
-|   0  |         |
-|   1  |         |
-|   2  |         |
-|   3  |         |
-|   4  |         |
-|   5  |         |
+|   0  | ![border0](images/border0.jpg)|
+|   1  | ![border1](images/border1.jpg)|
+|   2  | ![border2](images/border2.jpg)|
+|   3  | ![border3](images/border3.jpg)|
+|   4  | ![border4](images/border4.jpg)|
+|   5  | ![border5](images/border5.jpg)|
