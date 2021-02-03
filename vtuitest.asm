@@ -14,7 +14,8 @@ x19		= $28
 x19l		= x19
 x19h		= x19+1
 
-LIBSTART=$0400
+;LIBSTART=$0400
+LIBSTART=PRELIB+2
 
 VTUI_initialize	= LIBSTART
 VTUI_screen_set	= VTUI_initialize+2
@@ -30,17 +31,44 @@ VTUI_print_str	= VTUI_gotoxy+3
 VTUI_fill_box	= VTUI_print_str+3
 VTUI_pet2scr	= VTUI_fill_box+3
 VTUI_scr2pet	= VTUI_pet2scr+3
+VTUI_border	= VTUI_scr2pet+3
 
 main:
-	jsr	load_library	; Load the library
+;	jsr	load_library	; Load the library
 
 	jsr	VTUI_initialize	; Initialize jumptable in library
-!byte $db
+
+	lda	#$10
+	jsr	VTUI_clear
+
 	ldy	#3
-	lda	#11
+	lda	#5
 	jsr	VTUI_gotoxy
-	jsr	VTUI_scan_char
-	jsr	VTUI_scr2pet
+
+	ldx	#$10
+	lda	#$4F
+	jsr	VTUI_plot_char
+
+	lda	#$77
+	sta	x16l
+	ldy	#10
+	jsr	VTUI_hline
+
+	lda	#$50
+	jsr	VTUI_plot_char
+
+!byte $db
+	ldy	#10
+	lda	#10
+	jsr	VTUI_gotoxy
+
+	lda	#5
+	sta	x17l
+	lda	#5
+	sta	x17h
+	ldx	#$12
+	lda	#5
+	jsr	VTUI_border
 
 	rts
 
@@ -62,3 +90,5 @@ load_library:
 Fname	!text	"VTUI.BIN"
 End_fname
 	!byte	0
+
+PRELIB	!bin	"VTUI.BIN"
