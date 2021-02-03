@@ -116,13 +116,43 @@ ZP registers affected: none<br>
 ## Function name: plot_char
 Purpose: Write a screencode character and color to screen.<br>
 Call address: `VTUILIB+17`<br>
-Communication registers: .A & .X
-Preparatory routines: gotoxy<br>
+Communication registers: .A & .X<br>
+Preparatory routines: gotoxy (optional)<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Write the screencode character in .A to the screen at current address. The routine expects VERA to increment by one as it writes the foreground-/background-color in .X to VERA without touching VERA addresses.<br>
-**VERA screencodes**
+**Description** Write the screencode character in .A to the screen at current address. The routine expects VERA to increment by one as it writes the background-/foreground-color in .X to VERA without touching VERA addresses.<br>
+**VERA screencodes**<br>
 ![VERA charactermap](https://cx16.dk/veratext/verachars.jpg)<br>
-**VERA colors**
+**VERA colors**<br>
 ![VERA colors](https://cx16.dk/veratext/veracolors.jpg)
+
+## Function name: scan_char
+Purpose: Read a screencode character and color from screen memory<br>
+Call address: `VTUILIB+20`<br>
+Communication registers: .A & .X<br>
+Preparatory routines: gotoxy (optional)<br>
+Registers affected: none<br>
+ZP registers affected: none<br>
+
+**Description** Read the screencode character at current VERA address into .A. The routine expects VERA to increment by one as it reads the background-/foreground-color into .X without touching VERA addresses.
+
+## Function name: hline
+Purpose: Draw a horizontal line from left to right.<br>
+Call address: `VTUILIB+23`<br>
+Communication registers: x16l, .X & .Y<br>
+Preparatory routines: gotoxy (optional)<br>
+Registers affected: .A<br>
+ZP registers affected: none<br>
+
+**Description** Draw a horizontal line from left to right, starting at current position. Length of the line is provided in .Y register. Character to use for drawing the line is provided in x16l ($22) register and the background-/foreground-color to use is provided in .X register.
+
+## Function name: vline
+Purpose: Draw a vertical line from top to bottom.<br>
+CAll address: `VTUILIB+26`<br>
+Communication registers: x16l, .X & .Y<br>
+Preparatory routines: gotoxy (optional)<br>
+Registers affected: .A<br>
+ZP registers affected: none<br>
+
+**Description** Draw a vertical line from top to bottom, starting at current position. Height of the line is provided in .Y register. Character to use for drawing the line is provided in x16l ($22) register and the background-/foreground-color to use is provided in .X register.
