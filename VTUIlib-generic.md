@@ -24,7 +24,7 @@ separately.
 
 ## Loading
 
-The generic VTUI library is designed to be loaded by standard CBM kernal functions (SETLFS)[https://cx16.dk/c64-kernal-routines/setlfs.html], (SETNAM)[https://cx16.dk/c64-kernal-routines/setnam.html] and (LOAD)[https://cx16.dk/c64-kernal-routines/load.html].
+The generic VTUI library is designed to be loaded by standard CBM kernal functions [SETLFS](https://cx16.dk/c64-kernal-routines/setlfs.html), [SETNAM](https://cx16.dk/c64-kernal-routines/setnam.html) and [LOAD](https://cx16.dk/c64-kernal-routines/load.html).
 
 In several assemblers it is possible to load a a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI.BIN"`.
 
