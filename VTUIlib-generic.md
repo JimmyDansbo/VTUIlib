@@ -82,3 +82,13 @@ Registers affected: .X & .Y<br>
 ZP registers affected: none<br>
 
 **Description** Clear the screen with specific background-/foreground-color in .A. high-nibble is the background color $0-$F, low-nibble is the foreground color $0-$F. The routine fills the screen with spaces (character $20) and sets each characters color.
+
+## Function name: set_stride
+Purpose: Set the VERA stride value<br>
+Call address: `VTUILIB+8`<br>
+Communication registers: .A<br>
+Preparatory routines: none<br>
+Registers affected: .X<br>
+ZP registers affected: none<br>
+
+**Description** Set the VERA stride value. Stride is the amount the VERA address is incremented or decremented on each access. Stride is a 4 bit value and the routine will ensure that the number is converted to fit in VERA_ADDR_H. For more information about VERA stride, see the [VERA Documentation](https://github.com/commanderx16/x16-docs/blob/master/VERA%20Programmer's%20Reference.md#video-ram-access) about 'Address Increment'
