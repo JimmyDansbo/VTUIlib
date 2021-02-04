@@ -282,7 +282,7 @@ clear:
 ; Set the stride without changing other values in VERA_ADDR_H
 ; *****************************************************************************
 ; INPUT:		.A = Stride value
-; USES:			.A
+; USES:			.X
 ; *****************************************************************************
 set_stride:
 	asl			; Stride is stored in upper nibble
@@ -301,11 +301,11 @@ set_stride:
 ; *****************************************************************************
 ; Set the decrement value without changing other values in VERA_ADDR_H
 ; *****************************************************************************
-; INPUT:		.A (1 = decrement, 0 = increment)
+; INPUT:		.C (1 = decrement, 0 = increment)
 ; USES:			.A
 ; *****************************************************************************
 set_decr:
-	beq	@setnul
+	bcc	@setnul
 	lda	VERA_ADDR_H
 	ora	#%00001000
 	bra	@end
