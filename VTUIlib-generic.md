@@ -142,22 +142,22 @@ ZP registers affected: none<br>
 ## Function name: hline
 Purpose: Draw a horizontal line from left to right.<br>
 Call address: `VTUILIB+23`<br>
-Communication registers: x16l, .X & .Y<br>
+Communication registers: .A, .X & .Y<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A<br>
 ZP registers affected: none<br>
 
-**Description** Draw a horizontal line from left to right, starting at current position. Length of the line is provided in .Y register. Character to use for drawing the line is provided in x16l ($22) register and the background-/foreground-color to use is provided in .X register.
+**Description** Draw a horizontal line from left to right, starting at current position. Length of the line is provided in .Y register. Character to use for drawing the line is provided in .A register and the background-/foreground-color to use is provided in .X register.
 
 ## Function name: vline
 Purpose: Draw a vertical line from top to bottom.<br>
 Call address: `VTUILIB+26`<br>
-Communication registers: x16l, .X & .Y<br>
+Communication registers: .A, .X & .Y<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A<br>
 ZP registers affected: none<br>
 
-**Description** Draw a vertical line from top to bottom, starting at current position. Height of the line is provided in .Y register. Character to use for drawing the line is provided in x16l ($22) register and the background-/foreground-color to use is provided in .X register.
+**Description** Draw a vertical line from top to bottom, starting at current position. Height of the line is provided in .Y register. Character to use for drawing the line is provided in .A and the background-/foreground-color to use is provided in .X register.
 
 ## Function name: print_str
 Purpose: Print a string to screen.<br>

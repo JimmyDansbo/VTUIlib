@@ -340,24 +340,22 @@ scan_char:
 ; *****************************************************************************
 ; Create a horizontal line going from left to right.
 ; *****************************************************************************
-; INPUTS:	x16l	= Character to use for drawing the line
+; INPUTS:	.A	= Character to use for drawing the line
 ;		.Y	= Length of the line
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
 hline:
-	lda	x16l
 	+HLINE
 	rts
 
 ; *****************************************************************************
 ; Create a vertical line going from top to bottom.
 ; *****************************************************************************
-; INPUTS:	x16l	= Character to use for drawing the line
+; INPUTS:	.A	= Character to use for drawing the line
 ;		.Y	= Height of the line
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
 vline:
-	lda	x16l
 	+VLINE
 	rts
 
