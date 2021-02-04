@@ -1,10 +1,20 @@
 *=$0801
 !byte $0C,$08,$0A,$00,$9E,' ','2','0','6','4',$00,$00,$00
 *=$0810
-;!src	"vtuilib-acme.inc"
+x16		= $22
+x16l		= x16
+x16h		= x16+1
+x17		= $24
+x17l		= x17
+x17h		= x17+1
+x18		= $26
+x18l		= x18
+x18h		= x18+1
+x19		= $28
+x19l		= x19
+x19h		= x19+1
 
 LIBSTART=$0400
-;LIBSTART=PRELIB+2
 
 VTUI_initialize	= LIBSTART
 VTUI_screen_set	= VTUI_initialize+2
@@ -21,18 +31,6 @@ VTUI_fill_box	= VTUI_print_str+3
 VTUI_pet2scr	= VTUI_fill_box+3
 VTUI_scr2pet	= VTUI_pet2scr+3
 VTUI_border	= VTUI_scr2pet+3
-x16		= $22
-x16l		= x16
-x16h		= x16+1
-x17		= $24
-x17l		= x17
-x17h		= x17+1
-x18		= $26
-x18l		= x18
-x18h		= x18+1
-x19		= $28
-x19l		= x19
-x19h		= x19+1
 
 main:
 	jsr	load_library	; Load the library
@@ -74,5 +72,3 @@ load_library:
 Fname	!text	"VTUI0.1.BIN"
 End_fname
 	!byte	0
-
-;PRELIB	!bin	"VTUI.BIN"
