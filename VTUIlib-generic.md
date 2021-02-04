@@ -20,6 +20,8 @@ The generic library is meant to be compiled into a binary by it self and loaded 
 program. The choice of compiler/assembler is entirely up to the user as long as it is possible
 to store values to zeropage and in registers before calling subroutines.
 
+For examples, please visit [VTUIlib Generic](VTUIlib-generic/)
+
 The other two flavors are include files for their respective assemblers and will be documented
 separately.
 
@@ -27,7 +29,7 @@ separately.
 
 The generic VTUI library is designed to be loaded by standard CBM kernal functions [SETLFS](https://cx16.dk/c64-kernal-routines/setlfs.html), [SETNAM](https://cx16.dk/c64-kernal-routines/setnam.html) and [LOAD](https://cx16.dk/c64-kernal-routines/load.html).
 
-In several assemblers it is possible to load a a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI.BIN"`.
+In several assemblers it is possible to load a a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.1.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.1.BIN"`.
 
 If an assembler is used to include the binary file, be aware that the first two bytes are a loading address so base address of the actual library will be: `VTUILIB=VTUI+2`.
 
