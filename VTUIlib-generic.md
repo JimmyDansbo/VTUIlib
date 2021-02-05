@@ -225,8 +225,10 @@ ZP registers affected: x16l, x16h, x18l-x19h + 4 more addresses ($22,$23,$26-$2D
 
 ***Supported Modes***<br>
 
- |Mode|0|1|2|3|4|5|
- |Visual|![border0](images/border0.jpg)|![border1](images/border1.jpg)|![border2](images/border2.jpg)|![border3](images/border3.jpg)|![border4](images/border4.jpg)|![border5](images/border5.jpg)|
+|Borders| | | | | | |
+|-------|-|-|-|-|-|-|
+|Mode|0|1|2|3|4|5|
+|Visual|![border0](images/border0.jpg)|![border1](images/border1.jpg)|![border2](images/border2.jpg)|![border3](images/border3.jpg)|![border4](images/border4.jpg)|![border5](images/border5.jpg)|
 
 | Mode | visual  |
 |------|---------|
