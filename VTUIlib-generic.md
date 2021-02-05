@@ -26,7 +26,7 @@ This document describes the **generic** **V**ERA **T**ext **U**ser **I**nterface
 	* [hline](#function-name-hline)
 	* [vline](#function-name-vline)
 	* [print_str](#function-name-print_str)
-	* [fill_box](#function-name_fill_box)
+	* [fill_box](#function-name-fill_box)
 	* [pet2scr](#function-name-pet2scr)
 	* [scr2pet](#function-name-scr2pet)
 	* [border](#function-name-border)
