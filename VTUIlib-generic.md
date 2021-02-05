@@ -229,3 +229,39 @@ ZP registers affected: x16l, x16h, x18l-x19h + 4 more addresses ($22,$23,$26-$2D
 |-------|-|-|-|-|-|-|
 |Mode|0|1|2|3|4|5|
 |Visual|![border0](images/border0.jpg)|![border1](images/border1.jpg)|![border2](images/border2.jpg)|![border3](images/border3.jpg)|![border4](images/border4.jpg)|![border5](images/border5.jpg)|
+
+## Function name: save_rect
+Purpose: Save an area from the screen to memory<br>
+Call address: `VTUILIB+44`<br>
+Communication registers: .C, .A, x16, x17l, x17h<br>
+Preparatory routines: gotoxy (optional)<br>
+Registers affected: .A, .X & .Y
+ZP registers affected: x16, x17h
+
+**Description** Save an area from screen to memory. Notice that each character on screen takes up 2 bytes of memory because a byte is used for color information.<br>
+
+|Register|Purpose|
+|--------|-------|
+|   .C   |  Destination RAM (0=System RAM, 1=VRAM) |
+|   .A   | VRAM bank if .C = 1 |
+|  x16   | 16bit destination address |
+|  x17l  | Width of area to save |
+|  X17h  | Height of area to save |
+
+## Function name: rest_rect
+Purpose: Restore an area on screen from memory<br>
+Call address: `VTUILIB+47`<br>
+Communication registers: .C, .A, .x16, x17l, x17h<br>
+Preparatory routines: gotoxy (optional)<br>
+Registers affected: .A, .X & .Y
+ZP registers affected: x16, x17h
+
+**Description** Restore an area on screen from memory.<br>
+
+|Register|Purpose|
+|--------|-------|
+|   .C   |  Destination RAM (0=System RAM, 1=VRAM) |
+|   .A   | VRAM bank if .C = 1 |
+|  x16   | 16bit destination address |
+|  x17l  | Width of area to save |
+|  X17h  | Height of area to save |

@@ -8,19 +8,19 @@
 	jmp	screen_set	; .A = Screenmode ($00, $02 or $FF)
 	jmp	clear		; .A = bg-/fg-color
 	jmp	set_stride	; .A = Stride value
-	jmp	set_decr	; .A (1 = decrement, 0 = increment)
+	jmp	set_decr	; .C (1 = decrement, 0 = increment)
 	jmp	gotoxy		; .A = x coordinate, .Y = y coordinate
 	jmp	plot_char	; .A = character, .X = bg-/fg-color
 	jmp	scan_char	; like plot_char
-	jmp	hline		; x16l	= Character, .Y = length, .X = color
-	jmp	vline		; x16l	= Character, .Y = height, .X = color
+	jmp	hline		; .A = Character, .Y = length, .X = color
+	jmp	vline		; .A = Character, .Y = height, .X = color
 	jmp	print_str	; x16 = pointer to string, .X = color
 	jmp	fill_box	; x16h=Char,x17l=width,x17h=height,.X=color
 	jmp	pet2scr		; .A = character to convert to screencode
 	jmp	scr2pet		; .A = character to convert to petscii
 	jmp	border		; .A=border,x17l=width,x17h=height,.X=color
-;	jmp	save_rect	;
-;	jmp	rest_rect	;
+	jmp	save_rect	; .C=destram,.A=vrambank,x16=destaddr,x17l=width,x17h=height
+	jmp	rest_rect	; .C=destram,.A=vrambank,x16=srcaddr,x17l=width,x17h=height
 	jmp	$0000		; Show that there are no more jumps
 
 ; ******************************* Constants *******************************
@@ -169,6 +169,46 @@ x19h		= x19+1
 	lda	VERA_DATA0
 	ldx	VERA_DATA0
 }
+; *****************************************************************************
+; Set VERA bank (High memory) without touching anything else
+; *****************************************************************************
+; INPUTS:	.A = Bank number, 0 or 1
+; USES:		.A
+; *****************************************************************************
+!macro SET_BANK {
+	cmp	#0
+	beq	.setzero
+	; Bank = 1
+	lda	VERA_ADDR_H
+	ora	#$01
+	sta	VERA_ADDR_H
+	bra	.end
+.setzero:
+	; Bank = 0
+	lda	VERA_ADDR_H
+	and	#$FE
+	sta	VERA_ADDR_H
+.end:
+}
+; *****************************************************************************
+; Set the stride without changing other values in VERA_ADDR_H
+; *****************************************************************************
+; INPUT:		.A = Stride value
+; USES:			.X
+; *****************************************************************************
+!macro SET_STRIDE {
+	asl			; Stride is stored in upper nibble
+	asl
+	asl
+	asl
+	tax
+	lda	VERA_ADDR_H	; Set stride value to 0 in VERA_ADDR_H
+	and	#$0F
+	sta	VERA_ADDR_H
+	txa
+	ora	VERA_ADDR_H	; Set the correct stride value
+	sta	VERA_ADDR_H
+}
 
 ; ******************************* Functions *******************************
 
@@ -285,17 +325,7 @@ clear:
 ; USES:			.X
 ; *****************************************************************************
 set_stride:
-	asl			; Stride is stored in upper nibble
-	asl
-	asl
-	asl
-	tax
-	lda	VERA_ADDR_H	; Set stride value to 0 in VERA_ADDR_H
-	and	#$0F
-	sta	VERA_ADDR_H
-	txa
-	ora	VERA_ADDR_H	; Set the correct stride value
-	sta	VERA_ADDR_H
+	+SET_STRIDE
 	rts
 
 ; *****************************************************************************
@@ -568,4 +598,122 @@ border:
 	dec	VERA_ADDR_L
 	lda	@bot_right
 	+PLOT_CHAR		; Bottom right corner
+	rts
+
+; *****************************************************************************
+; Copy contents of screen from current position to other memory area in
+; either system RAM or VRAM
+; *****************************************************************************
+; INPUTS:	.C	= Destination RAM (0=system RAM, 1=VRAM)
+;		.A	= VRAM Bank (0 or 1) if .C=1
+;		x16 	= Destination address
+;		x17l	= width
+;		x17h	= height
+; *****************************************************************************
+save_rect:
+	ldy	VERA_ADDR_L	; Save X coordinate for later
+	bcc	@sysram
+	; VRAM
+	ldx	#1		; Set ADDRsel to 1
+	stx	VERA_CTRL
+	+SET_BANK
+	lda	#1
+	+SET_STRIDE
+	lda	x16l		; Set destination address
+	sta	VERA_ADDR_L
+	lda	x16h
+	sta	VERA_ADDR_M
+	stz	VERA_CTRL	; Set ADDRsel back to 0
+	ldx	x17l		; Load width
+@vloop:	lda	VERA_DATA0	; Copy Character
+	sta	VERA_DATA1
+	lda	VERA_DATA0	; Copy Color Code
+	sta	VERA_DATA1
+	dex
+	bne	@vloop
+	ldx	x17l		; Restore width
+	sty	VERA_ADDR_L	; Restore X coordinate
+	inc	VERA_ADDR_M	; Increment Y coordinate
+	dec	x17h
+	bne	@vloop
+	rts
+@sysram:
+	; System RAM
+	ldx	x17l		; Load width
+@sloop:	lda	VERA_DATA0	; Copy Character
+	sta	(x16)
+	inc	x16l		; Increment destination address
+	bne	+
+	inc	x16h
++	lda	VERA_DATA0	; Copy Color Code
+	sta	(x16)
+	inc	x16l		; Increment destination address
+	bne	+
+	inc	x16h
++	dex
+	bne	@sloop
+	ldx	x17l		; Restore width
+	sty	VERA_ADDR_L	; Restore X coordinate
+	inc	VERA_ADDR_M
+	dec	x17h
+	bne	@sloop
+	rts
+
+; *****************************************************************************
+; Restore contents of screen from other memory area in either system RAM
+; or VRAM starting at current position
+; *****************************************************************************
+; INPUTS:	.C	= Source RAM (0=system RAM, 1=VRAM)
+;		.A	= VRAM Bank (0 or 1) if .C=1
+;		x16 	= Source address
+;		x17l	= width
+;		x17h	= height
+; *****************************************************************************
+rest_rect:
+	ldy	VERA_ADDR_L	; Save X coordinate for later
+	bcc	@sysram
+	; VRAM
+	ldx	#1		; Set ADDRsel to 1
+	stx	VERA_CTRL
+	+SET_BANK
+	lda	#1
+	+SET_STRIDE
+	lda	x16l		; Set destination address
+	sta	VERA_ADDR_L
+	lda	x16h
+	sta	VERA_ADDR_M
+	stz	VERA_CTRL	; Set ADDRsel back to 0
+	ldx	x17l		; Load width
+@vloop:	lda	VERA_DATA1	; Copy Character
+	sta	VERA_DATA0
+	lda	VERA_DATA1	; Copy Color Code
+	sta	VERA_DATA0
+	dex
+	bne	@vloop
+	ldx	x17l		; Restore width
+	sty	VERA_ADDR_L	; Restore X coordinate
+	inc	VERA_ADDR_M	; Increment Y coordinate
+	dec	x17h
+	bne	@vloop
+	rts
+@sysram:
+	; System RAM
+	ldx	x17l		; Load width
+@sloop:	lda	(x16)		; Copy Character
+	sta	VERA_DATA0
+	inc	x16l		; Increment destination address
+	bne	+
+	inc	x16h
++	lda	(x16)		; Copy Color Code
+	sta	VERA_DATA0
+	inc	x16l		; Increment destination address
+	bne	+
+	inc	x16h
++	dex
+	bne	@sloop
+	ldx	x17l		; Restore width
+	sty	VERA_ADDR_L	; Restore X coordinate
+	inc	VERA_ADDR_M
+	dec	x17h
+	bne	@sloop
 	rts
