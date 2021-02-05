@@ -8,6 +8,31 @@ Version 0.1
 
 This document describes the **generic** **V**ERA **T**ext **U**ser **I**nterface library.
 
+**Table of Contents**
+
+* [Overview](#overview)
+* [Loading the library](#loading)
+* [Initializing the library](#initialization)
+* [Registers](#registers)
+* [Functions](#functions)
+	* [initialize](#function-name-initialize)
+	* [screen_set](#function-name-screen_set)
+	* [clear](#function-name-clear)
+	* [set_stride](#function-name-set_stride)
+	* [set_decr](#function-name-set_decr)
+	* [gotoxy](#function-name-gotoxy)
+	* [plot_char](#function-name-plot_char)
+	* [scan_char](#function-name-scan_char)
+	* [hline](#function-name-hline)
+	* [vline](#function-name-vline)
+	* [print_str](#function-name-print_str)
+	* [fill_box](#function-name_fill_box)
+	* [pet2scr](#function-name-pet2scr)
+	* [scr2pet](#function-name-scr2pet)
+	* [border](#function-name-border)
+	* [save_rect](#function-name-save_rect)
+	* [rest_rect](#function-name-rest_rect)
+
 ## Overview
 
 The VTUI library is meant to provide a set of functions for creating Text User Interfaces using
@@ -179,7 +204,7 @@ ZP registers affected: none<br>
 
 **Description** Draw a filled box starting at current position.<br>
 
-| reg  | purpose               |
+|Registers | Purpose               |
 |------|-----------------------|
 | x16h | Character for filling |
 | x17l | Width of box          |
@@ -216,7 +241,7 @@ ZP registers affected: x16l, x16h, x18l-x19h + 4 more addresses ($22,$23,$26-$2D
 
 **Description** Create a box with a specific border.<br>
 
-| reg  | purpose       |
+|Registers|Purpose     |
 |------|---------------|
 |  .A  | Border mode   |
 | x17l | Width of box  |
