@@ -30,31 +30,6 @@ VERA_ADDR_H		= $9F22
 VERA_DATA0		= $9F23
 VERA_DATA1		= $9F24
 VERA_CTRL		= $9F25
-VERA_IEN		= $9F26
-VERA_ISR		= $9F27
-VERA_IRQLINE_L		= $9F28
-VERA_DC_VIDEO		= $9F29		; DCSEL=0
-VERA_DC_HSCALE		= $9F2A		; DCSEL=0
-VERA_DC_VSCALE		= $9F2B		; DCSEL=0
-VERA_DC_BORDER		= $9F2C		; DCSEL=0
-VERA_DC_HSTART		= $9F29		; DCSEL=1
-VERA_DC_VSTART		= $9F2A		; DCSEL=1
-VERA_DC_HSTOP		= $9F2B		; DCSEL=1
-VERA_DC_VSTOP		= $9F2C		; DCSEL=1
-VERA_L0_CONFIG		= $9F2D
-VERA_L0_MAPBASE		= $9F2E
-VERA_L0_TILEBASE	= $9F2F
-VERA_L0_HSCROLL_L	= $9F30
-VERA_L0_HSCROLL_H	= $9F31
-VERA_L0_VSCROLL_L	= $9F32
-VERA_L0_VSCROLL_H	= $9F33
-VERA_L1_CONFIG		= $9F34
-VERA_L1_MAPBASE		= $9F35
-VERA_L1_TILEBASE	= $9F36
-VERA_L1_HSCROLL_L	= $9F37
-VERA_L1_HSCROLL_H	= $9F38
-VERA_L1_VSCROLL_L	= $9F39
-VERA_L1_VSCROLL_H	= $9F3A
 
 x16		= $22
 x16l		= x16
@@ -72,6 +47,25 @@ x19h		= x19+1
 ; ******************************* Macros *******************************
 
 ; *****************************************************************************
+; Set the stride without changing other values in VERA_ADDR_H
+; *****************************************************************************
+; INPUT:		.A = Stride value
+; USES:			.X
+; *****************************************************************************
+!macro SET_STRIDE {
+	asl			; Stride is stored in upper nibble
+	asl
+	asl
+	asl
+	tax
+	lda	VERA_ADDR_H	; Set stride value to 0 in VERA_ADDR_H
+	and	#$0F
+	sta	VERA_ADDR_H
+	txa
+	ora	VERA_ADDR_H	; Set the correct stride value
+	sta	VERA_ADDR_H
+}
+; *****************************************************************************
 ; Set VERA address to point to specific point on screen
 ; *****************************************************************************
 ; INPUTS:	.A = x coordinate
@@ -81,6 +75,55 @@ x19h		= x19+1
 	sty	VERA_ADDR_M	; Set y coordinate
 	asl			; Multiply x coord with 2 for correct coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
+}
+; *****************************************************************************
+; Write character and color to current VERA address
+; Function assumes that stride is set to 1 and decrement set to 0
+; *****************************************************************************
+; INPUTS:	.A = character
+;		.X = bg-/fg-color
+; *****************************************************************************
+!macro PLOT_CHAR {
+	sta	VERA_DATA0
+	stx	VERA_DATA0
+}
+; *****************************************************************************
+; Read character and color from current VERA address
+; Function assumes that stride is set to 1 and decrement set to 0
+; *****************************************************************************
+; OUTPUS:	.A = character
+;		.X = bg-/fg-color
+; *****************************************************************************
+!macro SCAN_CHAR {
+	lda	VERA_DATA0
+	ldx	VERA_DATA0
+}
+; *****************************************************************************
+; Create a horizontal line going from left to right.
+; *****************************************************************************
+; INPUTS:	.A	= Character to use for drawing the line
+;		.Y	= Length of the line
+;		.X	= bg- & fg-color
+; *****************************************************************************
+!macro HLINE {
+.loop:	+PLOT_CHAR
+	dey
+	bne	.loop
+}
+; *****************************************************************************
+; Create a vertical line going from top to bottom.
+; *****************************************************************************
+; INPUTS:	.A	= Character to use for drawing the line
+;		.Y	= Height of the line
+;		.X	= bg- & fg-color
+; *****************************************************************************
+!macro VLINE {
+.loop:	+PLOT_CHAR
+	dec	VERA_ADDR_L	; Return to original X coordinate
+	dec	VERA_ADDR_L
+	inc	VERA_ADDR_M	; Increment Y coordinate
+	dey
+	bne	.loop
 }
 ; *****************************************************************************
 ; Convert PETSCII codes between $20 and $5F to screencodes.
@@ -121,55 +164,6 @@ x19h		= x19+1
 .end:
 }
 ; *****************************************************************************
-; Create a vertical line going from top to bottom.
-; *****************************************************************************
-; INPUTS:	.A	= Character to use for drawing the line
-;		.Y	= Height of the line
-;		.X	= bg- & fg-color
-; *****************************************************************************
-!macro VLINE {
-.loop:	+PLOT_CHAR
-	dec	VERA_ADDR_L	; Return to original X coordinate
-	dec	VERA_ADDR_L
-	inc	VERA_ADDR_M	; Increment Y coordinate
-	dey
-	bne	.loop
-}
-; *****************************************************************************
-; Create a horizontal line going from left to right.
-; *****************************************************************************
-; INPUTS:	.A	= Character to use for drawing the line
-;		.Y	= Length of the line
-;		.X	= bg- & fg-color
-; *****************************************************************************
-!macro HLINE {
-.loop:	+PLOT_CHAR
-	dey
-	bne	.loop
-}
-; *****************************************************************************
-; Write character and color to current VERA address
-; Function assumes that stride is set to 1 and decrement set to 0
-; *****************************************************************************
-; INPUTS:	.A = character
-;		.X = bg-/fg-color
-; *****************************************************************************
-!macro PLOT_CHAR {
-	sta	VERA_DATA0
-	stx	VERA_DATA0
-}
-; *****************************************************************************
-; Read character and color from current VERA address
-; Function assumes that stride is set to 1 and decrement set to 0
-; *****************************************************************************
-; OUTPUS:	.A = character
-;		.X = bg-/fg-color
-; *****************************************************************************
-!macro SCAN_CHAR {
-	lda	VERA_DATA0
-	ldx	VERA_DATA0
-}
-; *****************************************************************************
 ; Set VERA bank (High memory) without touching anything else
 ; *****************************************************************************
 ; INPUTS:	.A = Bank number, 0 or 1
@@ -189,25 +183,6 @@ x19h		= x19+1
 	and	#$FE
 	sta	VERA_ADDR_H
 .end:
-}
-; *****************************************************************************
-; Set the stride without changing other values in VERA_ADDR_H
-; *****************************************************************************
-; INPUT:		.A = Stride value
-; USES:			.X
-; *****************************************************************************
-!macro SET_STRIDE {
-	asl			; Stride is stored in upper nibble
-	asl
-	asl
-	asl
-	tax
-	lda	VERA_ADDR_H	; Set stride value to 0 in VERA_ADDR_H
-	and	#$0F
-	sta	VERA_ADDR_H
-	txa
-	ora	VERA_ADDR_H	; Set the correct stride value
-	sta	VERA_ADDR_H
 }
 
 ; ******************************* Functions *******************************
