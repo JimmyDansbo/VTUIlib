@@ -310,12 +310,11 @@ set_stride:
 ; USES:			.A
 ; *****************************************************************************
 set_decr:
-	bcc	@setnul
 	lda	VERA_ADDR_H
+	bcc	@setnul
 	ora	#%00001000
 	bra	@end
 @setnul:
-	lda	VERA_ADDR_H
 	and	#%11110111
 @end:	sta	VERA_ADDR_H
 	rts
