@@ -184,7 +184,12 @@ x19h		= x19+1
 	sta	VERA_ADDR_H
 .end:
 }
-
+!macro INC16 .addr {
+	inc	.addr
+	bne	.end
+	inc	.addr+1
+.end:
+}
 ; ******************************* Functions *******************************
 
 ; *****************************************************************************
@@ -616,15 +621,11 @@ save_rect:
 	ldx	x17l		; Load width
 @sloop:	lda	VERA_DATA0	; Copy Character
 	sta	(x16)
-	inc	x16l		; Increment destination address
-	bne	+
-	inc	x16h
-+	lda	VERA_DATA0	; Copy Color Code
+	+INC16 x16		; Increment destination address
+	lda	VERA_DATA0	; Copy Color Code
 	sta	(x16)
-	inc	x16l		; Increment destination address
-	bne	+
-	inc	x16h
-+	dex
+	+INC16 x16		; Increment destination address
+	dex
 	bne	@sloop
 	ldx	x17l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
@@ -675,15 +676,11 @@ rest_rect:
 	ldx	x17l		; Load width
 @sloop:	lda	(x16)		; Copy Character
 	sta	VERA_DATA0
-	inc	x16l		; Increment destination address
-	bne	+
-	inc	x16h
-+	lda	(x16)		; Copy Color Code
+	+INC16	x16		; Increment destination address
+	lda	(x16)		; Copy Color Code
 	sta	VERA_DATA0
-	inc	x16l		; Increment destination address
-	bne	+
-	inc	x16h
-+	dex
+	+INC16	x16		; Increment destination address
+	dex
 	bne	@sloop
 	ldx	x17l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
