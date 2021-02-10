@@ -270,14 +270,32 @@ ZP registers affected: none<br>
 See also [generic hline](VTUIlib-generic.md#function-name-hline) for call without parameters
 ## Function name: vline
 Purpose: Draw a vertical line from top to bottom.<br>
-Call address: `VTUILIB+26`<br>
-Communication registers: .A, .X & .Y<br>
-Preparatory routines: gotoxy (optional)<br>
+Macro name: `VTUI_VLINE`<br>
+Parameters:
+
+* (\~).char = Character used to draw line
+* (\~).height = Height of the line
+* (\~).color = Colorcode used when drawing line
+	* (\~).bgcolor,(\~).fgcolor = Colorcode split up
+
+Preparatory routines: VTUI_GOTOXY (optional)<br>
 Registers affected: .A<br>
 ZP registers affected: none<br>
 
-**Description** Draw a vertical line from top to bottom, starting at current position. Height of the line is provided in .Y register. Character to use for drawing the line is provided in .A and the background-/foreground-color to use is provided in .X register.
+**Description** Draw a vertical line from top to bottom, starting at current position. Color to use can be provided as either the colorcode or the colorcode split up into background and foreground color.
 
+**Example**
+
+	VERA_HORLINE=$40
+
+	+VTUI_HLINE VERA_HORLINE, 10, $61  ; Draw a line that is 10 chars long
+	+VTUI_HLINE ~my_char, 10, 6, 1     ; Same as above, but char in variable and colors split
+	+VTUI_HLINE ~my_char,~my_len, $61  ; Same as above, but char an length in variables
+
+	my_char !byte VERA_HORLINE
+	my_len  !byte 10
+
+See also [generic vline](VTUIlib-generic.md#function-name-vline) for call without parameters
 ## Function name: print_str
 Purpose: Print a string to screen.<br>
 Call address: `VTUILIB+29`<br>
