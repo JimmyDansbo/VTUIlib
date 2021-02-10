@@ -10,4 +10,6 @@ For more information see the [VTUI generic](VTUIlib-generic.md) library document
 The acme library is meant to be included with !src statement directly into source that
 is meant to be compiled with acme.
 
+For more information see the [VTUI Acme](VTUIlib-acme.md) library documenation
+
 There are plans of creating an include file for ca65 as well.
