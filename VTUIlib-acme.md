@@ -11,9 +11,9 @@ This document describes the **Acme** **V**ERA **T**ext **U**ser **I**nterface li
 **Table of Contents**
 
 * [Overview](#overview)
+* [Compatibility](#compatibility)
 * [Registers](#registers)
 * [Functions](#functions)
-	* [initialize](#function-name-initialize)
 	* [screen_set](#function-name-screen_set)
 	* [clear](#function-name-clear)
 	* [set_stride](#function-name-set_stride)
@@ -51,32 +51,22 @@ The other two flavors are the generic which is a binary file that is loaded sepa
 All macros can be called without arguments in which case they will function exactly like the functions in the generic library. See the [VTUI generic](VTUIlib-generic.md) library documentation.
 
 To call functions in the exact same way as with the generic library, each macro should be called from a subroutine like this:<br>
-> vtui_gotoxy<br>
->	+VTUI_GOTOXY<br>
->	rts<br>
+	vtui_gotoxy:
+		+VTUI_GOTOXY
+		rts
 
 These functions are not included in the Acme library to ensure that the library does not take up any unnecessary space.
 
 ## Registers
 
 Several zeropage addresses are used by the library for temporary storage space as well as parameter passing. Addresses used are `$22 - $2D` this is to avoid using the ABI registers used by the new Commander X16 functions.
-The ABI registers are named r0, r0l, r0h, r1 and so on. They start at address $02 and go all the way to $21. The debugger in the emulator displays registers 16bit registers x16, x17, x18 & x19. These are the registers mostly used by the VTUI library, but in some cases more space is needed and an additional 4 bytes of zerospace is used totalling 12 bytes of zeropage space used by the library.
+The ABI registers are named r0, r0l, r0h, r1 and so on. They start at address $02 and go all the way to $21. The debugger in the emulator displays 16bit registers x16, x17, x18 & x19 which start from `$22`. These are the registers mostly used by the VTUI library, but in some cases more space is needed and an additional 4 bytes of zerospace is used totalling 12 bytes of zeropage space used by the library.
 
-The VTUI library only uses the zeropage addresses inside it's own function or as paramater passing so this space can be used for anything else as long as it is made available to the functions as they are called.
+The VTUI library only uses the zeropage addresses inside it's own macros or as parameter passing so this space can be used for anything else as long as it is made available to the macros as they are called.
 
 In addition to the zeropage memory, the VTUI library uses CPU registers for transferring arguments to the functions as well as temporary space and indexing.
 
 ## Functions
-
-### Function name: initialize
-Purpose: Initialize jump table in preparation for library use.<br>
-Call address: `VTUILIB + 0`<br>
-Communication registers: none<br>
-Preparatory routines: none<br>
-Registers affected: .A, .X & .Y<br>
-ZP registers affected: x16, x17, x18 & x19<br>
-
-**Description:** The routine initialize writes a very small subroutine in zeropage memory $22-$29, calls it to get the return address off of the stack. This is the way the library figures out the correct addresses and update the builtin jumptable.
 
 ### Function name: screen_set
 Purpose: Set the screen mode to supported text mode<br>
