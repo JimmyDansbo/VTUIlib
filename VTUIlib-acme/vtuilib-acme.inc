@@ -70,8 +70,11 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
-
+; Clear the screen with certain bg-/fg-color
 ; *****************************************************************************
+; INPUTS:	If called without arguments, .A must contain color
+; OPTIONAL:	.color | ~.color | .bgcolor,.fgcolor | ~.bgcolor,~.fgcolor
+; USES:		.X & .Y
 ; *****************************************************************************
 !macro VTUI_CLEAR .bgcolor, .fgcolor {
 	lda	#(.bgcolor<<4)|(.fgcolor&0xf)
@@ -149,7 +152,11 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Set the stride without changing other values in VERA_ADDR_H
 ; *****************************************************************************
+; INPUTS:	If called without arguments, .A must contain stride value
+; OPTIONAL:	.stride | ~.stride
+; USES:		.X (only when called without arguments)
 ; *****************************************************************************
 !macro VTUI_SET_STRIDE .stride {
 	lda	VERA_ADDR_H	; Set stride value to 0 in VERA_ADDR_H
@@ -184,7 +191,11 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Set the decrement value without changing other values in VERA_ADDR_H
 ; *****************************************************************************
+; INPUTS:	If called without arguments, .C must contain decrement value
+; OPTIONAL:	.decrement
+; USES:		.A
 ; *****************************************************************************
 !macro VTUI_SET_DECR .decrement {
 	lda	VERA_ADDR_H
@@ -206,7 +217,11 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Set VERA address to point to specific point on screen
 ; *****************************************************************************
+; INPUTS:	If no arguments are given, .A = x coordinate & .Y = y coodinate
+; OPTIONAL:	.x,.y | ~.x,~.y
+; USES:		.A
 ; *****************************************************************************
 !macro VTUI_GOTOXY .x, .y {
 	lda	#.y
@@ -228,7 +243,11 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Write character and color to current VERA address
 ; *****************************************************************************
+; INPUTS:	If no arguments, .A = character & .X = color
+; OPTIONAL:	(.char|~.char),((.color|~.color)|((.bgcolor,.fgcolor)|(~.bgcolor,~.fgcolor)))
+; USES:		.A
 ; *****************************************************************************
 !macro VTUI_PLOT_CHAR .char, .bgcolor, .fgcolor {
 	lda	#.char
@@ -302,7 +321,11 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Read character and color from current VERA address
 ; *****************************************************************************
+; OUTPUTS:	If called with no arguments, .A = character & .X = color
+; OPTIONAL:	~.char,~.color | ~.char | .nocol
+; USES:		.A
 ; *****************************************************************************
 !macro VTUI_SCAN_CHAR ~.char, ~.color {
 	lda	VERA_DATA0
@@ -323,7 +346,12 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Create a horizontal line going from left to right.
 ; *****************************************************************************
+; INPUTS:	If no arguments, .A=character, .X=color & .Y=length
+; OPTIONAL:	(.char|~.char),(.length|~.length),(.color|~.color)
+;		Color can be split: (.bgcolor,.fgcolor)|(~.bgcolor,~.fgcolor)
+; USES:		.A & (.Y or ~.length)
 ; *****************************************************************************
 !macro VTUI_HLINE .char, .length, .bgcolor, .fgcolor {
 	ldy	#.length
