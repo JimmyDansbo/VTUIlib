@@ -133,13 +133,22 @@ ZP registers affected: none<br>
 
 ## Function name: set_decr
 Purpose: Set the VERA decrement bit<br>
-Call address: `VTUILIB+11`<br>
-Communication registers: .C<br>
+Call address: `VTUI_SET_DECR`<br>
+Parameters:
+
+* .decrement = decrement value (0 or 1)
+
 Preparatory routines: none<br>
 Registers affected: .A
 ZP registers affected: none<br>
 
-**Description** Set the VERA decrement bit. The decrement bit decides if the stride value is added to- or subtracted from the current VERA address. Carry Clear (.C=0) means increment by stride value. Carry Set (.C=1) means decrement by stride value.
+**Description** Set the VERA decrement bit. The decrement bit decides if the stride value is added to- or subtracted from the current VERA address. Carry Clear (.C=0) or .decrement=0 means increment by stride value. Carry Set (.C=1) or .decrement=1 means decrement by stride value.
+
+**Example**
+
+	+VTUI_SET_DECR 0  ; Increment
+	sec
+	+VTUI_SET_DECR    ; Decrement (because no parameter, but Carry set)
 
 ## Function name: gotoxy
 Purpose: Set VERA address to point to specific coordinates on screen.<br>
