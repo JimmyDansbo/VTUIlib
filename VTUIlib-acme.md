@@ -113,13 +113,23 @@ ZP registers affected: none<br>
 
 ## Function name: set_stride
 Purpose: Set the VERA stride value<br>
-Call address: `VTUILIB+8`<br>
-Communication registers: .A<br>
+Call address: `VTUI_SET_STRIDE`<br>
+Parameters:
+
+* (~).stride = stride value
+
 Preparatory routines: none<br>
 Registers affected: .X<br>
 ZP registers affected: none<br>
 
 **Description** Set the VERA stride value. Stride is the amount the VERA address is incremented or decremented on each access. Stride is a 4 bit value and the routine will ensure that the number is converted to fit in VERA_ADDR_H. For more information about VERA stride, see the [VERA Documentation](https://github.com/commanderx16/x16-docs/blob/master/VERA%20Programmer's%20Reference.md#video-ram-access) about 'Address Increment'
+
+**Example**
+
+	+VTUI_SET_STRIDE 2           ; Increment by 2
+	+VTUI_SET_STRIDE ~stride_val ; Same as above, but using variable
+
+	stride_val !byte 2
 
 ## Function name: set_decr
 Purpose: Set the VERA decrement bit<br>
