@@ -298,14 +298,27 @@ ZP registers affected: none<br>
 See also [generic vline](VTUIlib-generic.md#function-name-vline) for call without parameters
 ## Function name: print_str
 Purpose: Print a string to screen.<br>
-Call address: `VTUILIB+29`<br>
-Communication registers: x16 & .X<br>
-Preparatory routines: gotoxy (optional)<br>
+Macro name: `VTUI_PRINT_STR`<br>
+Parameters:
+
+* (\~).addr = Address of beginning of string
+* (\~).color = Colorcode used to print the string
+	* (\~).bgcolor,(\~).fgcolor = Background- and foreground-color.
+
+Preparatory routines: VTUI_GOTOXY (optional)<br>
 Registers affected: .A & .Y<br>
 ZP registers affected: none<br>
 
-**Description** Print a 0-terminated PETSCII encoded string to screen. The routine will convert PETSCII characters in the range $20-$59. Other characters will be converted to a large X-like character. x16 ($22 & $23) is a 16bit zeropage pointer to the string. Background-/foreground color for the string must be provided in .X register.
+**Description** Print a 0-terminated PETSCII encoded string to screen. The routine will convert PETSCII characters in the range $20-$59. Other characters will be converted to a large X-like character.
 
+**Example**
+
+	+VTUI_PRINT_STR my_str, $61   ; Print white text on blue background
+	+VTUI_PRINT_STR ~my_str, 6, 1 ; Same as above, but colors are split.
+
+	my_str !text "Hello, World!",0
+
+See also [generic print_str](VTUIlib-generic.md#function-name-print_str) for call without parameters
 ## Function name: fill_box
 Purpose: Draw a filled box<br>
 Call address: `VTUILIB+32`<br>
