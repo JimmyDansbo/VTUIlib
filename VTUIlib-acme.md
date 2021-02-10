@@ -71,13 +71,14 @@ In addition to the zeropage memory, the VTUI library uses CPU registers for tran
 
 ### Function name: screen_set
 Purpose: Set the screen mode to supported text mode<br>
-Call address: `VTUILIB+2`<br>
-Communication registers: .A<br>
+Macro name: `VTUI_SCREEN_SET`<br>
+Parameters:<br>
+* .mode = The mode to set
 Preparatory routines: none<br>
 Registers affected: .A, .X & .Y<br>
 ZP registers affected: none<br>
 
-**Description** This function sets or toggles the screenmode. Supported modes are 0 = 40x30 & 2 80x60. Mode 255 ($FF) will toggle between the two modes. Any other mode will fail silently.
+**Description** This macro sets or toggles the screenmode. Supported modes are 0 = 40x30 & 2 80x60. Mode 255 ($FF) will toggle between the two modes. Any other mode will fail silently.
 
 ## Function name: clear
 Purpose: Clear screen with specific background-/foreground-color<br>
