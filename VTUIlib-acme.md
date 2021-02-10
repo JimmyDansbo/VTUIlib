@@ -82,6 +82,7 @@ ZP registers affected: none<br>
 **Description** This macro sets or toggles the screenmode. Supported modes are 0 = 40x30 & 2 80x60. Mode 255 ($FF) will toggle between the two modes. Any other mode will fail silently.
 
 **Example**<br>
+
 	+VTUI_SCREEN_SET 2 ; Set 80x60 mode.
 
 ## Function name: clear
