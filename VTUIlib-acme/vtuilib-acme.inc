@@ -448,7 +448,12 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Create a vertical line going from top to bottom.
 ; *****************************************************************************
+; INPUTS:	If no arguments, .A=character, .X=color & .Y=height
+; OPTIONAL:	(.char|~.char),(.height|~.height),(.color|~.color)
+;		Color can be split: (.bgcolor,.fgcolor)|(~.bgcolor,~.fgcolor)
+; USES:		.A & (.Y or ~.height)
 ; *****************************************************************************
 !macro VTUI_VLINE .char, .height, .bgcolor, .fgcolor {
 	ldy	#.height
@@ -596,7 +601,12 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Print a 0 terminated string PETSCII string
 ; *****************************************************************************
+; INPUTS	If no arguments, x16 = pointer to string, .X  = bg-/fg color
+; OPTIONAL	(.addr|~.addr),(.color|~.color)
+;		Color can be split: (.bgcolor,.fgcolor)|(~.bgcolor,~.fgcolor)
+; USES:		.A & .Y
 ; *****************************************************************************
 !macro VTUI_PRINT_STR .addr, .bgcolor, .fgcolor {
 	ldx	#(.bgcolor<<4)|(.fgcolor&0x0F)
@@ -710,7 +720,12 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Create a filled box drawn from top left to bottom right
 ; *****************************************************************************
+; INPUTS:	If no arguments, x16h=character,x17l=width,x17h=height,.X=color
+; OPTIONAL:	(.char|~.char),((.width,.height)|(~.width,~.height)),(.color|~.color)
+;		Color can be split: (.bgcolor,.fgcolor)|(~.bgcolor,~.fgcolor)
+; USES:		.A, .X, .Y
 ; *****************************************************************************
 !macro VTUI_FILL_BOX .char, .width, .height, .bgcolor, .fgcolor {
 	ldx	#.height
@@ -936,7 +951,10 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Convert PETSCII codes between $20 and $5F to screencodes.
 ; *****************************************************************************
+; INPUTS:	.A or (~).code = character to convert
+; OUTPUS:	.A or ~.code = converted character or $56 if invalid input
 ; *****************************************************************************
 !macro VTUI_PET2SCR .code {
 	lda	#.code
@@ -984,7 +1002,10 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Convert screencodes between $00 and $3F to PETSCII.
 ; *****************************************************************************
+; INPUTS:	.A or (~).code = character to convert
+; OUTPUS:	.A or ~.code = converted character or $76 if invalid input
 ; *****************************************************************************
 !macro VTUI_SCR2PET .code {
 	lda	#.code
@@ -1026,9 +1047,12 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Set border characters in ZP variables according to the mode chosen
 ; *****************************************************************************
+; INPUTS:	.mode = The chosen bordermode
+; USES:		.A
 ; *****************************************************************************
-!macro BORDER_MODE .mode {
+!macro VTUI_BORDER_MODE .mode {
 	; Define local variable names for ZP variables
 	; Makes the source a bit more readable
 .top_right=x18l
@@ -1128,7 +1152,13 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Create a box with a specific border
 ; *****************************************************************************
+; INPUTS:	.A or .mode = Border mode (0-5) defaults to mode 0
+;		(~).width or x17l  = width
+;		(~).height or x17h = height
+;		.X or (~).color|((~).bgcolor,(~).fgcolor) = bg-/fg-color
+; USES		.Y, x16l & x16h
 ; *****************************************************************************
 !macro VTUI_BORDER .mode, .width, .height, .bgcolor, .fgcolor {
 	; Define local variable names for ZP variables
@@ -1141,7 +1171,7 @@ LIGHTGRAY	= 15
 .bottom   =x19h+2		; z20h
 .left	  =x19h+3		; z21l
 .right	  =x19h+4		; z21h
-	+BORDER_MODE .mode
+	+VTUI_BORDER_MODE .mode
 	; Save initial position
 	lda	VERA_ADDR_L
 	sta	x16l
@@ -1193,7 +1223,7 @@ LIGHTGRAY	= 15
 .bottom   =x19h+2		; z20h
 .left	  =x19h+3		; z21l
 .right	  =x19h+4		; z21h
-	+BORDER_MODE .mode
+	+VTUI_BORDER_MODE .mode
 	; Save initial position
 	lda	VERA_ADDR_L
 	sta	x16l
@@ -1251,7 +1281,7 @@ LIGHTGRAY	= 15
 .bottom   =x19h+2		; z20h
 .left	  =x19h+3		; z21l
 .right	  =x19h+4		; z21h
-	+BORDER_MODE .mode
+	+VTUI_BORDER_MODE .mode
 	; Save initial position
 	lda	VERA_ADDR_L
 	sta	x16l
@@ -1308,7 +1338,7 @@ LIGHTGRAY	= 15
 .bottom   =x19h+2		; z20h
 .left	  =x19h+3		; z21l
 .right	  =x19h+4		; z21h
-	+BORDER_MODE .mode
+	+VTUI_BORDER_MODE .mode
 	; Save initial position
 	lda	VERA_ADDR_L
 	sta	x16l
@@ -1371,7 +1401,7 @@ LIGHTGRAY	= 15
 .bottom   =x19h+2		; z20h
 .left	  =x19h+3		; z21l
 .right	  =x19h+4		; z21h
-	+BORDER_MODE .mode
+	+VTUI_BORDER_MODE .mode
 	; Save initial position
 	lda	VERA_ADDR_L
 	sta	x16l
@@ -1423,7 +1453,7 @@ LIGHTGRAY	= 15
 .bottom   =x19h+2		; z20h
 .left	  =x19h+3		; z21l
 .right	  =x19h+4		; z21h
-	+BORDER_MODE .mode
+	+VTUI_BORDER_MODE .mode
 	; Save initial position
 	lda	VERA_ADDR_L
 	sta	x16l
@@ -1481,7 +1511,7 @@ LIGHTGRAY	= 15
 .bottom   =x19h+2		; z20h
 .left	  =x19h+3		; z21l
 .right	  =x19h+4		; z21h
-	+BORDER_MODE .mode
+	+VTUI_BORDER_MODE .mode
 	; Save initial position
 	lda	VERA_ADDR_L
 	sta	x16l
@@ -1533,7 +1563,7 @@ LIGHTGRAY	= 15
 .bottom   =x19h+2		; z20h
 .left	  =x19h+3		; z21l
 .right	  =x19h+4		; z21h
-	+BORDER_MODE .mode
+	+VTUI_BORDER_MODE .mode
 	; Save initial position
 	lda	VERA_ADDR_L
 	sta	x16l
@@ -1711,21 +1741,22 @@ LIGHTGRAY	= 15
 	+VTUI_PLOT_CHAR		; Bottom right corner
 }
 
-
-
 ; *****************************************************************************
+; Increment 16 bit value at .addr
 ; *****************************************************************************
+; INPUTS:	.addr = address of low byte of the 16 bit number
 ; *****************************************************************************
-!macro INC16 .addr {
+!macro VTUI_INC16 .addr {
 	inc	.addr
 	bne	.end
 	inc	.addr+1
 .end:
 }
+
 ; *****************************************************************************
 ; Set VERA bank (High memory) without touching anything else
 ; *****************************************************************************
-; INPUTS:	.A = Bank number, 0 or 1
+; INPUTS:	.A or .bank = Bank number, 0 or 1
 ; USES:		.A
 ; *****************************************************************************
 !macro VTUI_SET_BANK .bank {
@@ -1753,9 +1784,15 @@ LIGHTGRAY	= 15
 .end:
 }
 
-
 ; *****************************************************************************
+; Copy contents of screen from current position to other memory area in
+; either system RAM or VRAM
 ; *****************************************************************************
+; INPUTS:	.C or .destram	= Destination RAM (0=system RAM, 1=VRAM)
+;		.A		= VRAM Bank (0 or 1) if .C|.destram=1
+;		x16 | .destaddr	= Destination address (17bit for VRAM)
+;		x17l|(~).width	= width
+;		x17h|(~).height	= height
 ; *****************************************************************************
 !macro VTUI_SAVE_RECT .destaddr, .width, .height, .destram {
 	!if .destram = 1 { 		;vram
@@ -1828,10 +1865,10 @@ LIGHTGRAY	= 15
 	ldx	#.width		; Load width
 .sloop: lda	VERA_DATA0	; Copy Character
 	sta	(x16)
-	+INC16	x16		; Increment destination address
+	+VTUI_INC16	x16	; Increment destination address
 	lda	VERA_DATA0	; Load Color Code
 	sta	(x16)
-	+INC16	x16		; Increment destination address
+	+VTUI_INC16	x16	; Increment destination address
 	dex
 	bne	.sloop
 	ldx	#.width		; Restore width
@@ -1850,10 +1887,10 @@ LIGHTGRAY	= 15
 	ldx	.width		; Load width
 .sloop: lda	VERA_DATA0	; Copy Character
 	sta	(x16)
-	+INC16	x16		; Increment destination address
+	+VTUI_INC16	x16	; Increment destination address
 	lda	VERA_DATA0	; Load Color Code
 	sta	(x16)
-	+INC16	x16		; Increment destination address
+	+VTUI_INC16	x16	; Increment destination address
 	dex
 	bne	.sloop
 	ldx	.width		; Restore width
@@ -1893,10 +1930,10 @@ LIGHTGRAY	= 15
 	ldx	x17l		; Load width
 .sloop:	lda	VERA_DATA0	; Copy Character
 	sta	(x16)
-	+INC16 x16		; Increment destination address
+	+VTUI_INC16 x16		; Increment destination address
 	lda	VERA_DATA0	; Copy Color Code
 	sta	(x16)
-	+INC16 x16		; Increment destination address
+	+VTUI_INC16 x16		; Increment destination address
 	dex
 	bne	.sloop
 	ldx	x17l		; Restore width
@@ -1907,7 +1944,14 @@ LIGHTGRAY	= 15
 }
 
 ; *****************************************************************************
+; Restore contents of screen from other memory area in either system RAM
+; or VRAM starting at current position
 ; *****************************************************************************
+; INPUTS:	.C or .srcram	= Source RAM (0=system RAM, 1=VRAM)
+;		.A		= VRAM Bank (0 or 1) if .C|.srcram=1
+;		x16 | .srcram 	= Source address
+;		x17l|(~).width	= width
+;		x17h|(~).height	= height
 ; *****************************************************************************
 !macro VTUI_REST_RECT .srcaddr, .width, .height, .srcram {
 	!if .srcram = 1 { 		;vram
@@ -1980,10 +2024,10 @@ LIGHTGRAY	= 15
 	ldx	#.width		; Load width
 .sloop: lda	(x16)		; Copy Character
 	sta	VERA_DATA0
-	+INC16	x16		; Increment destination address
+	+VTUI_INC16 x16		; Increment destination address
 	lda	(x16)		; Load Color Code
 	sta	VERA_DATA0
-	+INC16	x16		; Increment destination address
+	+VTUI_INC16 x16		; Increment destination address
 	dex
 	bne	.sloop
 	ldx	#.width		; Restore width
@@ -2002,10 +2046,10 @@ LIGHTGRAY	= 15
 	ldx	.width		; Load width
 .sloop: lda	(x16)		; Copy Character
 	sta	VERA_DATA0
-	+INC16	x16		; Increment destination address
+	+VTUI_INC16 x16		; Increment destination address
 	lda	(x16)		; Load Color Code
 	sta	VERA_DATA0
-	+INC16	x16		; Increment destination address
+	+VTUI_INC16 x16		; Increment destination address
 	dex
 	bne	.sloop
 	ldx	.width		; Restore width
@@ -2045,10 +2089,10 @@ LIGHTGRAY	= 15
 	ldx	x17l		; Load width
 .sloop:	lda	(x16)		; Copy Character
 	sta	VERA_DATA0
-	+INC16 x16		; Increment destination address
+	+VTUI_INC16 x16		; Increment destination address
 	lda	(x16)		; Copy Color Code
 	sta	VERA_DATA0
-	+INC16 x16		; Increment destination address
+	+VTUI_INC16 x16		; Increment destination address
 	dex
 	bne	.sloop
 	ldx	x17l		; Restore width
