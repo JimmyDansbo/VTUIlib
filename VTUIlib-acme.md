@@ -74,6 +74,7 @@ Purpose: Set the screen mode to supported text mode<br>
 Macro name: `VTUI_SCREEN_SET`<br>
 Parameters:<br>
 * .mode = The mode to set
+
 Preparatory routines: none<br>
 Registers affected: .A, .X & .Y<br>
 ZP registers affected: none<br>
