@@ -102,10 +102,10 @@ ZP registers affected: none<br>
 
 **Example**<br>
 
-	+VTUI_CLEAR $61  ;Clear screen, blue background and white foreground
-	+VTUI_CLEAR 6, 1 ;Same as above.
-	+VTUI_CLEAR ~my_col ;Same as above, but using color-value in a variable.
-	+VTUI_CLEAR ~my_bg,~my_fg; same as above, but using values in variables
+	+VTUI_CLEAR $61           ;Clear screen, blue background and white foreground
+	+VTUI_CLEAR 6, 1          ; Same as above.
+	+VTUI_CLEAR ~my_col       ; Same as above, but using color-value in a variable.
+	+VTUI_CLEAR ~my_bg,~my_fg ; Same as above, but using values in variables
 
 	my_col !byte $61
 	my_bg  !byte 6
