@@ -73,7 +73,7 @@ LIGHTGRAY	= 15
 ; Clear the screen with certain bg-/fg-color
 ; *****************************************************************************
 ; INPUTS:	If called without arguments, .A must contain color
-; OPTIONAL:	.color | ~.color | .bgcolor,.fgcolor | ~.bgcolor,~.fgcolor
+; OPTIONAL:	(~).color | ((~).bgcolor,(~).fgcolor)
 ; USES:		.X & .Y
 ; *****************************************************************************
 !macro VTUI_CLEAR .bgcolor, .fgcolor {
@@ -155,7 +155,7 @@ LIGHTGRAY	= 15
 ; Set the stride without changing other values in VERA_ADDR_H
 ; *****************************************************************************
 ; INPUTS:	If called without arguments, .A must contain stride value
-; OPTIONAL:	.stride | ~.stride
+; OPTIONAL:	(~).stride
 ; USES:		.X (only when called without arguments)
 ; *****************************************************************************
 !macro VTUI_SET_STRIDE .stride {
@@ -220,7 +220,7 @@ LIGHTGRAY	= 15
 ; Set VERA address to point to specific point on screen
 ; *****************************************************************************
 ; INPUTS:	If no arguments are given, .A = x coordinate & .Y = y coodinate
-; OPTIONAL:	.x,.y | ~.x,~.y
+; OPTIONAL:	(~).x, (~).y
 ; USES:		.A
 ; *****************************************************************************
 !macro VTUI_GOTOXY .x, .y {
@@ -246,7 +246,7 @@ LIGHTGRAY	= 15
 ; Write character and color to current VERA address
 ; *****************************************************************************
 ; INPUTS:	If no arguments, .A = character & .X = color
-; OPTIONAL:	(.char|~.char),((.color|~.color)|((.bgcolor,.fgcolor)|(~.bgcolor,~.fgcolor)))
+; OPTIONAL:	(~).char,(~).color|((~).bgcolor,(~).fgcolor)
 ; USES:		.A
 ; *****************************************************************************
 !macro VTUI_PLOT_CHAR .char, .bgcolor, .fgcolor {
@@ -349,8 +349,7 @@ LIGHTGRAY	= 15
 ; Create a horizontal line going from left to right.
 ; *****************************************************************************
 ; INPUTS:	If no arguments, .A=character, .X=color & .Y=length
-; OPTIONAL:	(.char|~.char),(.length|~.length),(.color|~.color)
-;		Color can be split: (.bgcolor,.fgcolor)|(~.bgcolor,~.fgcolor)
+; OPTIONAL:	(~).char,(~).length,((~).color|((~).bgcolor,(~).fgcolor))
 ; USES:		.A & (.Y or ~.length)
 ; *****************************************************************************
 !macro VTUI_HLINE .char, .length, .bgcolor, .fgcolor {
@@ -451,8 +450,7 @@ LIGHTGRAY	= 15
 ; Create a vertical line going from top to bottom.
 ; *****************************************************************************
 ; INPUTS:	If no arguments, .A=character, .X=color & .Y=height
-; OPTIONAL:	(.char|~.char),(.height|~.height),(.color|~.color)
-;		Color can be split: (.bgcolor,.fgcolor)|(~.bgcolor,~.fgcolor)
+; OPTIONAL:	(~).char,(~).height,(~).color|((~).bgcolor,(~).fgcolor)
 ; USES:		.A & (.Y or ~.height)
 ; *****************************************************************************
 !macro VTUI_VLINE .char, .height, .bgcolor, .fgcolor {
@@ -604,8 +602,7 @@ LIGHTGRAY	= 15
 ; Print a 0 terminated string PETSCII string
 ; *****************************************************************************
 ; INPUTS	If no arguments, x16 = pointer to string, .X  = bg-/fg color
-; OPTIONAL	(.addr|~.addr),(.color|~.color)
-;		Color can be split: (.bgcolor,.fgcolor)|(~.bgcolor,~.fgcolor)
+; OPTIONAL	(~).addr,(~).color|((~).bgcolor,(~).fgcolor)
 ; USES:		.A & .Y
 ; *****************************************************************************
 !macro VTUI_PRINT_STR .addr, .bgcolor, .fgcolor {
@@ -723,8 +720,7 @@ LIGHTGRAY	= 15
 ; Create a filled box drawn from top left to bottom right
 ; *****************************************************************************
 ; INPUTS:	If no arguments, x16h=character,x17l=width,x17h=height,.X=color
-; OPTIONAL:	(.char|~.char),((.width,.height)|(~.width,~.height)),(.color|~.color)
-;		Color can be split: (.bgcolor,.fgcolor)|(~.bgcolor,~.fgcolor)
+; OPTIONAL:	(~).char,(~).width,(~).height,(~).color|((~).bgcolor,(~).fgcolor)
 ; USES:		.A, .X, .Y
 ; *****************************************************************************
 !macro VTUI_FILL_BOX .char, .width, .height, .bgcolor, .fgcolor {
