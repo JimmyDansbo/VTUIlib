@@ -13,6 +13,7 @@ This document describes the **Acme** **V**ERA **T**ext **U**ser **I**nterface li
 * [Overview](#overview)
 * [Compatibility](#compatibility)
 * [Registers](#registers)
+* [Parameters](#parameters)
 * [Functions](#functions)
 	* [screen_set](#function-name-screen_set)
 	* [clear](#function-name-clear)
@@ -78,7 +79,7 @@ Most of the macros have parameters that can be called either as immidiate or by 
 Some parameters follow eachother.
 
 * .width and .height must be used in the same way when calling a macro
-* .bgcolor and .fgcolor must be used in the same way when calling a macro 
+* .bgcolor and .fgcolor must be used in the same way when calling a macro
 
 ## Functions
 
