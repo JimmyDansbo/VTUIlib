@@ -81,6 +81,8 @@ Some parameters follow eachother.
 * .width and .height must be used in the same way when calling a macro
 * .bgcolor and .fgcolor must be used in the same way when calling a macro
 
+If the .color parameter is used in a macro call, it is not possible to also use .bgcolor and .fgcolor or vice versa.
+
 ## Functions
 
 ### Function name: screen_set
