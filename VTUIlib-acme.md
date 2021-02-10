@@ -205,6 +205,8 @@ ZP registers affected: none<br>
 	+VTUI_PLOT_CHAR ~my_letter, $61 ; Same as above, but char in variable
 	+VTUI_PLOT_CHAR VERA_A, ~my_col ; Same as above, but color in variable
 	+VTUI_PLOT_CHAR ~my_letter, ~my_bg, ~my_fg ; Everything in variables
+	+VTUI_PLOT_CHAR VERA_A		; Just plot letter, don't change color
+	+VTUI_PLOT_CHAR ~my_letter      ; Just plot letter, don't change color
 
 	my_letter !byte 2
 	my_col    !byte $61
@@ -213,15 +215,31 @@ ZP registers affected: none<br>
 
 See also [generic plot_char](VTUIlib-generic.md#function-name-plot_char) for call without parameters
 ## Function name: scan_char
-Purpose: Read a screencode character and color from screen memory<br>
-Call address: `VTUILIB+20`<br>
-Communication registers: .A & .X<br>
-Preparatory routines: gotoxy (optional)<br>
+Purpose: Read a screencode character and color from screen memory at current location<br>
+Macro name: `VTUI_SCAN_CHAR`<br>
+Parameters:
+
+* ~.char = Character read
+* ~.color = Color code read
+* .nocol = Read character into .A, but do not read color code
+
+Preparatory routines: VTUI_GOTOXY (optional)<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Read the screencode character at current VERA address into .A. The routine expects VERA to increment by one as it reads the background-/foreground-color into .X without touching VERA addresses.
+**Description** Read the screencode character at current VERA address into. The routine expects VERA to increment by one as it reads the background-/foreground-color next unless .nocol is set.
 
+**Example**
+
+	+VTUI_SCAN_CHAR ~my_char, ~my_color ; Read character and color into variables
+	+VTUI_SCAN_CHAR ~my_char            ; Read only character into variable
+	+VTUI_SCAN_CHAR 0                   ; Read only character into .A
+	sta my_char
+
+	my_char  !byte 0
+	my_color !byte 0
+
+See also [generic scan_char](VTUIlib-generic.md#function-name-scan_char) for call without parameters
 ## Function name: hline
 Purpose: Draw a horizontal line from left to right.<br>
 Call address: `VTUILIB+23`<br>
