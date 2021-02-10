@@ -86,7 +86,7 @@ ZP registers affected: none<br>
 
 	+VTUI_SCREEN_SET 2 ; Set 80x60 mode.
 
-See [generic screen_set](VTUIlib-generic.md#function-name-screen-set)
+See also [generic screen_set](VTUIlib-generic.md#function-name-screen_set) for call without parameters
 ## Function name: clear
 Purpose: Clear screen with specific background-/foreground-color<br>
 Macro name: `VTUI_CLEAR`<br>
@@ -112,6 +112,7 @@ ZP registers affected: none<br>
 	my_bg  !byte 6
 	my_fg  !byte 1
 
+See also [generic clear](VTUIlib-generic.md#function-name-clear) for call without parameters
 ## Function name: set_stride
 Purpose: Set the VERA stride value<br>
 Macro name: `VTUI_SET_STRIDE`<br>
@@ -132,6 +133,7 @@ ZP registers affected: none<br>
 
 	stride_val !byte 2
 
+See also [generic set_stride](VTUIlib-generic.md#function-name-set_stride) for call without parameters
 ## Function name: set_decr
 Purpose: Set the VERA decrement bit<br>
 Macro name: `VTUI_SET_DECR`<br>
@@ -151,6 +153,7 @@ ZP registers affected: none<br>
 	sec
 	+VTUI_SET_DECR    ; Decrement (because no parameter, but Carry set)
 
+See also [generic set_decr](VTUIlib-generic.md#function-name-set_decr) for call without parameters
 ## Function name: gotoxy
 Purpose: Set VERA address to point to specific coordinates on screen.<br>
 Macro name: `VTUI_GOTOXY`<br>
@@ -173,6 +176,7 @@ ZP registers affected: none<br>
 	my_x !byte 15
 	my_y !byte 2
 
+See also [generic gotoxy](VTUIlib-generic.md#function-name-gotoxy) for call without parameters
 ## Function name: plot_char
 Purpose: Write a screencode character and color to screen.<br>
 Macro name: `VTUI_PLOT_CHAR`<br>
@@ -207,6 +211,7 @@ ZP registers affected: none<br>
 	my_bg     !byte 6
 	my_fg     !byte 1
 
+See also [generic plot_char](VTUIlib-generic.md#function-name-plot_char) for call without parameters
 ## Function name: scan_char
 Purpose: Read a screencode character and color from screen memory<br>
 Call address: `VTUILIB+20`<br>
