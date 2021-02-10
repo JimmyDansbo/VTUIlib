@@ -397,20 +397,20 @@ ZP registers affected: none<br>
 See also [generic pet2scr](VTUIlib-generic.md#function-name-pet2scr) for call without parameters
 ## Function name: border
 Purpose: Draw a box with border<br>
-Call address: `VTUILIB+41`<br>
-Communication registers: .A, .X, x17l & x17h<br>
-Preparatory routines: gotoxy (optional)<br>
+Macro name: `VTUI_BORDER`<br>
+Parameters:
+
+* .mode = Border mode (0-5) defaults to 0 if invalid value provided
+* (\~).width = Width of the box
+* (\~).height = Height of the box
+* (\~).color = Colorcode used to draw the border
+	* (\~).bgcolor,(\~).fgcolor = Background- and Foreground-color
+
+Preparatory routines: VTUI_GOTOXY (optional)<br>
 Registers affected: .Y
 ZP registers affected: x16l, x16h, x18l-x19h + 4 more addresses ($22,$23,$26-$2D)
 
 **Description** Create a box with a specific border.<br>
-
-|Registers|Purpose     |
-|------|---------------|
-|  .A  | Border mode   |
-| x17l | Width of box  |
-| x17h | Height of box |
-|  .X  | bg-/fg-color  |
 
 ***Supported Modes***<br>
 
@@ -419,6 +419,11 @@ ZP registers affected: x16l, x16h, x18l-x19h + 4 more addresses ($22,$23,$26-$2D
 |Mode|0|1|2|3|4|5|
 |Visual|![border0](images/border0.jpg)|![border1](images/border1.jpg)|![border2](images/border2.jpg)|![border3](images/border3.jpg)|![border4](images/border4.jpg)|![border5](images/border5.jpg)|
 
+**Example**
+
+	+VTUI_BORDER 0, 10, 5, $16  ; Create border by spaces (mode 0)
+
+See also [generic border](VTUIlib-generic.md#function-name-border) for call without parameters
 ## Function name: save_rect
 Purpose: Save an area from the screen to memory<br>
 Call address: `VTUILIB+44`<br>
