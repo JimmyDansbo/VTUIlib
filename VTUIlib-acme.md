@@ -347,24 +347,54 @@ ZP registers affected: none<br>
 See also [generic fill_box](VTUIlib-generic.md#function-name-fill_box) for call without parameters
 ## Function name: pet2scr
 Purpose: Convert PETSCII to screencode<br>
-Call address: `VTUILIB+35`<br>
-Communication registers: .A<br>
+Macro name: `VTUI_PET2SCR`<br>
+Parameters:
+
+* ~.code = Code to convert
+* .code = Code to convert, but result is returned in .A
+
 Preparatory routines: none<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Convert the PETSCII character in .A to screencode. Supported range is $20-$59. Other characters will be converted to a large X-like character.
+**Description** Convert the PETSCII character to screencode. Supported range is $20-$59. Other characters will be converted to a large X-like character.
 
+**Example**
+
+	VERA_A = $01
+
+	+VTUI_SCR2PET VERA_A
+	sta my_char
+	+VTUI_SCR2PET ~my_char
+
+	my_char !byte 0
+
+See also [generic scr2pet](VTUIlib-generic.md#function-name-scr2pet) for call without parameters
 ## Function name: scr2pet
 Purpose: Convert screencode to PETSCII<br>
-Call address: `VTUILIB+38`<br>
-Communication registers: .A<br>
+Macro name: `VTUI_PET2SCR`<br>
+Parameters:
+
+* ~.code = Code to convert
+* .code = Code to convert, but result is returned in .A
+
 Preparatory routines: none<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Convert the screencode in .A to PETSCII. Supported range is $00-$39. Other characters will be converted to a large X-like character.
+**Description** Convert the screencode to PETSCII. Supported range is $00-$39. Other characters will be converted to a large X-like character.
 
+**Example**
+
+	PET_A = 'A'
+
+	+VTUI_PET2SCR VERA_A
+	sta my_char
+	+VTUI_SCR2PET ~my_char
+
+	my_char !byte 0
+
+See also [generic pet2scr](VTUIlib-generic.md#function-name-pet2scr) for call without parameters
 ## Function name: border
 Purpose: Draw a box with border<br>
 Call address: `VTUILIB+41`<br>
