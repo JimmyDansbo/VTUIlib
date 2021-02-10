@@ -50,7 +50,8 @@ The other two flavors are the generic which is a binary file that is loaded sepa
 
 All macros can be called without arguments in which case they will function exactly like the functions in the generic library. See the [VTUI generic](VTUIlib-generic.md) library documentation.
 
-To call functions in the exact same way as with the generic library, each macro should be called from a subroutine like this:<br>
+To call functions in the exact same way as with the generic library, each macro should be called from a subroutine like this:
+
 	vtui_gotoxy:
 		+VTUI_GOTOXY
 		rts
