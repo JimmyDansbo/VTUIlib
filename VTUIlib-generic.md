@@ -72,7 +72,7 @@ After initialization, all functions can be called by referencing the base addres
 ## Registers
 
 Several zeropage addresses are used by the library for temporary storage space as well as parameter passing. Addresses used are `$22 - $2D` this is to avoid using the ABI registers used by the new Commander X16 functions.
-The ABI registers are named r0, r0l, r0h, r1 and so on. They start at address $02 and go all the way to $21. The debugger in the emulator displays registers 16bit registers x16, x17, x18 & x19. These are the registers mostly used by the VTUI library, but in some cases more space is needed and an additional 4 bytes of zerospace is used totalling 12 bytes of zeropage space used by the library.
+The ABI registers are named r0, r0l, r0h, r1 and so on. They start at address $02 and go all the way to $21. The debugger in the emulator displays 16bit registers x16, x17, x18 & x19. These are the registers mostly used by the VTUI library, but in some cases more space is needed and an additional 4 bytes of zerospace is used totalling 12 bytes of zeropage space used by the library.
 
 The VTUI library only uses the zeropage addresses inside it's own function or as paramater passing so this space can be used for anything else as long as it is made available to the functions as they are called.
 
