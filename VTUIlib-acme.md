@@ -473,4 +473,5 @@ ZP registers affected: x16, x17h
 	+VTUI_REST_RECT $10000, 10, 10, 1 ; Restore rectangle from VRAM address $10000
 	+VTUI_REST_RECT $8000, 10, 10     ; Restore rectangle from system RAM address $8000
 	+VTUI_REST_RECT $8000, 10, 10, 0  ; Same as above, but with srcram parameter
-	
+
+See also [generic rest_rect](VTUIlib-generic.md#function-name-rest_rect) for call without parameters
