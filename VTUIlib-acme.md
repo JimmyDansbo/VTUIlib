@@ -422,40 +422,55 @@ ZP registers affected: x16l, x16h, x18l-x19h + 4 more addresses ($22,$23,$26-$2D
 **Example**
 
 	+VTUI_BORDER 0, 10, 5, $16  ; Create border by spaces (mode 0)
+	+VTUI_BORDER 1, ~my_w, ~my_h, ~my_col
+
+	my_w   !byte 10		    ; Width
+	my_h   !byte 5		    ; Height
+	my_col !byte $16	    ; Color code
 
 See also [generic border](VTUIlib-generic.md#function-name-border) for call without parameters
 ## Function name: save_rect
 Purpose: Save an area from the screen to memory<br>
-Call address: `VTUILIB+44`<br>
-Communication registers: .C, .A, x16, x17l, x17h<br>
-Preparatory routines: gotoxy (optional)<br>
+Macro name: `VTUI_SAVE_RECT`<br>
+Parameters:
+
+* .destaddr = Destination address (17 bits if VRAM)
+* (\~).width = Width of rectangle to save
+* (\~).height = Height of rectangle to save
+* [.destram] = Destination memory (0 = System RAM, 1 = VRAM)
+
+Preparatory routines: VTUI_GOTOXY (optional)<br>
 Registers affected: .A, .X & .Y
 ZP registers affected: x16, x17h
 
 **Description** Save an area from screen to memory. Notice that each character on screen takes up 2 bytes of memory because a byte is used for color information.<br>
 
-|Register|Purpose|
-|--------|-------|
-|   .C   |  Destination RAM (0=System RAM, 1=VRAM) |
-|   .A   | VRAM bank if .C = 1 |
-|  x16   | 16bit destination address |
-|  x17l  | Width of area to save |
-|  X17h  | Height of area to save |
+**Example**
 
+	+VTUI_SAVE_RECT $10000, 10, 10, 1 ; Save rectangle to VRAM address $10000
+	+VTUI_SAVE_RECT $8000, 10, 10     ; Save rectangle to system ram address $8000
+	+VTUI_SAVE_RECT $8000, 10, 10, 0  ; Same as above, but with destram parameter
+
+See also [generic save_rect](VTUIlib-generic.md#function-name-save_rect) for call without parameters
 ## Function name: rest_rect
 Purpose: Restore an area on screen from memory<br>
-Call address: `VTUILIB+47`<br>
-Communication registers: .C, .A, .x16, x17l, x17h<br>
-Preparatory routines: gotoxy (optional)<br>
+Macro name: `VTUI_REST_RECT`<br>
+Parameters:
+
+* .srcaddr = Source address (17 bits if VRAM)
+* (\~).width = Width of rectangle to restore
+* (\~).height = Height of rectangle to restore
+* [.srcram] = Source memory (0 = System RAM, 1 = VRAM)
+
+Preparatory routines: VTUI_GOTOXY (optional)<br>
 Registers affected: .A, .X & .Y
 ZP registers affected: x16, x17h
 
 **Description** Restore an area on screen from memory.<br>
 
-|Register|Purpose|
-|--------|-------|
-|   .C   |  Destination RAM (0=System RAM, 1=VRAM) |
-|   .A   | VRAM bank if .C = 1 |
-|  x16   | 16bit destination address |
-|  x17l  | Width of area to save |
-|  X17h  | Height of area to save |
+**Example**
+
+	+VTUI_REST_RECT $10000, 10, 10, 1 ; Restore rectangle from VRAM address $10000
+	+VTUI_REST_RECT $8000, 10, 10     ; Restore rectangle from system RAM address $8000
+	+VTUI_REST_RECT $8000, 10, 10, 0  ; Same as above, but with srcram parameter
+	
