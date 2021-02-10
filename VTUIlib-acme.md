@@ -86,13 +86,14 @@ ZP registers affected: none<br>
 
 	+VTUI_SCREEN_SET 2 ; Set 80x60 mode.
 
+See [generic screen_set](VTUIlib-generic.md#function-name-screen-set)
 ## Function name: clear
 Purpose: Clear screen with specific background-/foreground-color<br>
 Macro name: `VTUI_CLEAR`<br>
 Parameters:
 
 * (~).color = Color code used for clearing the screen
-* (\~).bgcolor, (~).fgcolor = Background- and Foreground-color instead of .color
+	* (\~).bgcolor, (~).fgcolor = Background- and Foreground-color instead of .color
 
 Preparatory routines: none<br>
 Registers affected: .X & .Y<br>
@@ -174,17 +175,37 @@ ZP registers affected: none<br>
 
 ## Function name: plot_char
 Purpose: Write a screencode character and color to screen.<br>
-Call address: `VTUILIB+17`<br>
-Communication registers: .A & .X<br>
-Preparatory routines: gotoxy (optional)<br>
+Macro name: `VTUI_PLOT_CHAR`<br>
+Parameters:
+
+* (\~).char = Character to write to screen
+* (\~).color = Color code used for character
+	* (\~).bgcolor, (\~).fgcolor = background-/foreground-colors instead of color code.
+
+Preparatory routines: VTUI_GOTOXY (optional)<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Write the screencode character in .A to the screen at current address. The routine expects VERA to increment by one as it writes the background-/foreground-color in .X to VERA without touching VERA addresses.<br>
+**Description** Write the screencode character to the screen at current address. The routine expects VERA to increment by one as it writes the background-/foreground-color to VERA without touching VERA addresses.<br>
 **VERA screencodes**<br>
 ![VERA charactermap](https://cx16.dk/veratext/verachars.jpg)<br>
 **VERA colors**<br>
 ![VERA colors](https://cx16.dk/veratext/veracolors.jpg)
+
+**Example**
+
+	VERA_A = $01
+
+	+VTUI_PLOT_CHAR VERA_A, $61     ; Write an A with white color on blue background
+	+VTUI_PLOT_CHAR VERA_A, 6, 1    ; Same as above, but with colors split up
+	+VTUI_PLOT_CHAR ~my_letter, $61 ; Same as above, but char in variable
+	+VTUI_PLOT_CHAR VERA_A, ~my_col ; Same as above, but color in variable
+	+VTUI_PLOT_CHAR ~my_letter, ~my_bg, ~my_fg ; Everything in variables
+
+	my_letter !byte 2
+	my_col    !byte $61
+	my_bg     !byte 6
+	my_fg     !byte 1
 
 ## Function name: scan_char
 Purpose: Read a screencode character and color from screen memory<br>
