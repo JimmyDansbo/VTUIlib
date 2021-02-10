@@ -321,21 +321,30 @@ ZP registers affected: none<br>
 See also [generic print_str](VTUIlib-generic.md#function-name-print_str) for call without parameters
 ## Function name: fill_box
 Purpose: Draw a filled box<br>
-Call address: `VTUILIB+32`<br>
-Communication registers: x16h, x17l, x17h & .X<br>
-Preparatory routines: gotoxy (optional)<br>
+Macro name: `VTUI_FILL_BOX`<br>
+Parameters:
+
+* (\~).char = Character to fill the box with
+* (\~).width = Width of the box
+* (\~).height= Height of the box
+* (\~).color = Colocode used to fill the box
+	* (\~).bgcolor, (\~).fgcolor = Background- and foreground-color
+
+Preparatory routines: VERA_GOTOXY (optional)<br>
 Registers affected: .A & .Y<br>
 ZP registers affected: none<br>
 
 **Description** Draw a filled box starting at current position.<br>
 
-|Registers | Purpose               |
-|------|-----------------------|
-| x16h | Character for filling |
-| x17l | Width of box          |
-| x17h | Height of box         |
-|  .X  | bg-/fg-color          |
+**Example**
 
+	+VTUI_FILL_BOX ' ', 10, 5, $16        ; Fill a box with white spaces
+	+VTUI_FILL_BOX ' ', ~my_w, ~my_h, $16 ; As above, but width and height in variables
+
+	my_w !byte 10
+	my_h !byte 5
+
+See also [generic fill_box](VTUIlib-generic.md#function-name-fill_box) for call without parameters
 ## Function name: pet2scr
 Purpose: Convert PETSCII to screencode<br>
 Call address: `VTUILIB+35`<br>
