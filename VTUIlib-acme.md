@@ -92,7 +92,7 @@ Macro name: `VTUI_CLEAR`<br>
 Parameters:
 
 * (~).color = Color code used for clearing the screen
-* (~).bgcolor, (~).fgcolor = Background- and Foreground-color instead of .color
+* (\~).bgcolor, (~).fgcolor = Background- and Foreground-color instead of .color
 
 Preparatory routines: none<br>
 Registers affected: .X & .Y<br>
