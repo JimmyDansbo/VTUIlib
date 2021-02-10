@@ -67,6 +67,19 @@ The VTUI library only uses the zeropage addresses inside it's own macros or as p
 
 In addition to the zeropage memory, the VTUI library uses CPU registers for transferring arguments to the functions as well as temporary space and indexing.
 
+## Parameters
+
+Most of the macros have parameters that can be called either as immidiate or by reference. For example, the VTUI_GOTOXY macro can be called with immediates like this: `+VTUI_GOTOXY 10, 10` or it can be called with variables as the parameters `+VTUI_GOTOXY ~width, ~height`. In the description of the macros, it is shown which parameters can only be used as immediate, which can only be used at reference and which can be used as both.
+
+* .char = Parameter can only be used as immediate
+* \~.char = Parameter can only be used as reference
+* (\~).char = Parameter can be used as both immediate and reference.
+
+Some parameters follow eachother.
+
+* .width and .height must be used in the same way when calling a macro
+* .bgcolor and .fgcolor must be used in the same way when calling a macro 
+
 ## Functions
 
 ### Function name: screen_set
