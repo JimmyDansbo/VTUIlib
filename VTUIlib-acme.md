@@ -72,7 +72,8 @@ In addition to the zeropage memory, the VTUI library uses CPU registers for tran
 ### Function name: screen_set
 Purpose: Set the screen mode to supported text mode<br>
 Macro name: `VTUI_SCREEN_SET`<br>
-Parameters:<br>
+Parameters:
+
 * .mode = The mode to set
 
 Preparatory routines: none<br>
@@ -87,13 +88,28 @@ ZP registers affected: none<br>
 
 ## Function name: clear
 Purpose: Clear screen with specific background-/foreground-color<br>
-Call address: `VTUILIB+5`<br>
-Communication registers: .A<br>
+Macro name: `VTUI_CLEAR`<br>
+Parameters:
+
+* (~).color = Color code used for clearing the screen
+* (~).bgcolor, (~).fgcolor = Background- and Foreground-color instead of .color
+
 Preparatory routines: none<br>
 Registers affected: .X & .Y<br>
 ZP registers affected: none<br>
 
-**Description** Clear the screen with specific background-/foreground-color in .A. high-nibble is the background color $0-$F, low-nibble is the foreground color $0-$F. The routine fills the screen with spaces (character $20) and sets each characters color.
+**Description** Clear the screen with specific background-/foreground-color. high-nibble is the background color $0-$F, low-nibble is the foreground color $0-$F. The routine fills the screen with spaces (character $20) and sets each characters color.
+
+**Example**<br>
+
+	+VTUI_CLEAR $61  ;Clear screen, blue background and white foreground
+	+VTUI_CLEAR 6, 1 ;Same as above.
+	+VTUI_CLEAR ~my_col ;Same as above, but using color-value in a variable.
+	+VTUI_CLEAR ~my_bg,~my_fg; same as above, but using values in variables
+
+	my_col !byte $61
+	my_bg  !byte 6
+	my_fg  !byte 1
 
 ## Function name: set_stride
 Purpose: Set the VERA stride value<br>
