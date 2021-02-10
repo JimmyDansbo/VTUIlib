@@ -113,7 +113,7 @@ ZP registers affected: none<br>
 
 ## Function name: set_stride
 Purpose: Set the VERA stride value<br>
-Call address: `VTUI_SET_STRIDE`<br>
+Macro name: `VTUI_SET_STRIDE`<br>
 Parameters:
 
 * (~).stride = stride value
@@ -133,7 +133,7 @@ ZP registers affected: none<br>
 
 ## Function name: set_decr
 Purpose: Set the VERA decrement bit<br>
-Call address: `VTUI_SET_DECR`<br>
+Macro name: `VTUI_SET_DECR`<br>
 Parameters:
 
 * .decrement = decrement value (0 or 1)
@@ -152,13 +152,25 @@ ZP registers affected: none<br>
 
 ## Function name: gotoxy
 Purpose: Set VERA address to point to specific coordinates on screen.<br>
-Call address: `VTUILIB+14`<br>
-Communication registers: .A & .Y<br>
+Macro name: `VTUI_GOTOXY`<br>
+Parameters:<br>
+
+* (\~).X = X coordinate
+* (\~).Y = Y coordinate
+
 Preparatory routines: none<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Point the VERA address to a specific set of coordinates on screen. This works in both 80x60 mode and 40x30 mode. If the point is outside of visible area and character is plotted, it will not be visible. There is no error handling. .Y is the y-coordinate (0-29/59) and .A is the x-coordinate (0-39/79). This function does not actually display anything on screen.
+**Description** Point the VERA address to a specific set of coordinates on screen. This works in both 80x60 mode and 40x30 mode. If the point is outside of visible area and character is plotted, it will not be visible. There is no error handling. Y-coordinate (0-29/59) and X-coordinate (0-39/79). This function does not actually display anything on screen.
+
+**Example**
+
+	+VTUI_GOTOXY 15, 2       ; Set VERA memory to point to screen coordinates 15,2
+	+VTUI_GOTOXY ~my_x,~my_y ; Same as above, but using variables
+
+	my_x !byte 15
+	my_y !byte 2
 
 ## Function name: plot_char
 Purpose: Write a screencode character and color to screen.<br>
