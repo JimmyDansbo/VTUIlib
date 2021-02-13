@@ -615,6 +615,36 @@ LIGHTGRAY	= 15
 	dec	.height
 	bne	.loop
 }
+!macro VTUI_VLINE .char, .height {
+	ldy	#.height
+.loop:	+VTUI_PLOT_CHAR .char
+	dec	VERA_ADDR_L
+	inc	VERA_ADDR_M
+	dey
+	bne	.loop
+}
+!macro VTUI_VLINE .char, ~.height {
+.loop:	+VTUI_PLOT_CHAR .char
+	dec	VERA_ADDR_L
+	inc	VERA_ADDR_M
+	dec	.height
+	bne	.loop
+}
+!macro VTUI_VLINE ~.char, .height {
+	ldy	#.height
+.loop:	+VTUI_PLOT_CHAR ~char
+	dec	VERA_ADDR_L
+	inc	VERA_ADDR_M
+	dey
+	bne	.loop
+}
+!macro VTUI_VLINE ~.char, ~.height {
+.loop:	+VTUI_PLOT_CHAR char
+	dec	VERA_ADDR_L
+	inc	VERA_ADDR_M
+	dec	.height
+	bne	.loop
+}
 !macro VTUI_VLINE {
 .loop:	+VTUI_PLOT_CHAR
 	dec	VERA_ADDR_L	; Return to original X coordinate
