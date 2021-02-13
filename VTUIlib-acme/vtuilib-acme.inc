@@ -672,35 +672,7 @@ LIGHTGRAY	= 15
 	bne	.loop		; Get next character
 .end:
 }
-!macro VTUI_PRINT_STR ~.addr, .bgcolor, .fgcolor {
-	ldx	#(.bgcolor<<4)|(.fgcolor&0x0F)
-	ldy	#0
-.loop:	lda	.addr,y		; Load character
-	beq	.end		; If 0, we are done
-	+VTUI_PET2SCR
-	+VTUI_PLOT_CHAR
-	iny
-	bne	.loop		; Get next character
-.end:
-}
 !macro VTUI_PRINT_STR .addr, ~.bgcolor, ~.fgcolor {
-	lda	.bgcolor
-	asl
-	asl
-	asl
-	asl
-	ora	.fgcolor
-	tax
-	ldy	#0
-.loop:	lda	.addr,y		; Load character
-	beq	.end		; If 0, we are done
-	+VTUI_PET2SCR
-	+VTUI_PLOT_CHAR
-	iny
-	bne	.loop		; Get next character
-.end:
-}
-!macro VTUI_PRINT_STR ~.addr, ~.bgcolor, ~.fgcolor {
 	lda	.bgcolor
 	asl
 	asl
@@ -728,17 +700,6 @@ LIGHTGRAY	= 15
 	bne	.loop		; Get next character
 .end:
 }
-!macro VTUI_PRINT_STR ~.addr, .color {
-	ldx	#.color
-	ldy	#0
-.loop:	lda	.addr,y		; Load character
-	beq	.end		; If 0, we are done
-	+VTUI_PET2SCR
-	+VTUI_PLOT_CHAR
-	iny
-	bne	.loop		; Get next character
-.end:
-}
 !macro VTUI_PRINT_STR .addr, ~.color {
 	ldx	.color
 	ldy	#0
@@ -750,16 +711,15 @@ LIGHTGRAY	= 15
 	bne	.loop		; Get next character
 .end:
 }
-!macro VTUI_PRINT_STR ~.addr, ~.color {
-	ldx	.color
+!macro VTUI_PRINT_STR .addr {
 	ldy	#0
-.loop:	lda	.addr,y		; Load character
-	beq	.end		; If 0, we are done
+.loop:	lda	.addr,y
+	beq	.end
 	+VTUI_PET2SCR
-	+VTUI_PLOT_CHAR
+	sta	VERA_DATA0
+	lda	VERA_DATA0	; Skip color information
 	iny
-	bne	.loop		; Get next character
-.end:
+	bne	.loop
 }
 !macro VTUI_PRINT_STR {
 	ldy	#0
