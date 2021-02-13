@@ -1,5 +1,5 @@
-!ifdef VERA_TUI_ACME_INC !eof
-VERA_TUI_ACME_INC=1
+!ifdef VTUILIB_ACME_INC !eof
+VTUILIB_ACME_INC=1
 
 VERA_ADDR_L		= $9F20
 VERA_ADDR_M		= $9F21
@@ -437,6 +437,32 @@ LIGHTGRAY	= 15
 }
 !macro VTUI_HLINE ~.char, ~.length, ~.color {
 .loop:	+VTUI_PLOT_CHAR ~.char, ~.color
+	dec	.length
+	bne	.loop
+}
+!macro VTUI_HLINE .char, .length {
+	ldy	#.length
+.loop:	+VTUI_PLOT_CHAR .char
+	lda	VERA_DATA0
+	dey
+	bne	.loop
+}
+!macro VTUI_HLINE .char ~.length {
+.loop:	+VTUI_PLOT_CHAR .char
+	lda	VERA_DATA0
+	dec	.length
+	bne	.loop
+}
+!macro VTUI_HLINE ~.char .length {
+	ldy	#.length
+.loop:	+VTUI_PLOT_CHAR ~.char
+	lda	VERA_DATA0
+	dey
+	bne	.loop
+}
+!macro VTUI_HLINE ~.char, ~.length {
+.loop:	+VTUI_PLOT_CHAR, ~.char
+	lda	VERA_DATA0
 	dec	.length
 	bne	.loop
 }
@@ -1920,7 +1946,7 @@ LIGHTGRAY	= 15
 	inc	VERA_ADDR_M	; Increment Y coordinate
 	dec	x17h
 	bne	.vloop
-	rts
+	bra	.end
 .sysram:
 	; System RAM
 	ldx	x17l		; Load width
@@ -1937,6 +1963,7 @@ LIGHTGRAY	= 15
 	inc	VERA_ADDR_M
 	dec	x17h
 	bne	.sloop
+.end:
 }
 
 ; *****************************************************************************
@@ -2079,7 +2106,7 @@ LIGHTGRAY	= 15
 	inc	VERA_ADDR_M	; Increment Y coordinate
 	dec	x17h
 	bne	.vloop
-	rts
+	bra	.end
 .sysram:
 	; System RAM
 	ldx	x17l		; Load width
@@ -2096,4 +2123,5 @@ LIGHTGRAY	= 15
 	inc	VERA_ADDR_M
 	dec	x17h
 	bne	.sloop
+.end:
 }
