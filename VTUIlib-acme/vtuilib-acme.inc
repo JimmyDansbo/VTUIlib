@@ -750,6 +750,7 @@ LIGHTGRAY	= 15
 	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	#.width
 	dex
 	bne	.vloop
 }
@@ -764,18 +765,21 @@ LIGHTGRAY	= 15
 	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	#.width
 	dex
 	bne	.vloop
 }
 !macro VTUI_FILL_BOX .char, ~.width, ~.height, .bgcolor, .fgcolor {
+	ldy	.width
 	lda	VERA_ADDR_L
 	sta	x16l
 .vloop:	lda	x16l		; Load x coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
 .hloop:	+VTUI_PLOT_CHAR .char, .bgcolor, .fgcolor
-	dec	.width
+	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	.width
 	dec	.height
 	bne	.vloop
 }
@@ -790,18 +794,21 @@ LIGHTGRAY	= 15
 	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	#.width
 	dex
 	bne	.vloop
 }
 !macro VTUI_FILL_BOX ~.char, ~.width, ~.height, .bgcolor, .fgcolor {
+	ldy	.width
 	lda	VERA_ADDR_L
 	sta	x16l
 .vloop:	lda	x16l		; Load x coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
 .hloop:	+VTUI_PLOT_CHAR ~.char, .bgcolor, .fgcolor
-	dec	.width
+	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	.width
 	dec	.height
 	bne	.vloop
 }
@@ -816,30 +823,35 @@ LIGHTGRAY	= 15
 	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	#.width
 	dex
 	bne	.vloop
 }
 !macro VTUI_FILL_BOX .char, ~.width, ~.height, ~.bgcolor, ~.fgcolor {
+	ldy	.width
 	lda	VERA_ADDR_L
 	sta	x16l
 .vloop:	lda	x16l		; Load x coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
 .hloop:	+VTUI_PLOT_CHAR .char, ~.bgcolor, ~.fgcolor
-	dec	.width
+	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	.width
 	dec	.height
 	bne	.vloop
 }
 !macro VTUI_FILL_BOX ~.char, ~.width, ~.height, ~.bgcolor, ~.fgcolor {
+	ldy	.width
 	lda	VERA_ADDR_L
 	sta	x16l
 .vloop:	lda	x16l		; Load x coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
 .hloop:	+VTUI_PLOT_CHAR ~.char, ~.bgcolor, ~.fgcolor
-	dec	.width
+	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	.width
 	dec	.height
 	bne	.vloop
 }
@@ -854,6 +866,7 @@ LIGHTGRAY	= 15
 	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	#.width
 	dex
 	bne	.vloop
 }
@@ -868,18 +881,21 @@ LIGHTGRAY	= 15
 	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	#.width
 	dex
 	bne	.vloop
 }
 !macro VTUI_FILL_BOX .char, ~.width, ~.height, .color {
+	ldy	.width
 	lda	VERA_ADDR_L
 	sta	x16l
 .vloop:	lda	x16l		; Load x coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
 .hloop:	+VTUI_PLOT_CHAR .char, .color
-	dec	.width
+	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	.width
 	dec	.height
 	bne	.vloop
 }
@@ -894,18 +910,21 @@ LIGHTGRAY	= 15
 	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	#.width
 	dex
 	bne	.vloop
 }
 !macro VTUI_FILL_BOX ~.char, ~.width, ~.height, .color {
+	ldy	.width
 	lda	VERA_ADDR_L
 	sta	x16l
 .vloop:	lda	x16l		; Load x coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
 .hloop:	+VTUI_PLOT_CHAR ~.char, .color
-	dec	.width
+	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	.width
 	dec	.height
 	bne	.vloop
 }
@@ -920,31 +939,100 @@ LIGHTGRAY	= 15
 	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	#.width
 	dex
 	bne	.vloop
 }
 !macro VTUI_FILL_BOX .char, ~.width, ~.height, ~.color {
+	ldy	.width
 	lda	VERA_ADDR_L
 	sta	x16l
 .vloop:	lda	x16l		; Load x coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
 .hloop:	+VTUI_PLOT_CHAR .char, ~.color
-	dec	.width
+	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	.width
 	dec	.height
 	bne	.vloop
 }
 !macro VTUI_FILL_BOX ~.char, ~.width, ~.height, ~.color {
+	ldy	.width
 	lda	VERA_ADDR_L
 	sta	x16l
 .vloop:	lda	x16l		; Load x coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
 .hloop:	+VTUI_PLOT_CHAR ~.char, ~.color
-	dec	.width
+	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
+	ldy	.width
 	dec	.height
+	bne	.vloop
+}
+!macro VTUI_FILL_BOX .char, .width, .height {
+	ldy	#.width
+	ldx	#.height
+	lda	VERA_ADDR_L
+	sta	x16l
+.vloop:	lda	x16l
+	sta	VERA_ADDR_L
+.hloop:	+VTUI_PLOT_CHAR .char
+	lda	VERA_DATA0
+	dey
+	bne	.hloop
+	inc	VERA_ADDR_M
+	ldy	#.width
+	dex
+	bne	.vloop
+}
+!macro VTUI_FILL_BOX .char, ~.width, ~.height {
+	ldy	.width
+	ldx	.height
+	lda	VERA_ADDR_L
+	sta	x16l
+.vloop:	lda	x16l
+	sta	VERA_ADDR_L
+.hloop:	+VTUI_PLOT_CHAR .char
+	lda	VERA_DATA0
+	dey
+	bne	.hloop
+	inc	VERA_ADDR_M
+	ldy	#.width
+	dex
+	bne	.vloop
+}
+!macro VTUI_FILL_BOX ~.char, .width, .height {
+	ldy	#.width
+	ldx	#.height
+	lda	VERA_ADDR_L
+	sta	x16l
+.vloop:	lda	x16l
+	sta	VERA_ADDR_L
+.hloop:	+VTUI_PLOT_CHAR ~.char
+	lda	VERA_DATA0
+	dey
+	bne	.hloop
+	inc	VERA_ADDR_M
+	ldy	#.width
+	dex
+	bne	.vloop
+}
+!macro VTUI_FILL_BOX ~.char, ~.width, ~.height {
+	ldy	.width
+	ldx	.height
+	lda	VERA_ADDR_L
+	sta	x16l
+.vloop:	lda	x16l
+	sta	VERA_ADDR_L
+.hloop:	+VTUI_PLOT_CHAR ~.char
+	lda	VERA_DATA0
+	dey
+	bne	.hloop
+	inc	VERA_ADDR_M
+	ldy	#.width
+	dex
 	bne	.vloop
 }
 !macro VTUI_FILL_BOX {
@@ -952,13 +1040,13 @@ LIGHTGRAY	= 15
 	sta	x16l
 .vloop:	lda	x16l		; Load x coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
-	lda	x16h
-	ldy	x17l
+	lda	x16h		; Load character
+	ldy	x17l		; Load width
 .hloop:	+PLOT_CHAR
 	dey
 	bne	.hloop
-	inc	VERA_ADDR_M
-	dec	x17h
+	inc	VERA_ADDR_M	; Next line
+	dec	x17h		; Decrement height
 	bne	.vloop
 }
 
