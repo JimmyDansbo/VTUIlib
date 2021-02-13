@@ -206,7 +206,7 @@ Preparatory routines: VTUI_GOTOXY (optional)<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Write the screencode character to the screen at current address. The routine expects VERA to increment by one as it writes the background-/foreground-color to VERA without touching VERA addresses.<br>
+**Description** Write the screencode character to the screen at current address. The macro expects VERA to increment by one as it writes the background-/foreground-color to VERA without touching VERA addresses. If the macro is called with only a single parameter, only the character is written and the macro does not care what the increment value is set to.<br>
 **VERA screencodes**<br>
 ![VERA charactermap](https://cx16.dk/veratext/verachars.jpg)<br>
 **VERA colors**<br>
@@ -243,7 +243,7 @@ Preparatory routines: VTUI_GOTOXY (optional)<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Read the screencode character at current VERA address. The routine expects VERA to increment by one as it reads the background-/foreground-color next unless .nocol is set.
+**Description** Read the screencode character at current VERA address. The macro expects VERA to increment by one as it reads the background-/foreground-color next. If the macro is called with only a single parameter, only the character is read and the macro does not care what the increment value is set to.
 
 **Example**
 
