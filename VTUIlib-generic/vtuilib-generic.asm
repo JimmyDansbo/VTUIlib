@@ -6,7 +6,7 @@
 ; ******************************* Jumptable *******************************
 	bra	initialize	; No inputs
 	jmp	screen_set	; .A = Screenmode ($00, $02 or $FF)
-	jmp	clear		; .A = bg-/fg-color
+	jmp	set_bank	; .A = bank number (0 or 1)
 	jmp	set_stride	; .A = Stride value
 	jmp	set_decr	; .C (1 = decrement, 0 = increment)
 	jmp	gotoxy		; .A = x coordinate, .Y = y coordinate
@@ -44,152 +44,6 @@ x19		= $28
 x19l		= x19
 x19h		= x19+1
 
-; ******************************* Macros *******************************
-
-; *****************************************************************************
-; Set the stride without changing other values in VERA_ADDR_H
-; *****************************************************************************
-; INPUT:		.A = Stride value
-; USES:			.X
-; *****************************************************************************
-!macro SET_STRIDE {
-	asl			; Stride is stored in upper nibble
-	asl
-	asl
-	asl
-	tax
-	lda	VERA_ADDR_H	; Set stride value to 0 in VERA_ADDR_H
-	and	#$0F
-	sta	VERA_ADDR_H
-	txa
-	ora	VERA_ADDR_H	; Set the correct stride value
-	sta	VERA_ADDR_H
-}
-; *****************************************************************************
-; Set VERA address to point to specific point on screen
-; *****************************************************************************
-; INPUTS:	.A = x coordinate
-;		.Y = y coordinate
-; *****************************************************************************
-!macro GOTOXY {
-	sty	VERA_ADDR_M	; Set y coordinate
-	asl			; Multiply x coord with 2 for correct coordinate
-	sta	VERA_ADDR_L	; Set x coordinate
-}
-; *****************************************************************************
-; Write character and color to current VERA address
-; Function assumes that stride is set to 1 and decrement set to 0
-; *****************************************************************************
-; INPUTS:	.A = character
-;		.X = bg-/fg-color
-; *****************************************************************************
-!macro PLOT_CHAR {
-	sta	VERA_DATA0
-	stx	VERA_DATA0
-}
-; *****************************************************************************
-; Read character and color from current VERA address
-; Function assumes that stride is set to 1 and decrement set to 0
-; *****************************************************************************
-; OUTPUS:	.A = character
-;		.X = bg-/fg-color
-; *****************************************************************************
-!macro SCAN_CHAR {
-	lda	VERA_DATA0
-	ldx	VERA_DATA0
-}
-; *****************************************************************************
-; Create a horizontal line going from left to right.
-; *****************************************************************************
-; INPUTS:	.A	= Character to use for drawing the line
-;		.Y	= Length of the line
-;		.X	= bg- & fg-color
-; *****************************************************************************
-!macro HLINE {
-.loop:	+PLOT_CHAR
-	dey
-	bne	.loop
-}
-; *****************************************************************************
-; Create a vertical line going from top to bottom.
-; *****************************************************************************
-; INPUTS:	.A	= Character to use for drawing the line
-;		.Y	= Height of the line
-;		.X	= bg- & fg-color
-; *****************************************************************************
-!macro VLINE {
-.loop:	+PLOT_CHAR
-	dec	VERA_ADDR_L	; Return to original X coordinate
-	dec	VERA_ADDR_L
-	inc	VERA_ADDR_M	; Increment Y coordinate
-	dey
-	bne	.loop
-}
-; *****************************************************************************
-; Convert PETSCII codes between $20 and $5F to screencodes.
-; *****************************************************************************
-; INPUTS:	.A = character to convert
-; OUTPUS:	.A = converted character or $56 if invalid input
-; *****************************************************************************
-!macro PET2SCR {
-	cmp	#$20
-	bcc	.nonprintable	; .A < $20
-	cmp	#$40
-	bcc	.end		; .A < $40 means screen code is the same
-	; .A >= $40 - might be letter
-	cmp	#$60
-	bcs	.nonprintable	; .A < $60 so it is a letter, subtract ($3F+1)
-	sbc	#$3F		; to convert to screencode
-	bra	.end
-.nonprintable:
-	lda	#$56
-.end:
-}
-; *****************************************************************************
-; Convert screencodes between $00 and $3F to PETSCII.
-; *****************************************************************************
-; INPUTS:	.A = character to convert
-; OUTPUS:	.A = converted character or $76 if invalid input
-; *****************************************************************************
-!macro SCR2PET {
-	cmp	#$40
-	bcs	.nonprintable	; .A >= $40
-	cmp	#$20
-	bcs	.end		; .A >=$20 & < $40 means petscii is the same
-	; .A < $20 and is a letter
-	adc	#$40
-	bra	.end
-.nonprintable:
-	lda	#$76
-.end:
-}
-; *****************************************************************************
-; Set VERA bank (High memory) without touching anything else
-; *****************************************************************************
-; INPUTS:	.A = Bank number, 0 or 1
-; USES:		.A
-; *****************************************************************************
-!macro SET_BANK {
-	cmp	#0
-	beq	.setzero
-	; Bank = 1
-	lda	VERA_ADDR_H
-	ora	#$01
-	sta	VERA_ADDR_H
-	bra	.end
-.setzero:
-	; Bank = 0
-	lda	VERA_ADDR_H
-	and	#$FE
-	sta	VERA_ADDR_H
-.end:
-}
-!macro INC16 .addr {
-	inc	.addr
-	bne	.end
-	inc	.addr+1
-.end:
-}
 ; ******************************* Functions *******************************
 
 ; *****************************************************************************
@@ -268,42 +122,61 @@ initialize:
 ; USES:			.A, .X & ,Y
 ; RETURNS:		.C = 1 in case of error.
 ; *****************************************************************************
-screen_set:
-	beq	@doset		; If 0, we can set mode
+!macro SCREEN_SET {
+	beq	.doset		; If 0, we can set mode
 	cmp	#$02
-	beq	@doset		; If 2, we can set mode
+	beq	.doset		; If 2, we can set mode
 	cmp	#$FF
-	bne	@end		; If $FF, we can set mode
-@doset:	jsr	$FF5F
-@end:	rts
+	bne	.end		; If $FF, we can set mode
+.doset:	jsr	$FF5F
+.end:
+}
+screen_set:
+	+SCREEN_SET
+	rts
 
 ; *****************************************************************************
-; Clear the screen with certain bg-/fg-color
-; Assumes stride is 1 and decr is 0
+; Set VERA bank (High memory) without touching anything else
 ; *****************************************************************************
-; INPUTS:	.A = bg-/fg-color
-; USES:		.X & .Y
+; INPUTS:	.A = Bank number, 0 or 1
+; USES:		.A
 ; *****************************************************************************
-clear:
-	ldy	#60		; 60 lines is the maximum
-	sty	VERA_ADDR_M
-	ldy	#' '
-@yloop:	ldx	#80		; 80 columns is maximum
-	stz	VERA_ADDR_L
-@xloop:	sty	VERA_DATA0	; - Character
-	sta	VERA_DATA0	; - bg-/fg-color
-	dex
-	bne	@xloop
-	dec	VERA_ADDR_M
-	bpl	@yloop
+!macro SET_BANK {
+	cmp	#0
+	beq	.setzero
+	; Bank = 1
+	lda	VERA_ADDR_H
+	ora	#$01
+	sta	VERA_ADDR_H
+	bra	.end
+.setzero:
+	; Bank = 0
+	lda	VERA_ADDR_H
+	and	#$FE
+	sta	VERA_ADDR_H
+.end:
+}
+set_bank:
+	+SET_BANK
 	rts
 
 ; *****************************************************************************
 ; Set the stride without changing other values in VERA_ADDR_H
 ; *****************************************************************************
 ; INPUT:		.A = Stride value
-; USES:			.X
+; USES:			x16l
 ; *****************************************************************************
+!macro SET_STRIDE {
+	asl			; Stride is stored in upper nibble
+	asl
+	asl
+	asl
+	sta	x16l
+	lda	VERA_ADDR_H	; Set stride value to 0 in VERA_ADDR_H
+	and	#$0F
+	ora	x16l
+	sta	VERA_ADDR_H
+}
 set_stride:
 	+SET_STRIDE
 	rts
@@ -314,14 +187,17 @@ set_stride:
 ; INPUT:		.C (1 = decrement, 0 = increment)
 ; USES:			.A
 ; *****************************************************************************
-set_decr:
+!macro SET_DECR {
 	lda	VERA_ADDR_H
-	bcc	@setnul
+	bcc	.setnul
 	ora	#%00001000
-	bra	@end
-@setnul:
+	bra	.end
+.setnul:
 	and	#%11110111
-@end:	sta	VERA_ADDR_H
+.end:	sta	VERA_ADDR_H
+}
+set_decr:
+	+SET_DECR
 	rts
 
 ; *****************************************************************************
@@ -331,6 +207,10 @@ set_decr:
 ; INPUTS:	.A = character
 ;		.X = bg-/fg-color
 ; *****************************************************************************
+!macro PLOT_CHAR {
+	sta	VERA_DATA0
+	stx	VERA_DATA0
+}
 plot_char:
 	+PLOT_CHAR
 	rts
@@ -342,6 +222,10 @@ plot_char:
 ; OUTPUS:	.A = character
 ;		.X = bg-/fg-color
 ; *****************************************************************************
+!macro SCAN_CHAR {
+	lda	VERA_DATA0
+	ldx	VERA_DATA0
+}
 scan_char:
 	+SCAN_CHAR
 	rts
@@ -353,6 +237,11 @@ scan_char:
 ;		.Y	= Length of the line
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
+!macro HLINE {
+.loop:	+PLOT_CHAR
+	dey
+	bne	.loop
+}
 hline:
 	+HLINE
 	rts
@@ -364,6 +253,14 @@ hline:
 ;		.Y	= Height of the line
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
+!macro VLINE {
+.loop:	+PLOT_CHAR
+	dec	VERA_ADDR_L	; Return to original X coordinate
+	dec	VERA_ADDR_L
+	inc	VERA_ADDR_M	; Increment Y coordinate
+	dey
+	bne	.loop
+}
 vline:
 	+VLINE
 	rts
@@ -374,6 +271,11 @@ vline:
 ; INPUTS:	.A = x coordinate
 ;		.Y = y coordinate
 ; *****************************************************************************
+!macro GOTOXY {
+	sty	VERA_ADDR_M	; Set y coordinate
+	asl			; Multiply x coord with 2 for correct coordinate
+	sta	VERA_ADDR_L	; Set x coordinate
+}
 gotoxy:
 	+GOTOXY
 	rts
@@ -384,6 +286,20 @@ gotoxy:
 ; INPUTS:	.A = character to convert
 ; OUTPUS:	.A = converted character or $56 if invalid input
 ; *****************************************************************************
+!macro PET2SCR {
+	cmp	#$20
+	bcc	.nonprintable	; .A < $20
+	cmp	#$40
+	bcc	.end		; .A < $40 means screen code is the same
+	; .A >= $40 - might be letter
+	cmp	#$60
+	bcs	.nonprintable	; .A < $60 so it is a letter, subtract ($3F+1)
+	sbc	#$3F		; to convert to screencode
+	bra	.end
+.nonprintable:
+	lda	#$56
+.end:
+}
 pet2scr:
 	+PET2SCR
 	rts
@@ -394,6 +310,18 @@ pet2scr:
 ; INPUTS:	.A = character to convert
 ; OUTPUS:	.A = converted character or $76 if invalid input
 ; *****************************************************************************
+!macro SCR2PET {
+	cmp	#$40
+	bcs	.nonprintable	; .A >= $40
+	cmp	#$20
+	bcs	.end		; .A >=$20 & < $40 means petscii is the same
+	; .A < $20 and is a letter
+	adc	#$40
+	bra	.end
+.nonprintable:
+	lda	#$76
+.end:
+}
 scr2pet:
 	+SCR2PET
 	rts
@@ -405,15 +333,19 @@ scr2pet:
 ;		.X  = bg-/fg color
 ; USES:		.Y
 ; *****************************************************************************
-print_str:
+!macro PRINT_STR {
 	ldy	#0
-@loop:	lda	(x16),y		; Load character
-	beq	@end		; If 0, we are done
+.loop:	lda	(x16),y		; Load character
+	beq	.end		; If 0, we are done
 	+PET2SCR
 	+PLOT_CHAR
 	iny
-	bne	@loop		; Get next character
-@end:	rts
+	bne	.loop		; Get next character
+.end:
+}
+print_str:
+	+PRINT_STR
+	rts
 
 ; *****************************************************************************
 ; Create a filled box drawn from top left to bottom right
@@ -423,19 +355,22 @@ print_str:
 ;		x17h	= Height of box
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
-fill_box:
+!macro FILL_BOX {
 	lda	VERA_ADDR_L
 	sta	x16l
-@vloop:	lda	x16l		; Load x coordinate
+.vloop:	lda	x16l		; Load x coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
 	lda	x16h
 	ldy	x17l
-@hloop:	+PLOT_CHAR
+.hloop:	+PLOT_CHAR
 	dey
-	bne	@hloop
+	bne	.hloop
 	inc	VERA_ADDR_M
 	dec	x17h
-	bne	@vloop
+	bne	.vloop
+}
+fill_box:
+	+FILL_BOX
 	rts
 
 ; *****************************************************************************
@@ -447,106 +382,105 @@ fill_box:
 ;		.X	= bg-/fg-color
 ; USES		.Y, x16l & x16h
 ; *****************************************************************************
-border:
+!macro BORDER {
 	; Define local variable names for ZP variables
 	; Makes the source a bit more readable
-@top_right=x18l
-@top_left =x18h
-@bot_right=x19l
-@bot_left =x19h
-@top	  =x19h+1		; z20l
-@bottom   =x19h+2		; z20h
-@left	  =x19h+3		; z21l
-@right	  =x19h+4		; z21h
+.top_right=x18l
+.top_left =x18h
+.bot_right=x19l
+.bot_left =x19h
+.top	  =x19h+1		; z20l
+.bottom   =x19h+2		; z20h
+.left	  =x19h+3		; z21l
+.right	  =x19h+4		; z21h
 
 	; Set the border drawing characters according to the border mode in .A
-@mode1: cmp	#1
-	bne	@mode2
+.mode1: cmp	#1
+	bne	.mode2
 	lda	#$66
-	bra	@def
-@mode2: cmp	#2
-	bne	@mode3
+	bra	.def
+.mode2: cmp	#2
+	bne	.mode3
 	lda	#$6E
-	sta	@top_right
+	sta	.top_right
 	lda	#$70
-	sta	@top_left
+	sta	.top_left
 	lda	#$7D
-	sta	@bot_right
+	sta	.bot_right
 	lda	#$6D
-	sta	@bot_left
-@clines	lda	#$40		; centered lines
-	sta	@top
-	sta	@bottom
+	sta	.bot_left
+.clines	lda	#$40		; centered lines
+	sta	.top
+	sta	.bottom
 	lda	#$42
-	sta	@left
-	sta	@right
-	bra	@dodraw
-@mode3	cmp	#3
-	bne	@mode4
+	sta	.left
+	sta	.right
+	bra	.dodraw
+.mode3	cmp	#3
+	bne	.mode4
 	lda	#$49
-	sta	@top_right
+	sta	.top_right
 	lda	#$55
-	sta	@top_left
+	sta	.top_left
 	lda	#$4B
-	sta	@bot_right
+	sta	.bot_right
 	lda	#$4A
-	sta	@bot_left
-	bra	@clines
-@mode4	cmp	#4
-	bne	@mode5
+	sta	.bot_left
+	bra	.clines
+.mode4	cmp	#4
+	bne	.mode5
 	lda	#$50
-	sta	@top_right
+	sta	.top_right
 	lda	#$4F
-	sta	@top_left
+	sta	.top_left
 	lda	#$7A
-	sta	@bot_right
+	sta	.bot_right
 	lda	#$4C
-	sta	@bot_left
-@elines	lda	#$77		; lines on edges
-	sta	@top
+	sta	.bot_left
+.elines	lda	#$77		; lines on edges
+	sta	.top
 	lda	#$6F
-	sta	@bottom
+	sta	.bottom
 	lda	#$74
-	sta	@left
+	sta	.left
 	lda	#$6A
-	sta	@right
-	bra	@dodraw
-@mode5	cmp	#5
-	bne	@default
+	sta	.right
+	bra	.dodraw
+.mode5	cmp	#5
+	bne	.default
 	lda	#$5F
-	sta	@top_right
+	sta	.top_right
 	lda	#$69
-	sta	@top_left
+	sta	.top_left
 	lda	#$E9
-	sta	@bot_right
+	sta	.bot_right
 	lda	#$DF
-	sta	@bot_left
-	bra	@elines
-@default:
+	sta	.bot_left
+	bra	.elines
+.default:
 	lda	#$20
-@def	sta	@top_right
-	sta	@top_left
-	sta	@bot_right
-	sta	@bot_left
-	sta	@top
-	sta	@bottom
-	sta	@left
-	sta	@right
-@dodraw:
+.def:	sta	.top_right
+	sta	.top_left
+	sta	.bot_right
+	sta	.bot_left
+	sta	.top
+	sta	.bottom
+	sta	.left
+	sta	.right
+.dodraw:
 	; Save initial position
 	lda	VERA_ADDR_L
 	sta	x16l
 	lda	VERA_ADDR_M
 	sta	x16h
-
 	ldy	x17l		; width
 	dey
-	lda	@top_left
+	lda	.top_left
 	+PLOT_CHAR		; Top left corner
 	dey
-	lda	@top
+	lda	.top
 	+HLINE			; Top line
-	lda	@top_right
+	lda	.top_right
 	+PLOT_CHAR		; Top right corner
 	dec	VERA_ADDR_L
 	dec	VERA_ADDR_L
@@ -554,7 +488,7 @@ border:
 	ldy	x17h		;height
 	dey
 	dey
-	lda	@right
+	lda	.right
 	+VLINE			; Right line
 	; Restore initial VERA address
 	lda	x16l
@@ -564,20 +498,35 @@ border:
 	inc	VERA_ADDR_M
 	ldy	x17h		;height
 	dey
-	lda	@left
+	lda	.left
 	+VLINE			; Left line
 	dec	VERA_ADDR_M
-	lda	@bot_left
+	lda	.bot_left
 	+PLOT_CHAR		; Bottom left corner
 	ldy	x17l
 	dey
-	lda	@bottom
+	lda	.bottom
 	+HLINE			; Bottom line
 	dec	VERA_ADDR_L
 	dec	VERA_ADDR_L
-	lda	@bot_right
+	lda	.bot_right
 	+PLOT_CHAR		; Bottom right corner
+}
+border:
+	+BORDER
 	rts
+
+; *****************************************************************************
+; Increment 16bit value
+; *****************************************************************************
+; INPUT:	.addr = low byte of the 16bit value to increment
+; *****************************************************************************
+!macro INC16 .addr {
+	inc	.addr
+	bne	.end
+	inc	.addr+1
+.end:
+}
 
 ; *****************************************************************************
 ; Copy contents of screen from current position to other memory area in
@@ -589,9 +538,9 @@ border:
 ;		x17l	= width
 ;		x17h	= height
 ; *****************************************************************************
-save_rect:
+!macro SAVE_RECT {
 	ldy	VERA_ADDR_L	; Save X coordinate for later
-	bcc	@sysram
+	bcc	.sysram
 	; VRAM
 	ldx	#1		; Set ADDRsel to 1
 	stx	VERA_CTRL
@@ -604,34 +553,38 @@ save_rect:
 	sta	VERA_ADDR_M
 	stz	VERA_CTRL	; Set ADDRsel back to 0
 	ldx	x17l		; Load width
-@vloop:	lda	VERA_DATA0	; Copy Character
+.vloop:	lda	VERA_DATA0	; Copy Character
 	sta	VERA_DATA1
 	lda	VERA_DATA0	; Copy Color Code
 	sta	VERA_DATA1
 	dex
-	bne	@vloop
+	bne	.vloop
 	ldx	x17l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M	; Increment Y coordinate
 	dec	x17h
-	bne	@vloop
-	rts
-@sysram:
+	bne	.vloop
+	bra	.end
+.sysram:
 	; System RAM
 	ldx	x17l		; Load width
-@sloop:	lda	VERA_DATA0	; Copy Character
+.sloop:	lda	VERA_DATA0	; Copy Character
 	sta	(x16)
 	+INC16 x16		; Increment destination address
 	lda	VERA_DATA0	; Copy Color Code
 	sta	(x16)
 	+INC16 x16		; Increment destination address
 	dex
-	bne	@sloop
+	bne	.sloop
 	ldx	x17l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M
 	dec	x17h
-	bne	@sloop
+	bne	.sloop
+.end:
+}
+save_rect:
+	+SAVE_RECT
 	rts
 
 ; *****************************************************************************
@@ -644,9 +597,9 @@ save_rect:
 ;		x17l	= width
 ;		x17h	= height
 ; *****************************************************************************
-rest_rect:
+!macro REST_RECT {
 	ldy	VERA_ADDR_L	; Save X coordinate for later
-	bcc	@sysram
+	bcc	.sysram
 	; VRAM
 	ldx	#1		; Set ADDRsel to 1
 	stx	VERA_CTRL
@@ -659,32 +612,36 @@ rest_rect:
 	sta	VERA_ADDR_M
 	stz	VERA_CTRL	; Set ADDRsel back to 0
 	ldx	x17l		; Load width
-@vloop:	lda	VERA_DATA1	; Copy Character
+.vloop:	lda	VERA_DATA1	; Copy Character
 	sta	VERA_DATA0
 	lda	VERA_DATA1	; Copy Color Code
 	sta	VERA_DATA0
 	dex
-	bne	@vloop
+	bne	.vloop
 	ldx	x17l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M	; Increment Y coordinate
 	dec	x17h
-	bne	@vloop
-	rts
-@sysram:
+	bne	.vloop
+	bra	.end
+.sysram:
 	; System RAM
 	ldx	x17l		; Load width
-@sloop:	lda	(x16)		; Copy Character
+.sloop:	lda	(x16)		; Copy Character
 	sta	VERA_DATA0
 	+INC16	x16		; Increment destination address
 	lda	(x16)		; Copy Color Code
 	sta	VERA_DATA0
 	+INC16	x16		; Increment destination address
 	dex
-	bne	@sloop
+	bne	.sloop
 	ldx	x17l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M
 	dec	x17h
-	bne	@sloop
+	bne	.sloop
+.end:
+}
+rest_rect:
+	+REST_RECT
 	rts

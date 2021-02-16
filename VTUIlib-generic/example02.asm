@@ -20,7 +20,7 @@ LIBSTART=VTUI+2
 ; Library references
 VTUI_initialize	= LIBSTART+0
 VTUI_screen_set	= LIBSTART+2
-VTUI_clear	= LIBSTART+5
+VTUI_set_bank	= LIBSTART+5
 VTUI_set_stride	= LIBSTART+8
 VTUI_set_decr	= LIBSTART+11
 VTUI_gotoxy	= LIBSTART+14
@@ -47,8 +47,14 @@ main:
 	clc
 	jsr	VTUI_set_decr
 	; Clear screen with white background and black foreground
-	lda	#$10
-	jsr	VTUI_clear
+	lda	#' '
+	sta	x16h
+	lda	#80
+	sta	x17l
+	lda	#60
+	sta	x17h
+	ldx	#$10
+	jsr	VTUI_fill_box
 	; gotoxy 11, 2
 	lda	#11
 	ldy	#2
@@ -223,7 +229,7 @@ main:
 	rts
 
 Libname		!text	"VTUI LIBRARY",0
-Verstr		!text	"VERSION 0.1",0
+Verstr		!text	"VERSION 0.2",0
 Boxstr		!text	"BOXES WITH OR WITHOUT BORDERS",0
 Hlinestr	!text	"HORIZONTAL LINES",0
 Vlinestr	!text	"VERTICAL LINES",0
@@ -231,4 +237,4 @@ Plotstr		!text	"PLOT OR SCAN CHARACTERS",0
 Dramstr		!text	"DIRECTLY TO/FROM SCREEN RAM",0
 Morestr		!text	"***MORE TO SEE AND TO COME***",0
 
-VTUI		!bin	"VTUI0.1.BIN"
+VTUI		!bin	"VTUI0.2.BIN"

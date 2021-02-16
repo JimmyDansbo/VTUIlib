@@ -1,6 +1,6 @@
 # VTUI library Programmers Reference
 
-Version 0.1
+Version 0.2
 
 *Author: Jimmy Dansbo*
 
@@ -17,7 +17,7 @@ This document describes the **generic** **V**ERA **T**ext **U**ser **I**nterface
 * [Functions](#functions)
 	* [initialize](#function-name-initialize)
 	* [screen_set](#function-name-screen_set)
-	* [clear](#function-name-clear)
+	* [set_bank](#function-name-set_bank)
 	* [set_stride](#function-name-set_stride)
 	* [set_decr](#function-name-set_decr)
 	* [gotoxy](#function-name-gotoxy)
@@ -100,15 +100,15 @@ ZP registers affected: none<br>
 
 **Description** This function sets or toggles the screenmode. Supported modes are 0 = 40x30 & 2 80x60. Mode 255 ($FF) will toggle between the two modes. Any other mode will fail silently.
 
-## Function name: clear
-Purpose: Clear screen with specific background-/foreground-color<br>
+## Function name: set_bank
+Purpose: Set the VERA bank, 0 or 1<br>
 Call address: `VTUILIB+5`<br>
 Communication registers: .A<br>
 Preparatory routines: none<br>
-Registers affected: .X & .Y<br>
+Registers affected: .A<br>
 ZP registers affected: none<br>
 
-**Description** Clear the screen with specific background-/foreground-color in .A. high-nibble is the background color $0-$F, low-nibble is the foreground color $0-$F. The routine fills the screen with spaces (character $20) and sets each characters color.
+**Description** Set the VERA bank (high address bit). The value in .A can be either 0 or 1.
 
 ## Function name: set_stride
 Purpose: Set the VERA stride value<br>
