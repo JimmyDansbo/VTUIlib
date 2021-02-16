@@ -95,6 +95,8 @@ In addition to the zeropage memory, the VTUI library uses CPU registers for tran
 ### Function name: initialize
 Purpose: Initialize jump table in preparation for library use.<br>
 Call address: `VTUILIB + 0`<br>
+Macro name: none<br>
+Routine name: none<br>
 Communication registers: none<br>
 Preparatory routines: none<br>
 Registers affected: .A, .X & .Y<br>
@@ -105,6 +107,8 @@ ZP registers affected: x16, x17, x18 & x19 ($22-$29)<br>
 ### Function name: screen_set
 Purpose: Set the screen mode to supported text mode<br>
 Call address: `VTUILIB+2`<br>
+Macro name: `VTUI_SCREEN_SET`<br>
+Routine name: `vtui_screen_set`<br>
 Communication registers: .A<br>
 Preparatory routines: none<br>
 Registers affected: .A, .X & .Y<br>
@@ -115,6 +119,8 @@ ZP registers affected: none<br>
 ## Function name: set_bank
 Purpose: Set the VERA bank, 0 or 1<br>
 Call address: `VTUILIB+5`<br>
+Macro name: `VTUI_SET_BANK`<br>
+Routine name: `vtui_set_bank`<br>
 Communication registers: .A<br>
 Preparatory routines: none<br>
 Registers affected: .A<br>
@@ -125,6 +131,8 @@ ZP registers affected: none<br>
 ## Function name: set_stride
 Purpose: Set the VERA stride value<br>
 Call address: `VTUILIB+8`<br>
+Macro name: `VTUI_SET_STRIDE`<br>
+Routine name: `vtui_set_stride`<br>
 Communication registers: .A<br>
 Preparatory routines: none<br>
 Registers affected: .A<br>
@@ -135,6 +143,8 @@ ZP registers affected: x16l ($22)<br>
 ## Function name: set_decr
 Purpose: Set the VERA decrement bit<br>
 Call address: `VTUILIB+11`<br>
+Macro name: `VTUI_SET_DECR`<br>
+Routine name: `vtui_set_decr`<br>
 Communication registers: .C<br>
 Preparatory routines: none<br>
 Registers affected: .A
@@ -145,6 +155,8 @@ ZP registers affected: none<br>
 ## Function name: gotoxy
 Purpose: Set VERA address to point to specific coordinates on screen.<br>
 Call address: `VTUILIB+14`<br>
+Macro name: `VTUI_GOTOXY`<br>
+Routine name: `vtui_gotoxy`<br>
 Communication registers: .A & .Y<br>
 Preparatory routines: none<br>
 Registers affected: none<br>
@@ -155,6 +167,8 @@ ZP registers affected: none<br>
 ## Function name: plot_char
 Purpose: Write a screencode character and color to screen.<br>
 Call address: `VTUILIB+17`<br>
+Macro name: `VTUI_PLOT_CHAR`<br>
+Routine name: `vtui_plot_char`<br>
 Communication registers: .A & .X<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: none<br>
@@ -169,6 +183,8 @@ ZP registers affected: none<br>
 ## Function name: scan_char
 Purpose: Read a screencode character and color from screen memory<br>
 Call address: `VTUILIB+20`<br>
+Macro name: `VTUI_SCAN_CHAR`<br>
+Routine name: `vtui_scan_char`<br>
 Communication registers: .A & .X<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: none<br>
@@ -179,6 +195,8 @@ ZP registers affected: none<br>
 ## Function name: hline
 Purpose: Draw a horizontal line from left to right.<br>
 Call address: `VTUILIB+23`<br>
+Macro name: `VTUI_HLINE`<br>
+Routine name: `vtui_hline`<br>
 Communication registers: .A, .X & .Y<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A<br>
@@ -189,6 +207,8 @@ ZP registers affected: none<br>
 ## Function name: vline
 Purpose: Draw a vertical line from top to bottom.<br>
 Call address: `VTUILIB+26`<br>
+Macro name: `VTUI_VLINE`<br>
+Routine name: `vtui_vline`<br>
 Communication registers: .A, .X & .Y<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A<br>
@@ -199,6 +219,8 @@ ZP registers affected: none<br>
 ## Function name: print_str
 Purpose: Print a string to screen.<br>
 Call address: `VTUILIB+29`<br>
+Macro name: `VTUI_PRINT_STR`<br>
+Routine name: `vtui_print_str`<br>
 Communication registers: x16 ($22-$23) & .X<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A & .Y<br>
@@ -209,6 +231,8 @@ ZP registers affected: none<br>
 ## Function name: fill_box
 Purpose: Draw a filled box<br>
 Call address: `VTUILIB+32`<br>
+Macro name: `VTUI_FILL_BOX`<br>
+Routine name: `vtui_fill_box`<br>
 Communication registers: x16h ($23), x17l ($24), x17h ($25) & .X<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A & .Y<br>
@@ -226,6 +250,8 @@ ZP registers affected: none<br>
 ## Function name: pet2scr
 Purpose: Convert PETSCII to screencode<br>
 Call address: `VTUILIB+35`<br>
+Macro name: `VTUI_PET2SCR`<br>
+Routine name: `vtui_pet2scr`<br>
 Communication registers: .A<br>
 Preparatory routines: none<br>
 Registers affected: none<br>
@@ -236,6 +262,8 @@ ZP registers affected: none<br>
 ## Function name: scr2pet
 Purpose: Convert screencode to PETSCII<br>
 Call address: `VTUILIB+38`<br>
+Macro name: `VTUI_SCR2PET`<br>
+Routine name: `vtui_scr2pet`<br>
 Communication registers: .A<br>
 Preparatory routines: none<br>
 Registers affected: none<br>
@@ -246,6 +274,8 @@ ZP registers affected: none<br>
 ## Function name: border
 Purpose: Draw a box with border<br>
 Call address: `VTUILIB+41`<br>
+Macro name: `VTUI_BORDER`<br>
+Routine name: `vtui_border`<br>
 Communication registers: .A, .X, x17l ($24) & x17h ($25)<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .Y
@@ -270,6 +300,8 @@ ZP registers affected: x16l ($22), x16h ($23), x18l-x19h ($26-$29) + 4 more addr
 ## Function name: save_rect
 Purpose: Save an area from the screen to memory<br>
 Call address: `VTUILIB+44`<br>
+Macro name: `VTUI_SAVE_RECT`<br>
+Routine name: `vtui_save_rect`<br>
 Communication registers: .C, .A, x16 ($22-$23), x17l ($24), x17h ($25)<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A, .X & .Y
@@ -288,6 +320,8 @@ ZP registers affected: x16 ($22-$23), x17h ($25)
 ## Function name: rest_rect
 Purpose: Restore an area on screen from memory<br>
 Call address: `VTUILIB+47`<br>
+Macro name: `VTUI_REST_RECT`<br>
+Routine name: `vtui_rest_rect`<br>
 Communication registers: .C, .A, .x16 ($22-$23), x17l ($24), x17h ($25)<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A, .X & .Y
