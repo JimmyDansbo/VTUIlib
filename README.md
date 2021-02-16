@@ -72,6 +72,8 @@ Another advantage is that all functions are provided both as macros and routines
 
 Example: `VTUI_GOTOXY` is the macro name and `vtui_gotoxy` is the function name.
 
+For examples look at acme-exXX.asm or ca65-exXX.asm file(s)
+
 ## Initialization
 
 As the generic VTUI library is built without knowledge of where in memory it will be loaded, it is
