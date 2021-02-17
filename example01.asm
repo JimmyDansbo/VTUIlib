@@ -1,18 +1,24 @@
 *=$0801
 !byte $0C,$08,$0A,$00,$9E,' ','2','0','6','4',$00,$00,$00
 *=$0810
-x16		= $22
-x16l		= x16
-x16h		= x16+1
-x17		= $24
-x17l		= x17
-x17h		= x17+1
-x18		= $26
-x18l		= x18
-x18h		= x18+1
-x19		= $28
-x19l		= x19
-x19h		= x19+1
+r0	= $02
+r0l	= r0
+r0h	= r0+1
+r1	= $04
+r1l	= r1
+r1h	= r1+1
+r2	= $06
+r2l	= r2
+r2h	= r2+1
+r3	= $08
+r3l	= r3
+r3h	= r3+1
+r4	= $0A
+r4l	= r4
+r4h	= r4+1
+r5	= $0C
+r5l	= r5
+r5h	= r5+1
 
 ; Load library into Goldem RAM using standard CBM Kernal API
 LIBSTART=$0400
@@ -50,11 +56,11 @@ main:
 	jsr	VTUI_set_decr
 	; Clear screen with white background and black foreground
 	lda	#' '
-	sta	x16h
+	sta	r0h
 	lda	#80
-	sta	x17l
+	sta	r1l
 	lda	#60
-	sta	x17h
+	sta	r1h
 	ldx	#$10
 	jsr	VTUI_fill_box
 	; gotoxy 11, 2
@@ -79,9 +85,9 @@ main:
 	jsr	VTUI_gotoxy
 	; Print string
 	lda	#<Libname	; Low byte of string start address
-	sta	x16l
+	sta	r0l
 	lda	#>Libname	; High byte of string start address
-	sta	x16h
+	sta	r0h
 	ldx	#$10		; White background / black foreground
 	jsr	VTUI_print_str
 	; gotoxy 11, 5
@@ -99,9 +105,9 @@ main:
 	jsr	VTUI_gotoxy
 	; Draw a border
 	lda	#34
-	sta	x17l		; Width
+	sta	r1l		; Width
 	lda	#18
-	sta	x17h		; Height
+	sta	r1h		; Height
 	lda	#3		; Bordermode
 	ldx	#$74		; Yellow background, purple foreground
 	jsr	VTUI_border
@@ -111,12 +117,12 @@ main:
 	jsr	VTUI_gotoxy
 	; Draw a filled box
 	lda	#32
-	sta	x17l		; Width
+	sta	r1l		; Width
 	lda	#16
-	sta	x17h		; Height
+	sta	r1h		; Height
 	ldx	#$74		; Yellow background, purple foreground
 	lda	#' '
-	sta	x16h		; Character used for filling box
+	sta	r0h		; Character used for filling box
 	jsr	VTUI_fill_box
 	; gotoxy 13, 9
 	lda	#13
@@ -128,9 +134,9 @@ main:
 	jsr	VTUI_plot_char
 	; Print string to create a header for our box
 	lda	#<Verstr	; Low byte of string start address
-	sta	x16l
+	sta	r0l
 	lda	#>Verstr	; High byte of string start address
-	sta	x16h
+	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	jsr	VTUI_print_str
 	; Plot a character to create a header for our box
@@ -161,9 +167,9 @@ main:
 	jsr	VTUI_gotoxy
 	; Print string with info about boxes
 	lda	#<Boxstr	; Low byte of string start address
-	sta	x16l
+	sta	r0l
 	lda	#>Boxstr	; High byte of string start address
-	sta	x16h
+	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	jsr	VTUI_print_str
 
@@ -173,9 +179,9 @@ main:
 	jsr	VTUI_gotoxy
 	; Print string with info about boxes
 	lda	#<Hlinestr	; Low byte of string start address
-	sta	x16l
+	sta	r0l
 	lda	#>Hlinestr	; High byte of string start address
-	sta	x16h
+	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	jsr	VTUI_print_str
 
@@ -185,9 +191,9 @@ main:
 	jsr	VTUI_gotoxy
 	; Print string with info about boxes
 	lda	#<Vlinestr	; Low byte of string start address
-	sta	x16l
+	sta	r0l
 	lda	#>Vlinestr	; High byte of string start address
-	sta	x16h
+	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	jsr	VTUI_print_str
 
@@ -197,9 +203,9 @@ main:
 	jsr	VTUI_gotoxy
 	; Print string with info about boxes
 	lda	#<Plotstr	; Low byte of string start address
-	sta	x16l
+	sta	r0l
 	lda	#>Plotstr	; High byte of string start address
-	sta	x16h
+	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	jsr	VTUI_print_str
 
@@ -209,9 +215,9 @@ main:
 	jsr	VTUI_gotoxy
 	; Print string with info about boxes
 	lda	#<Dramstr	; Low byte of string start address
-	sta	x16l
+	sta	r0l
 	lda	#>Dramstr	; High byte of string start address
-	sta	x16h
+	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	jsr	VTUI_print_str
 
@@ -221,9 +227,9 @@ main:
 	jsr	VTUI_gotoxy
 	; Print string with info about boxes
 	lda	#<Morestr	; Low byte of string start address
-	sta	x16l
+	sta	r0l
 	lda	#>Morestr	; High byte of string start address
-	sta	x16h
+	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	jsr	VTUI_print_str
 
@@ -255,5 +261,5 @@ Plotstr		!text	"PLOT OR SCAN CHARACTERS",0
 Dramstr		!text	"DIRECTLY TO/FROM SCREEN RAM",0
 Morestr		!text	"***MORE TO SEE AND TO COME***",0
 
-Fname		!text	"VTUI0.2.BIN"
+Fname		!text	"VTUI0.3.BIN"
 End_fname

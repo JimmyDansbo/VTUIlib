@@ -14,13 +14,13 @@
 	jmp	scan_char	; like plot_char
 	jmp	hline		; .A = Character, .Y = length, .X = color
 	jmp	vline		; .A = Character, .Y = height, .X = color
-	jmp	print_str	; x16 = pointer to string, .X = color
-	jmp	fill_box	; x16h=Char,x17l=width,x17h=height,.X=color
+	jmp	print_str	; r0 = pointer to string, .X = color
+	jmp	fill_box	; r0h=Char,r1l=width,r1h=height,.X=color
 	jmp	pet2scr		; .A = character to convert to screencode
 	jmp	scr2pet		; .A = character to convert to petscii
-	jmp	border		; .A=border,x17l=width,x17h=height,.X=color
-	jmp	save_rect	; .C=destram,.A=vrambank,x16=destaddr,x17l=width,x17h=height
-	jmp	rest_rect	; .C=destram,.A=vrambank,x16=srcaddr,x17l=width,x17h=height
+	jmp	border		; .A=border,r1l=width,r1h=height,.X=color
+	jmp	save_rect	; .C=destram,.A=vrambank,r0=destaddr,r1l=width,r1h=height
+	jmp	rest_rect	; .C=destram,.A=vrambank,r0=srcaddr,r1l=width,r1h=height
 	jmp	$0000		; Show that there are no more jumps
 
 ; ******************************* Constants *******************************
@@ -31,18 +31,24 @@ VERA_DATA0		= $9F23
 VERA_DATA1		= $9F24
 VERA_CTRL		= $9F25
 
-x16		= $22
-x16l		= x16
-x16h		= x16+1
-x17		= $24
-x17l		= x17
-x17h		= x17+1
-x18		= $26
-x18l		= x18
-x18h		= x18+1
-x19		= $28
-x19l		= x19
-x19h		= x19+1
+r0	= $02
+r0l	= r0
+r0h	= r0+1
+r1	= $04
+r1l	= r1
+r1h	= r1+1
+r2	= $06
+r2l	= r2
+r2h	= r2+1
+r3	= $08
+r3l	= r3
+r3h	= r3+1
+r4	= $0A
+r4l	= r4
+r4h	= r4+1
+r5	= $0C
+r5l	= r5
+r5h	= r5+1
 
 ; ******************************* Functions *******************************
 
@@ -51,67 +57,67 @@ x19h		= x19+1
 ; where this code is loaded.
 ; *****************************************************************************
 ; USES:		.A, .X & .Y
-;		x16, x17, x18 & x19 (ZP addresses $22-$29)
+;		r0, r1, r2 & r3 (ZP addresses $02-$09)
 ; *****************************************************************************
 initialize:
 	; Write code to ZP to figure out where the library is loaded.
 	; This is done by jsr'ing to the code in ZP which in turn reads the
 	; return address from the stack.
 	lda	#$BA		; TSX
-	sta	x16
+	sta	r0
 	lda	#$BD		; LDA absolute,x
-	sta	x16+1
+	sta	r0+1
 	lda	#$01		; $0101
-	sta	x16+2
-	sta	x16+3
-	sta	x16+6
+	sta	r0+2
+	sta	r0+3
+	sta	r0+6
 	lda	#$BC		; LDY absolute,x
-	sta	x16+4
+	sta	r0+4
 	lda	#$02		; $0102
-	sta	x16+5
+	sta	r0+5
 	lda	#$60		; RTS
-	sta	x16+7
+	sta	r0+7
 	; Jump to the code in ZP that was just copied there by the code above.
 	; This is to get the return address stored on stack
-	jsr	x16		; Get current PC value
+	jsr	r0		; Get current PC value
 	sec
 	sbc	#*-2		; Calculate start of our program
-	sta	x16		; And store it in x16
+	sta	r0		; And store it in r0
 	tya
 	sbc	#$00
-	sta	x16+1
-	lda	x16		; Calculate location of first address in
+	sta	r0+1
+	lda	r0		; Calculate location of first address in
 	clc			; jump table
 	adc	#$03
-	sta	x17
-	lda	x16+1
+	sta	r1
+	lda	r0+1
 	adc	#$00
-	sta	x17+1
+	sta	r1+1
 	ldy	#$01		; .Y used for indexing high byte of pointers
 @loop:	clc
-	lda	(x17)		; Low part of jumptable address
+	lda	(r1)		; Low part of jumptable address
 	beq	@mightend	; If it is zero, we might have reaced the end of jumptable
-	adc	x16l		; Add start address of our program to the jumptable address
-	sta	(x17)
-	lda	(x17),y
-	adc	x16h
-	sta	(x17),y
+	adc	r0l		; Add start address of our program to the jumptable address
+	sta	(r1)
+	lda	(r1),y
+	adc	r0h
+	sta	(r1),y
 	bra	@prepnext
 @mightend:
-	adc	x16l		; Add start address of our program to the jumptable address
-	sta	(x17)
-	lda	(x17),y		; High part of jumptable address
+	adc	r0l		; Add start address of our program to the jumptable address
+	sta	(r1)
+	lda	(r1),y		; High part of jumptable address
 	beq	@end		; If it is zero, we have reaced end of jumptable
-	adc	x16h
-	sta	(x17),y
-@prepnext:			; Prepare x17 pointer for next entry in jumptable
+	adc	r0h
+	sta	(r1),y
+@prepnext:			; Prepare r1 pointer for next entry in jumptable
 	clc			; (add 3 to current value)
-	lda	x17l
+	lda	r1l
 	adc	#$03
-	sta	x17l
-	lda	x17h
+	sta	r1l
+	lda	r1h
 	adc	#$00
-	sta	x17h
+	sta	r1h
 	bra	@loop
 @end:	rts
 
@@ -164,17 +170,17 @@ set_bank:
 ; Set the stride without changing other values in VERA_ADDR_H
 ; *****************************************************************************
 ; INPUT:		.A = Stride value
-; USES:			x16l
+; USES:			r0l
 ; *****************************************************************************
 !macro SET_STRIDE {
 	asl			; Stride is stored in upper nibble
 	asl
 	asl
 	asl
-	sta	x16l
+	sta	r0l
 	lda	VERA_ADDR_H	; Set stride value to 0 in VERA_ADDR_H
 	and	#$0F
-	ora	x16l
+	ora	r0l
 	sta	VERA_ADDR_H
 }
 set_stride:
@@ -329,13 +335,13 @@ scr2pet:
 ; *****************************************************************************
 ; Print a 0 terminated string PETSCII string
 ; *****************************************************************************
-; INPUTS	x16 = pointer to string
+; INPUTS	r0 = pointer to string
 ;		.X  = bg-/fg color
 ; USES:		.Y
 ; *****************************************************************************
 !macro PRINT_STR {
 	ldy	#0
-.loop:	lda	(x16),y		; Load character
+.loop:	lda	(r0),y		; Load character
 	beq	.end		; If 0, we are done
 	+PET2SCR
 	+PLOT_CHAR
@@ -350,23 +356,23 @@ print_str:
 ; *****************************************************************************
 ; Create a filled box drawn from top left to bottom right
 ; *****************************************************************************
-; INPUTS:	x16h	= Character to use for drawing the line
-;		x17l	= Width of box
-;		x17h	= Height of box
+; INPUTS:	r0h	= Character to use for drawing the line
+;		r1l	= Width of box
+;		r1h	= Height of box
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
 !macro FILL_BOX {
 	lda	VERA_ADDR_L
-	sta	x16l
-.vloop:	lda	x16l		; Load x coordinate
+	sta	r0l
+.vloop:	lda	r0l		; Load x coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
-	lda	x16h
-	ldy	x17l
+	lda	r0h
+	ldy	r1l
 .hloop:	+PLOT_CHAR
 	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
-	dec	x17h
+	dec	r1h
 	bne	.vloop
 }
 fill_box:
@@ -377,22 +383,22 @@ fill_box:
 ; Create a box with a specific border
 ; *****************************************************************************
 ; INPUTS:	.A	= Border mode (0-5) any other will default to mode 0
-;		x17l	= width
-;		x17h	= height
+;		r1l	= width
+;		r1h	= height
 ;		.X	= bg-/fg-color
-; USES		.Y, x16l & x16h
+; USES		.Y, r0l & r0h
 ; *****************************************************************************
 !macro BORDER {
 	; Define local variable names for ZP variables
 	; Makes the source a bit more readable
-.top_right=x18l
-.top_left =x18h
-.bot_right=x19l
-.bot_left =x19h
-.top	  =x19h+1		; z20l
-.bottom   =x19h+2		; z20h
-.left	  =x19h+3		; z21l
-.right	  =x19h+4		; z21h
+.top_right=r2l
+.top_left =r2h
+.bot_right=r3l
+.bot_left =r3h
+.top	  =r4l
+.bottom   =r4h
+.left	  =r5l
+.right	  =r5h
 
 	; Set the border drawing characters according to the border mode in .A
 .mode1: cmp	#1
@@ -470,10 +476,10 @@ fill_box:
 .dodraw:
 	; Save initial position
 	lda	VERA_ADDR_L
-	sta	x16l
+	sta	r0l
 	lda	VERA_ADDR_M
-	sta	x16h
-	ldy	x17l		; width
+	sta	r0h
+	ldy	r1l		; width
 	dey
 	lda	.top_left
 	+PLOT_CHAR		; Top left corner
@@ -485,25 +491,25 @@ fill_box:
 	dec	VERA_ADDR_L
 	dec	VERA_ADDR_L
 	inc	VERA_ADDR_M
-	ldy	x17h		;height
+	ldy	r1h		;height
 	dey
 	dey
 	lda	.right
 	+VLINE			; Right line
 	; Restore initial VERA address
-	lda	x16l
+	lda	r0l
 	sta	VERA_ADDR_L
-	lda	x16h
+	lda	r0h
 	sta	VERA_ADDR_M
 	inc	VERA_ADDR_M
-	ldy	x17h		;height
+	ldy	r1h		;height
 	dey
 	lda	.left
 	+VLINE			; Left line
 	dec	VERA_ADDR_M
 	lda	.bot_left
 	+PLOT_CHAR		; Bottom left corner
-	ldy	x17l
+	ldy	r1l
 	dey
 	lda	.bottom
 	+HLINE			; Bottom line
@@ -534,9 +540,9 @@ border:
 ; *****************************************************************************
 ; INPUTS:	.C	= Destination RAM (0=system RAM, 1=VRAM)
 ;		.A	= VRAM Bank (0 or 1) if .C=1
-;		x16 	= Destination address
-;		x17l	= width
-;		x17h	= height
+;		r0 	= Destination address
+;		r1l	= width
+;		r1h	= height
 ; *****************************************************************************
 !macro SAVE_RECT {
 	ldy	VERA_ADDR_L	; Save X coordinate for later
@@ -547,39 +553,39 @@ border:
 	+SET_BANK
 	lda	#1
 	+SET_STRIDE
-	lda	x16l		; Set destination address
+	lda	r0l		; Set destination address
 	sta	VERA_ADDR_L
-	lda	x16h
+	lda	r0h
 	sta	VERA_ADDR_M
 	stz	VERA_CTRL	; Set ADDRsel back to 0
-	ldx	x17l		; Load width
+	ldx	r1l		; Load width
 .vloop:	lda	VERA_DATA0	; Copy Character
 	sta	VERA_DATA1
 	lda	VERA_DATA0	; Copy Color Code
 	sta	VERA_DATA1
 	dex
 	bne	.vloop
-	ldx	x17l		; Restore width
+	ldx	r1l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M	; Increment Y coordinate
-	dec	x17h
+	dec	r1h
 	bne	.vloop
 	bra	.end
 .sysram:
 	; System RAM
-	ldx	x17l		; Load width
+	ldx	r1l		; Load width
 .sloop:	lda	VERA_DATA0	; Copy Character
-	sta	(x16)
-	+INC16 x16		; Increment destination address
+	sta	(r0)
+	+INC16 r0		; Increment destination address
 	lda	VERA_DATA0	; Copy Color Code
-	sta	(x16)
-	+INC16 x16		; Increment destination address
+	sta	(r0)
+	+INC16 r0		; Increment destination address
 	dex
 	bne	.sloop
-	ldx	x17l		; Restore width
+	ldx	r1l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M
-	dec	x17h
+	dec	r1h
 	bne	.sloop
 .end:
 }
@@ -593,9 +599,9 @@ save_rect:
 ; *****************************************************************************
 ; INPUTS:	.C	= Source RAM (0=system RAM, 1=VRAM)
 ;		.A	= VRAM Bank (0 or 1) if .C=1
-;		x16 	= Source address
-;		x17l	= width
-;		x17h	= height
+;		r0 	= Source address
+;		r1l	= width
+;		r1h	= height
 ; *****************************************************************************
 !macro REST_RECT {
 	ldy	VERA_ADDR_L	; Save X coordinate for later
@@ -606,39 +612,39 @@ save_rect:
 	+SET_BANK
 	lda	#1
 	+SET_STRIDE
-	lda	x16l		; Set destination address
+	lda	r0l		; Set destination address
 	sta	VERA_ADDR_L
-	lda	x16h
+	lda	r0h
 	sta	VERA_ADDR_M
 	stz	VERA_CTRL	; Set ADDRsel back to 0
-	ldx	x17l		; Load width
+	ldx	r1l		; Load width
 .vloop:	lda	VERA_DATA1	; Copy Character
 	sta	VERA_DATA0
 	lda	VERA_DATA1	; Copy Color Code
 	sta	VERA_DATA0
 	dex
 	bne	.vloop
-	ldx	x17l		; Restore width
+	ldx	r1l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M	; Increment Y coordinate
-	dec	x17h
+	dec	r1h
 	bne	.vloop
 	bra	.end
 .sysram:
 	; System RAM
-	ldx	x17l		; Load width
-.sloop:	lda	(x16)		; Copy Character
+	ldx	r1l		; Load width
+.sloop:	lda	(r0)		; Copy Character
 	sta	VERA_DATA0
-	+INC16	x16		; Increment destination address
-	lda	(x16)		; Copy Color Code
+	+INC16	r0		; Increment destination address
+	lda	(r0)		; Copy Color Code
 	sta	VERA_DATA0
-	+INC16	x16		; Increment destination address
+	+INC16	r0		; Increment destination address
 	dex
 	bne	.sloop
-	ldx	x17l		; Restore width
+	ldx	r1l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M
-	dec	x17h
+	dec	r1h
 	bne	.sloop
 .end:
 }

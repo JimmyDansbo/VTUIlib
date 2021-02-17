@@ -34,22 +34,22 @@ main:
 	jsr	vtui_gotoxy
 
 	lda	#7
-	sta	x17l		; Width
-	sta	x17h		; Height
+	sta	r1l		; Width
+	sta	r1h		; Height
 	sec			; Save to VRAM
 	lda	#1		; Bank 1
-	stz	x16l		; ADDR $0000
-	stz	x16h
+	stz	r0l		; ADDR $0000
+	stz	r0h
 	jsr	vtui_save_rect
 
 	lda	#32		; X
 	ldy	#30		; Y
 	jsr	vtui_gotoxy
 
-	lda	#<my_str	; Ptr to string in x16
-	sta	x16l
+	lda	#<my_str	; Ptr to string in r0
+	sta	r0l
 	lda	#>my_str
-	sta	x16h
+	sta	r0h
 	ldx	#$61		; Color
 	jsr	vtui_print_str
 
@@ -96,12 +96,12 @@ move_logo:
 	jsr	vtui_gotoxy
 
 	lda	#7
-	sta	x17l		; Width
-	sta	x17h		; Height
+	sta	r1l		; Width
+	sta	r1h		; Height
 	sec			; Restore from VRAM
 	lda	#1		; Bank 1
-	stz	x16l		; ADDR $0100
-	sta	x16h
+	stz	r0l		; ADDR $0100
+	sta	r0h
 	jsr	vtui_rest_rect
 
 	lda	newx
@@ -109,12 +109,12 @@ move_logo:
 	jsr	vtui_gotoxy
 
 	lda	#7
-	sta	x17l		; Width
-	sta	x17h		; Height
+	sta	r1l		; Width
+	sta	r1h		; Height
 	sec			; Save to VRAM
 	lda	#1		; Bank 1
-	stz	x16l		; ADDR $0100
-	sta	x16h
+	stz	r0l		; ADDR $0100
+	sta	r0h
 	jsr	vtui_save_rect
 
 	lda	newx
@@ -122,12 +122,12 @@ move_logo:
 	jsr	vtui_gotoxy
 
 	lda	#7
-	sta	x17l		; Width
-	sta	x17h		; Height
+	sta	r1l		; Width
+	sta	r1h		; Height
 	sec			; Restore from VRAM
 	lda	#1		; Bank 1
-	stz	x16l		; ADDR $0000
-	stz	x16h
+	stz	r0l		; ADDR $0000
+	stz	r0h
 	jsr	vtui_rest_rect
 
 	lda	newx

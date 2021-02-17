@@ -1,6 +1,6 @@
 # VTUI library Programmers Reference
 
-Version 0.2
+Version 0.3
 
 *Author: Jimmy Dansbo*
 
@@ -54,7 +54,7 @@ The other two flavors are include files for their respective assemblers but will
 
 The generic VTUI library is designed to be loaded by standard CBM kernal functions [SETLFS](https://cx16.dk/c64-kernal-routines/setlfs.html), [SETNAM](https://cx16.dk/c64-kernal-routines/setnam.html) and [LOAD](https://cx16.dk/c64-kernal-routines/load.html).
 
-In several assemblers it is possible to load a a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.2.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.2.BIN"`.
+In several assemblers it is possible to load a a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.3.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.3.BIN"`.
 
 If an assembler is used to include the binary file, be aware that the first two bytes are a loading address so base address of the actual library will be: `VTUILIB=VTUI+2`.
 
@@ -83,10 +83,10 @@ After initialization, all functions can be called by referencing the base addres
 
 ## Registers
 
-Several zeropage addresses are used by the library for temporary storage space as well as parameter passing. Addresses used are `$22 - $2D` this is to avoid using the ABI registers used by the new Commander X16 functions.
-The ABI registers are named r0, r0l, r0h, r1 and so on. They start at address $02 and go all the way to $21. The debugger in the emulator displays 16bit registers x16, x17, x18 & x19. These are the registers mostly used by the VTUI library, but in some cases more space is needed and an additional 4 bytes of zerospace is used totalling 12 bytes of zeropage space used by the library.
+Several zeropage addresses are used by the library for temporary storage space as well as parameter passing. Addresses used are `r0 - r5` (`$02 - $0D`). These are the same registers as is used by the new
+kernal functions in the Commander X16.
 
-The VTUI library only uses the zeropage addresses inside it's own function or as paramater passing so this space can be used for anything else as long as it is made available to the functions as they are called.
+The VTUI library mostly uses r0 and r1 for parameter passing, r2-r5 are used for temporary storage. All zeropage registers can be discarded as soon as a routine has returned.
 
 In addition to the zeropage memory, the VTUI library uses CPU registers for transferring arguments to the functions as well as temporary space and indexing.
 
@@ -100,9 +100,9 @@ Routine name: none<br>
 Communication registers: none<br>
 Preparatory routines: none<br>
 Registers affected: .A, .X & .Y<br>
-ZP registers affected: x16, x17, x18 & x19 ($22-$29)<br>
+ZP registers affected: r0, r1, r2 & r3 ($02-$09)<br>
 
-**Description:** The routine initialize writes a very small subroutine in zeropage memory $22-$29, calls it to get the return address off of the stack. This is the way the library figures out the correct addresses and update the builtin jumptable.
+**Description:** The routine, initialize, writes a very small subroutine in zeropage memory $02-$09 and calls it to get the return address off of the stack. This is the way the library figures out the correct addresses and updates the builtin jumptable.
 
 ### Function name: screen_set
 Purpose: Set the screen mode to supported text mode<br>
@@ -116,8 +116,12 @@ ZP registers affected: none<br>
 
 **Description** This function sets or toggles the screenmode. Supported modes are 0 = 40x30 & 2 80x60. Mode 255 ($FF) will toggle between the two modes. Any other mode will fail silently.
 
+|Registers | Purpose               |
+|------|-----------------------|
+|  .A  | Screen mode ($00, $02 or $FF) |
+
 ## Function name: set_bank
-Purpose: Set the VERA bank, 0 or 1<br>
+Purpose: Set the VERA bank to 0 or 1<br>
 Call address: `VTUILIB+5`<br>
 Macro name: `VTUI_SET_BANK`<br>
 Routine name: `vtui_set_bank`<br>
@@ -128,6 +132,10 @@ ZP registers affected: none<br>
 
 **Description** Set the VERA bank (high address bit). The value in .A can be either 0 or 1.
 
+|Registers | Purpose               |
+|------|-----------------------|
+|  .A  | Single bit bank number (0 or 1) |
+
 ## Function name: set_stride
 Purpose: Set the VERA stride value<br>
 Call address: `VTUILIB+8`<br>
@@ -136,9 +144,13 @@ Routine name: `vtui_set_stride`<br>
 Communication registers: .A<br>
 Preparatory routines: none<br>
 Registers affected: .A<br>
-ZP registers affected: x16l ($22)<br>
+ZP registers affected: r0l ($02)<br>
 
 **Description** Set the VERA stride value. Stride is the amount the VERA address is incremented or decremented on each access. Stride is a 4 bit value and the routine will ensure that the number is converted to fit in VERA_ADDR_H. For more information about VERA stride, see the [VERA Documentation](https://github.com/commanderx16/x16-docs/blob/master/VERA%20Programmer's%20Reference.md#video-ram-access) about 'Address Increment'
+
+|Registers | Purpose               |
+|------|-----------------------|
+|  .A  | 4 bit stride value |
 
 ## Function name: set_decr
 Purpose: Set the VERA decrement bit<br>
@@ -152,6 +164,11 @@ ZP registers affected: none<br>
 
 **Description** Set the VERA decrement bit. The decrement bit decides if the stride value is added to- or subtracted from the current VERA address. Carry Clear (.C=0) means increment by stride value. Carry Set (.C=1) means decrement by stride value.
 
+|Registers | Purpose               |
+|------|-----------------------|
+|  .C  | 0 = Increment, 1 = Decrement |
+
+
 ## Function name: gotoxy
 Purpose: Set VERA address to point to specific coordinates on screen.<br>
 Call address: `VTUILIB+14`<br>
@@ -164,6 +181,12 @@ ZP registers affected: none<br>
 
 **Description** Point the VERA address to a specific set of coordinates on screen. This works in both 80x60 mode and 40x30 mode. If the point is outside of visible area and character is plotted, it will not be visible. There is no error handling. .Y is the y-coordinate (0-29/59) and .A is the x-coordinate (0-39/79). This function does not actually display anything on screen.
 
+|Registers | Purpose               |
+|------|-----------------------|
+|  .A  | x coordinate |
+|  .X  | y coordinate |
+
+
 ## Function name: plot_char
 Purpose: Write a screencode character and color to screen.<br>
 Call address: `VTUILIB+17`<br>
@@ -175,6 +198,12 @@ Registers affected: none<br>
 ZP registers affected: none<br>
 
 **Description** Write the screencode character in .A to the screen at current address. The routine expects VERA to increment by one as it writes the background-/foreground-color in .X to VERA without touching VERA addresses.<br>
+
+|Registers | Purpose               |
+|------|-----------------------|
+|  .A  | Character to write to screen |
+|  .X  | bg-/fg-colr to write to screen |
+
 **VERA screencodes**<br>
 ![VERA charactermap](https://cx16.dk/veratext/verachars.jpg)<br>
 **VERA colors**<br>
@@ -192,6 +221,11 @@ ZP registers affected: none<br>
 
 **Description** Read the screencode character at current VERA address into .A. The routine expects VERA to increment by one as it reads the background-/foreground-color into .X without touching VERA addresses.
 
+|Registers | Purpose               |
+|------|-----------------------|
+|  .A  | Character read from screen memory |
+|  .X  | Colorcode read from screen memory |
+
 ## Function name: hline
 Purpose: Draw a horizontal line from left to right.<br>
 Call address: `VTUILIB+23`<br>
@@ -203,6 +237,12 @@ Registers affected: .A<br>
 ZP registers affected: none<br>
 
 **Description** Draw a horizontal line from left to right, starting at current position. Length of the line is provided in .Y register. Character to use for drawing the line is provided in .A register and the background-/foreground-color to use is provided in .X register.
+
+|Registers | Purpose               |
+|------|-----------------------|
+|  .A  | Character for drawing line |
+|  .X  | bg-/fg-color  |
+|  .Y  | length of line  |
 
 ## Function name: vline
 Purpose: Draw a vertical line from top to bottom.<br>
@@ -216,24 +256,35 @@ ZP registers affected: none<br>
 
 **Description** Draw a vertical line from top to bottom, starting at current position. Height of the line is provided in .Y register. Character to use for drawing the line is provided in .A and the background-/foreground-color to use is provided in .X register.
 
+|Registers | Purpose               |
+|------|-----------------------|
+|  .A  | Character for drawing line |
+|  .X  | bg-/fg-color  |
+|  .Y  | Height of line  |
+
 ## Function name: print_str
 Purpose: Print a string to screen.<br>
 Call address: `VTUILIB+29`<br>
 Macro name: `VTUI_PRINT_STR`<br>
 Routine name: `vtui_print_str`<br>
-Communication registers: x16 ($22-$23) & .X<br>
+Communication registers: r0 ($02-$03) & .X<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A & .Y<br>
 ZP registers affected: none<br>
 
-**Description** Print a 0-terminated PETSCII encoded string to screen. The routine will convert PETSCII characters in the range $20-$59. Other characters will be converted to a large X-like character. x16 ($22 & $23) is a 16bit zeropage pointer to the string. Background-/foreground color for the string must be provided in .X register.
+**Description** Print a 0-terminated PETSCII encoded string to screen. The routine will convert PETSCII characters in the range $20-$59. Other characters will be converted to a large X-like character. r0 ($02 & $03) is a 16bit zeropage pointer to the string. Background-/foreground color for the string must be provided in .X register.
+
+|Registers | Purpose               |
+|------|-----------------------|
+|  r0  | Pointer to start of string |
+|  .X  | bg-/fg-color  |
 
 ## Function name: fill_box
 Purpose: Draw a filled box<br>
 Call address: `VTUILIB+32`<br>
 Macro name: `VTUI_FILL_BOX`<br>
 Routine name: `vtui_fill_box`<br>
-Communication registers: x16h ($23), x17l ($24), x17h ($25) & .X<br>
+Communication registers: r0h ($03), r1l ($04), r1h ($05) & .X<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A & .Y<br>
 ZP registers affected: none<br>
@@ -242,9 +293,9 @@ ZP registers affected: none<br>
 
 |Registers | Purpose               |
 |------|-----------------------|
-| x16h | Character for filling |
-| x17l | Width of box          |
-| x17h | Height of box         |
+| r0h  | Character for filling |
+| r1l  | Width of box          |
+| r1h  | Height of box         |
 |  .X  | bg-/fg-color          |
 
 ## Function name: pet2scr
@@ -259,6 +310,10 @@ ZP registers affected: none<br>
 
 **Description** Convert the PETSCII character in .A to screencode. Supported range is $20-$59. Other characters will be converted to a large X-like character.
 
+|Registers | Purpose               |
+|------|-----------------------|
+| .A   | Character to convert |
+
 ## Function name: scr2pet
 Purpose: Convert screencode to PETSCII<br>
 Call address: `VTUILIB+38`<br>
@@ -271,23 +326,27 @@ ZP registers affected: none<br>
 
 **Description** Convert the screencode in .A to PETSCII. Supported range is $00-$39. Other characters will be converted to a large X-like character.
 
+|Registers | Purpose               |
+|------|-----------------------|
+| .A   | Character to convert |
+
 ## Function name: border
 Purpose: Draw a box with border<br>
 Call address: `VTUILIB+41`<br>
 Macro name: `VTUI_BORDER`<br>
 Routine name: `vtui_border`<br>
-Communication registers: .A, .X, x17l ($24) & x17h ($25)<br>
+Communication registers: .A, .X, r1l ($04) & r1h ($05)<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .Y
-ZP registers affected: x16l ($22), x16h ($23), x18l-x19h ($26-$29) + 4 more addresses ($2A-$2D)
+ZP registers affected: r0l ($02), r0h ($03), r2l - r5h ($06 - $0D)
 
 **Description** Create a box with a specific border.<br>
 
 |Registers|Purpose     |
 |------|---------------|
 |  .A  | Border mode   |
-| x17l | Width of box  |
-| x17h | Height of box |
+| r1l  | Width of box  |
+| r1h  | Height of box |
 |  .X  | bg-/fg-color  |
 
 ***Supported Modes***<br>
@@ -302,10 +361,10 @@ Purpose: Save an area from the screen to memory<br>
 Call address: `VTUILIB+44`<br>
 Macro name: `VTUI_SAVE_RECT`<br>
 Routine name: `vtui_save_rect`<br>
-Communication registers: .C, .A, x16 ($22-$23), x17l ($24), x17h ($25)<br>
+Communication registers: .C, .A, r0 ($02-$03), r1l ($04), r1h ($05)<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A, .X & .Y
-ZP registers affected: x16 ($22-$23), x17h ($25)
+ZP registers affected: r0 ($02-$03), r1h ($05)
 
 **Description** Save an area from screen to memory. Notice that each character on screen takes up 2 bytes of memory because a byte is used for color information.<br>
 
@@ -313,19 +372,19 @@ ZP registers affected: x16 ($22-$23), x17h ($25)
 |--------|-------|
 |   .C   |  Destination RAM (0=System RAM, 1=VRAM) |
 |   .A   | VRAM bank if .C = 1 |
-|  x16   | 16bit destination address |
-|  x17l  | Width of area to save |
-|  X17h  | Height of area to save |
+|   r0   | 16bit destination address |
+|   r1l  | Width of area to save |
+|   r1h  | Height of area to save |
 
 ## Function name: rest_rect
 Purpose: Restore an area on screen from memory<br>
 Call address: `VTUILIB+47`<br>
 Macro name: `VTUI_REST_RECT`<br>
 Routine name: `vtui_rest_rect`<br>
-Communication registers: .C, .A, .x16 ($22-$23), x17l ($24), x17h ($25)<br>
+Communication registers: .C, .A, r0 ($02-$03), r1l ($04), r1h ($05)<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A, .X & .Y
-ZP registers affected: x16 ($22-$23), x17h ($25)
+ZP registers affected: r0 ($02-$03), r1h ($05)
 
 **Description** Restore an area on screen from memory.<br>
 
@@ -333,6 +392,6 @@ ZP registers affected: x16 ($22-$23), x17h ($25)
 |--------|-------|
 |   .C   |  Destination RAM (0=System RAM, 1=VRAM) |
 |   .A   | VRAM bank if .C = 1 |
-|  x16   | 16bit destination address |
-|  x17l  | Width of area to save |
-|  X17h  | Height of area to save |
+|   r0   | 16bit destination address |
+|   r1l  | Width of area to save |
+|   r1h  | Height of area to save |
