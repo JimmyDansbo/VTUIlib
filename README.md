@@ -355,6 +355,8 @@ Modes 0-5 are pre-defined, only works with the default character set and are sho
 | r6l    | $0E   | Left vertical line character |
 | r6h    | $0F   | Right vertical line character |
 
+***Parameters***<br>
+
 |Registers|Purpose     |
 |------|---------------|
 |  .A  | Border mode   |

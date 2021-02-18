@@ -97,6 +97,9 @@ initialize:
 	adc	#$00
 	sta	r1+1
 	ldy	#$01		; .Y used for indexing high byte of pointers
+	lda	(r1),y
+	beq	@loop		; If high byte of pointer is 0, we can continue
+	rts			; Otherwise initialization has already been run
 @loop:	clc
 	lda	(r1)		; Low part of jumptable address
 	beq	@mightend	; If it is zero, we might have reaced the end of jumptable
