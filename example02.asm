@@ -54,12 +54,11 @@ main:
 	clc
 	jsr	VTUI_set_decr
 	; Clear screen with white background and black foreground
-	lda	#' '
-	sta	r0h
 	lda	#80
 	sta	r1l
 	lda	#60
 	sta	r1h
+	lda	#' '
 	ldx	#$10
 	jsr	VTUI_fill_box
 	; gotoxy 11, 2
@@ -120,8 +119,7 @@ main:
 	lda	#16
 	sta	r1h		; Height
 	ldx	#$74		; Yellow background, purple foreground
-	lda	#' '
-	sta	r0h		; Character used for filling box
+	lda	#' '		; Character used for filling box
 	jsr	VTUI_fill_box
 	; gotoxy 13, 9
 	lda	#13

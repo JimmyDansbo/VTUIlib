@@ -5,22 +5,22 @@
 
 ; ******************************* Jumptable *******************************
 	bra	initialize	; No inputs
-	jmp	screen_set	; .A = Screenmode ($00, $02 or $FF)
-	jmp	set_bank	; .A = bank number (0 or 1)
-	jmp	set_stride	; .A = Stride value
-	jmp	set_decr	; .C (1 = decrement, 0 = increment)
-	jmp	gotoxy		; .A = x coordinate, .Y = y coordinate
-	jmp	plot_char	; .A = character, .X = bg-/fg-color
-	jmp	scan_char	; like plot_char
-	jmp	hline		; .A = Character, .Y = length, .X = color
-	jmp	vline		; .A = Character, .Y = height, .X = color
-	jmp	print_str	; r0 = pointer to string, .X = color
-	jmp	fill_box	; r0h=Char,r1l=width,r1h=height,.X=color
-	jmp	pet2scr		; .A = character to convert to screencode
-	jmp	scr2pet		; .A = character to convert to petscii
-	jmp	border		; .A=border,r1l=width,r1h=height,.X=color
-	jmp	save_rect	; .C=destram,.A=vrambank,r0=destaddr,r1l=width,r1h=height
-	jmp	rest_rect	; .C=destram,.A=vrambank,r0=srcaddr,r1l=width,r1h=height
+	jmp	vtui_screen_set	; .A = Screenmode ($00, $02 or $FF)
+	jmp	vtui_set_bank	; .A = bank number (0 or 1)
+	jmp	vtui_set_stride	; .A = Stride value
+	jmp	vtui_set_decr	; .C (1 = decrement, 0 = increment)
+	jmp	vtui_gotoxy	; .A = x coordinate, .Y = y coordinate
+	jmp	vtui_plot_char	; .A = character, .X = bg-/fg-color
+	jmp	vtui_scan_char	; like plot_char
+	jmp	vtui_hline	; .A = Character, .Y = length, .X = color
+	jmp	vtui_vline	; .A = Character, .Y = height, .X = color
+	jmp	vtui_print_str	; r0 = pointer to string, .X = color
+	jmp	vtui_fill_box	; r0h=Char,r1l=width,r1h=height,.X=color
+	jmp	vtui_pet2scr	; .A = character to convert to screencode
+	jmp	vtui_scr2pet	; .A = character to convert to petscii
+	jmp	vtui_border	; .A=border,r1l=width,r1h=height,.X=color
+	jmp	vtui_save_rect	; .C=destram,.A=vrambank,r0=destaddr,r1l=width,r1h=height
+	jmp	vtui_rest_rect	; .C=destram,.A=vrambank,r0=srcaddr,r1l=width,r1h=height
 	jmp	$0000		; Show that there are no more jumps
 
 ; ******************************* Constants *******************************
@@ -128,7 +128,7 @@ initialize:
 ; USES:			.A, .X & ,Y
 ; RETURNS:		.C = 1 in case of error.
 ; *****************************************************************************
-!macro SCREEN_SET {
+!macro VTUI_SCREEN_SET {
 	beq	.doset		; If 0, we can set mode
 	cmp	#$02
 	beq	.doset		; If 2, we can set mode
@@ -137,8 +137,8 @@ initialize:
 .doset:	jsr	$FF5F
 .end:
 }
-screen_set:
-	+SCREEN_SET
+vtui_screen_set:
+	+VTUI_SCREEN_SET
 	rts
 
 ; *****************************************************************************
@@ -147,7 +147,7 @@ screen_set:
 ; INPUTS:	.A = Bank number, 0 or 1
 ; USES:		.A
 ; *****************************************************************************
-!macro SET_BANK {
+!macro VTUI_SET_BANK {
 	cmp	#0
 	beq	.setzero
 	; Bank = 1
@@ -162,8 +162,8 @@ screen_set:
 	sta	VERA_ADDR_H
 .end:
 }
-set_bank:
-	+SET_BANK
+vtui_set_bank:
+	+VTUI_SET_BANK
 	rts
 
 ; *****************************************************************************
@@ -172,7 +172,7 @@ set_bank:
 ; INPUT:		.A = Stride value
 ; USES:			r0l
 ; *****************************************************************************
-!macro SET_STRIDE {
+!macro VTUI_SET_STRIDE {
 	asl			; Stride is stored in upper nibble
 	asl
 	asl
@@ -183,8 +183,8 @@ set_bank:
 	ora	r0l
 	sta	VERA_ADDR_H
 }
-set_stride:
-	+SET_STRIDE
+vtui_set_stride:
+	+VTUI_SET_STRIDE
 	rts
 
 ; *****************************************************************************
@@ -193,7 +193,7 @@ set_stride:
 ; INPUT:		.C (1 = decrement, 0 = increment)
 ; USES:			.A
 ; *****************************************************************************
-!macro SET_DECR {
+!macro VTUI_SET_DECR {
 	lda	VERA_ADDR_H
 	bcc	.setnul
 	ora	#%00001000
@@ -202,8 +202,8 @@ set_stride:
 	and	#%11110111
 .end:	sta	VERA_ADDR_H
 }
-set_decr:
-	+SET_DECR
+vtui_set_decr:
+	+VTUI_SET_DECR
 	rts
 
 ; *****************************************************************************
@@ -213,12 +213,12 @@ set_decr:
 ; INPUTS:	.A = character
 ;		.X = bg-/fg-color
 ; *****************************************************************************
-!macro PLOT_CHAR {
+!macro VTUI_PLOT_CHAR {
 	sta	VERA_DATA0
 	stx	VERA_DATA0
 }
-plot_char:
-	+PLOT_CHAR
+vtui_plot_char:
+	+VTUI_PLOT_CHAR
 	rts
 
 ; *****************************************************************************
@@ -228,12 +228,12 @@ plot_char:
 ; OUTPUS:	.A = character
 ;		.X = bg-/fg-color
 ; *****************************************************************************
-!macro SCAN_CHAR {
+!macro VTUI_SCAN_CHAR {
 	lda	VERA_DATA0
 	ldx	VERA_DATA0
 }
-scan_char:
-	+SCAN_CHAR
+vtui_scan_char:
+	+VTUI_SCAN_CHAR
 	rts
 
 ; *****************************************************************************
@@ -243,13 +243,13 @@ scan_char:
 ;		.Y	= Length of the line
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
-!macro HLINE {
-.loop:	+PLOT_CHAR
+!macro VTUI_HLINE {
+.loop:	+VTUI_PLOT_CHAR
 	dey
 	bne	.loop
 }
-hline:
-	+HLINE
+vtui_hline:
+	+VTUI_HLINE
 	rts
 
 ; *****************************************************************************
@@ -259,16 +259,16 @@ hline:
 ;		.Y	= Height of the line
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
-!macro VLINE {
-.loop:	+PLOT_CHAR
+!macro VTUI_VLINE {
+.loop:	+VTUI_PLOT_CHAR
 	dec	VERA_ADDR_L	; Return to original X coordinate
 	dec	VERA_ADDR_L
 	inc	VERA_ADDR_M	; Increment Y coordinate
 	dey
 	bne	.loop
 }
-vline:
-	+VLINE
+vtui_vline:
+	+VTUI_VLINE
 	rts
 
 ; *****************************************************************************
@@ -277,13 +277,13 @@ vline:
 ; INPUTS:	.A = x coordinate
 ;		.Y = y coordinate
 ; *****************************************************************************
-!macro GOTOXY {
+!macro VTUI_GOTOXY {
 	sty	VERA_ADDR_M	; Set y coordinate
 	asl			; Multiply x coord with 2 for correct coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
 }
-gotoxy:
-	+GOTOXY
+vtui_gotoxy:
+	+VTUI_GOTOXY
 	rts
 
 ; *****************************************************************************
@@ -292,7 +292,7 @@ gotoxy:
 ; INPUTS:	.A = character to convert
 ; OUTPUS:	.A = converted character or $56 if invalid input
 ; *****************************************************************************
-!macro PET2SCR {
+!macro VTUI_PET2SCR {
 	cmp	#$20
 	bcc	.nonprintable	; .A < $20
 	cmp	#$40
@@ -306,8 +306,8 @@ gotoxy:
 	lda	#$56
 .end:
 }
-pet2scr:
-	+PET2SCR
+vtui_pet2scr:
+	+VTUI_PET2SCR
 	rts
 
 ; *****************************************************************************
@@ -316,7 +316,7 @@ pet2scr:
 ; INPUTS:	.A = character to convert
 ; OUTPUS:	.A = converted character or $76 if invalid input
 ; *****************************************************************************
-!macro SCR2PET {
+!macro VTUI_SCR2PET {
 	cmp	#$40
 	bcs	.nonprintable	; .A >= $40
 	cmp	#$20
@@ -328,8 +328,8 @@ pet2scr:
 	lda	#$76
 .end:
 }
-scr2pet:
-	+SCR2PET
+vtui_scr2pet:
+	+VTUI_SCR2PET
 	rts
 
 ; *****************************************************************************
@@ -339,44 +339,43 @@ scr2pet:
 ;		.X  = bg-/fg color
 ; USES:		.Y
 ; *****************************************************************************
-!macro PRINT_STR {
+!macro VTUI_PRINT_STR {
 	ldy	#0
 .loop:	lda	(r0),y		; Load character
 	beq	.end		; If 0, we are done
-	+PET2SCR
-	+PLOT_CHAR
+	+VTUI_PET2SCR
+	+VTUI_PLOT_CHAR
 	iny
 	bne	.loop		; Get next character
 .end:
 }
-print_str:
-	+PRINT_STR
+vtui_print_str:
+	+VTUI_PRINT_STR
 	rts
 
 ; *****************************************************************************
 ; Create a filled box drawn from top left to bottom right
 ; *****************************************************************************
-; INPUTS:	r0h	= Character to use for drawing the line
+; INPUTS:	.A	= Character to use for drawing the line
 ;		r1l	= Width of box
 ;		r1h	= Height of box
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
-!macro FILL_BOX {
-	lda	VERA_ADDR_L
-	sta	r0l
-.vloop:	lda	r0l		; Load x coordinate
-	sta	VERA_ADDR_L	; Set x coordinate
-	lda	r0h
+!macro VTUI_FILL_BOX {
+	ldy	VERA_ADDR_L
+	sty	r0l
+.vloop:	ldy	r0l		; Load x coordinate
+	sty	VERA_ADDR_L	; Set x coordinate
 	ldy	r1l
-.hloop:	+PLOT_CHAR
+.hloop:	+VTUI_PLOT_CHAR
 	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
 	dec	r1h
 	bne	.vloop
 }
-fill_box:
-	+FILL_BOX
+vtui_fill_box:
+	+VTUI_FILL_BOX
 	rts
 
 ; *****************************************************************************
@@ -388,7 +387,7 @@ fill_box:
 ;		.X	= bg-/fg-color
 ; USES		.Y, r0l & r0h
 ; *****************************************************************************
-!macro BORDER {
+!macro VTUI_BORDER {
 	; Define local variable names for ZP variables
 	; Makes the source a bit more readable
 .top_right=r2l
@@ -482,12 +481,12 @@ fill_box:
 	ldy	r1l		; width
 	dey
 	lda	.top_left
-	+PLOT_CHAR		; Top left corner
+	+VTUI_PLOT_CHAR		; Top left corner
 	dey
 	lda	.top
-	+HLINE			; Top line
+	+VTUI_HLINE		; Top line
 	lda	.top_right
-	+PLOT_CHAR		; Top right corner
+	+VTUI_PLOT_CHAR		; Top right corner
 	dec	VERA_ADDR_L
 	dec	VERA_ADDR_L
 	inc	VERA_ADDR_M
@@ -495,7 +494,7 @@ fill_box:
 	dey
 	dey
 	lda	.right
-	+VLINE			; Right line
+	+VTUI_VLINE		; Right line
 	; Restore initial VERA address
 	lda	r0l
 	sta	VERA_ADDR_L
@@ -505,21 +504,21 @@ fill_box:
 	ldy	r1h		;height
 	dey
 	lda	.left
-	+VLINE			; Left line
+	+VTUI_VLINE		; Left line
 	dec	VERA_ADDR_M
 	lda	.bot_left
-	+PLOT_CHAR		; Bottom left corner
+	+VTUI_PLOT_CHAR		; Bottom left corner
 	ldy	r1l
 	dey
 	lda	.bottom
-	+HLINE			; Bottom line
+	+VTUI_HLINE		; Bottom line
 	dec	VERA_ADDR_L
 	dec	VERA_ADDR_L
 	lda	.bot_right
-	+PLOT_CHAR		; Bottom right corner
+	+VTUI_PLOT_CHAR		; Bottom right corner
 }
-border:
-	+BORDER
+vtui_border:
+	+VTUI_BORDER
 	rts
 
 ; *****************************************************************************
@@ -527,7 +526,7 @@ border:
 ; *****************************************************************************
 ; INPUT:	.addr = low byte of the 16bit value to increment
 ; *****************************************************************************
-!macro INC16 .addr {
+!macro VTUI_INC16 .addr {
 	inc	.addr
 	bne	.end
 	inc	.addr+1
@@ -544,15 +543,15 @@ border:
 ;		r1l	= width
 ;		r1h	= height
 ; *****************************************************************************
-!macro SAVE_RECT {
+!macro VTUI_SAVE_RECT {
 	ldy	VERA_ADDR_L	; Save X coordinate for later
 	bcc	.sysram
 	; VRAM
 	ldx	#1		; Set ADDRsel to 1
 	stx	VERA_CTRL
-	+SET_BANK
+	+VTUI_SET_BANK
 	lda	#1
-	+SET_STRIDE
+	+VTUI_SET_STRIDE
 	lda	r0l		; Set destination address
 	sta	VERA_ADDR_L
 	lda	r0h
@@ -576,10 +575,10 @@ border:
 	ldx	r1l		; Load width
 .sloop:	lda	VERA_DATA0	; Copy Character
 	sta	(r0)
-	+INC16 r0		; Increment destination address
+	+VTUI_INC16 r0		; Increment destination address
 	lda	VERA_DATA0	; Copy Color Code
 	sta	(r0)
-	+INC16 r0		; Increment destination address
+	+VTUI_INC16 r0		; Increment destination address
 	dex
 	bne	.sloop
 	ldx	r1l		; Restore width
@@ -589,8 +588,8 @@ border:
 	bne	.sloop
 .end:
 }
-save_rect:
-	+SAVE_RECT
+vtui_save_rect:
+	+VTUI_SAVE_RECT
 	rts
 
 ; *****************************************************************************
@@ -603,15 +602,15 @@ save_rect:
 ;		r1l	= width
 ;		r1h	= height
 ; *****************************************************************************
-!macro REST_RECT {
+!macro VTUI_REST_RECT {
 	ldy	VERA_ADDR_L	; Save X coordinate for later
 	bcc	.sysram
 	; VRAM
 	ldx	#1		; Set ADDRsel to 1
 	stx	VERA_CTRL
-	+SET_BANK
+	+VTUI_SET_BANK
 	lda	#1
-	+SET_STRIDE
+	+VTUI_SET_STRIDE
 	lda	r0l		; Set destination address
 	sta	VERA_ADDR_L
 	lda	r0h
@@ -635,10 +634,10 @@ save_rect:
 	ldx	r1l		; Load width
 .sloop:	lda	(r0)		; Copy Character
 	sta	VERA_DATA0
-	+INC16	r0		; Increment destination address
+	+VTUI_INC16	r0	; Increment destination address
 	lda	(r0)		; Copy Color Code
 	sta	VERA_DATA0
-	+INC16	r0		; Increment destination address
+	+VTUI_INC16	r0	; Increment destination address
 	dex
 	bne	.sloop
 	ldx	r1l		; Restore width
@@ -648,6 +647,6 @@ save_rect:
 	bne	.sloop
 .end:
 }
-rest_rect:
-	+REST_RECT
+vtui_rest_rect:
+	+VTUI_REST_RECT
 	rts

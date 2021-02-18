@@ -306,18 +306,17 @@ vtui_print_str:
 ; *****************************************************************************
 ; Create a filled box drawn from top left to bottom right
 ; *****************************************************************************
-; INPUTS:	r0h	= Character to use for drawing the line
+; INPUTS:	.A	= Character to use for drawing the line
 ;		r1l	= Width of box
 ;		r1h	= Height of box
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
 .macro VTUI_FILL_BOX
 .scope
-	lda	VERA_ADDR_L
-	sta	r0l
-vloop:	lda	r0l		; Load x coordinate
-	sta	VERA_ADDR_L	; Set x coordinate
-	lda	r0h
+	ldy	VERA_ADDR_L
+	sty	r0l
+vloop:	ldy	r0l		; Load x coordinate
+	sty	VERA_ADDR_L	; Set x coordinate
 	ldy	r1l
 hloop:	VTUI_PLOT_CHAR
 	dey

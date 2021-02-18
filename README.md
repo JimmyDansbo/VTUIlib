@@ -284,16 +284,16 @@ Purpose: Draw a filled box<br>
 Call address: `VTUILIB+32`<br>
 Macro name: `VTUI_FILL_BOX`<br>
 Routine name: `vtui_fill_box`<br>
-Communication registers: r0h ($03), r1l ($04), r1h ($05) & .X<br>
+Communication registers: r1l ($04), r1h ($05), .A & .X<br>
 Preparatory routines: gotoxy (optional)<br>
-Registers affected: .A & .Y<br>
-ZP registers affected: none<br>
+Registers affected: .Y<br>
+ZP registers affected: r1h ($05)<br>
 
 **Description** Draw a filled box starting at current position.<br>
 
 |Registers | Purpose               |
 |------|-----------------------|
-| r0h  | Character for filling |
+|  .A  | Character for filling |
 | r1l  | Width of box          |
 | r1h  | Height of box         |
 |  .X  | bg-/fg-color          |
