@@ -390,7 +390,7 @@ ZP registers affected: r0 ($02-$03), r1h ($05)
 
 |Register|Purpose|
 |--------|-------|
-|   .C   |  Destination RAM (0=System RAM, 1=VRAM) |
+|   .C   | Source RAM (0=System RAM, 1=VRAM) |
 |   .A   | VRAM bank if .C = 1 |
 |   r0   | 16bit destination address |
 |   r1l  | Width of area to save |
