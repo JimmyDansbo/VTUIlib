@@ -267,15 +267,16 @@ Purpose: Print a string to screen.<br>
 Call address: `VTUILIB+29`<br>
 Macro name: `VTUI_PRINT_STR`<br>
 Routine name: `vtui_print_str`<br>
-Communication registers: r0 ($02-$03) & .X<br>
+Communication registers: r0 ($02-$03), .X & .C<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A & .Y<br>
 ZP registers affected: none<br>
 
-**Description** Print a 0-terminated PETSCII encoded string to screen. The routine will convert PETSCII characters in the range $20-$59. Other characters will be converted to a large X-like character. r0 ($02 & $03) is a 16bit zeropage pointer to the string. Background-/foreground color for the string must be provided in .X register.
+**Description** Print a 0-terminated PETSCII encoded string to screen. The routine will convert PETSCII characters in the range $20-$59. Other characters will be converted to a large X-like character. If the Carry flag (.C) is clear (0), no conversion will take place. r0 ($02 & $03) is a 16bit zeropage pointer to the string. Background-/foreground color for the string must be provided in .X register.
 
 |Registers | Purpose               |
 |------|-----------------------|
+|  .C  | Convert string (0 = no conversion, 1 = convert) |
 |  r0  | Pointer to start of string |
 |  .X  | bg-/fg-color  |
 

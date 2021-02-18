@@ -285,7 +285,8 @@ vtui_scr2pet:
 ; *****************************************************************************
 ; Print a 0 terminated string PETSCII string
 ; *****************************************************************************
-; INPUTS	r0 = pointer to string
+; INPUTS	.C = Convert string (0 = no converstion, 1 = convert)
+;		r0 = pointer to string
 ;		.X  = bg-/fg color
 ; USES:		.Y
 ; *****************************************************************************
@@ -294,8 +295,9 @@ vtui_scr2pet:
 	ldy	#0
 loop:	lda	(r0),y		; Load character
 	beq	end		; If 0, we are done
+	bcc	:+
 	VTUI_PET2SCR
-	VTUI_PLOT_CHAR
+:	VTUI_PLOT_CHAR
 	iny
 	bne	loop		; Get next character
 end:
