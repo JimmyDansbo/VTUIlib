@@ -202,7 +202,7 @@ ZP registers affected: none<br>
 |Registers | Purpose               |
 |------|-----------------------|
 |  .A  | Character to write to screen |
-|  .X  | bg-/fg-colr to write to screen |
+|  .X  | bg-/fg-color to write to screen |
 
 **VERA screencodes**<br>
 ![VERA charactermap](https://cx16.dk/veratext/verachars.jpg)<br>
