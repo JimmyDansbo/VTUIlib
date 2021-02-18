@@ -12,7 +12,7 @@ main:
 	stz	newx
 	stz	newy
 
-	lda	#1		; BANK 1
+	sec			; BANK 1
 	jsr	vtui_set_bank
 
 	stz	$9F20
@@ -26,7 +26,7 @@ main:
 	dex
 	bne	:-
 
-	lda 	#0		; BANK 0
+	clc			; BANK 0
 	jsr	vtui_set_bank
 
 	lda	xcord

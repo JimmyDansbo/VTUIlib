@@ -75,13 +75,12 @@ vtui_screen_set:
 ; *****************************************************************************
 ; Set VERA bank (High memory) without touching anything else
 ; *****************************************************************************
-; INPUTS:	.A = Bank number, 0 or 1
+; INPUTS:	.C = Bank number, 0 or 1
 ; USES:		.A
 ; *****************************************************************************
 .macro VTUI_SET_BANK
 .scope
-	cmp	#0
-	beq	setzero
+	bcc	setzero
 	; Bank = 1
 	lda	VERA_ADDR_H
 	ora	#$01
@@ -511,6 +510,7 @@ end:
 	; VRAM
 	ldx	#1		; Set ADDRsel to 1
 	stx	VERA_CTRL
+	sec			; Set Bank 1
 	VTUI_SET_BANK
 	lda	#1
 	VTUI_SET_STRIDE
@@ -572,6 +572,7 @@ vtui_save_rect:
 	; VRAM
 	ldx	#1		; Set ADDRsel to 1
 	stx	VERA_CTRL
+	sec			; Set bank 1
 	VTUI_SET_BANK
 	lda	#1
 	VTUI_SET_STRIDE

@@ -6,7 +6,7 @@
 ; ******************************* Jumptable *******************************
 	bra	initialize	; No inputs
 	jmp	vtui_screen_set	; .A = Screenmode ($00, $02 or $FF)
-	jmp	vtui_set_bank	; .A = bank number (0 or 1)
+	jmp	vtui_set_bank	; .C = bank number (0 or 1)
 	jmp	vtui_set_stride	; .A = Stride value
 	jmp	vtui_set_decr	; .C (1 = decrement, 0 = increment)
 	jmp	vtui_gotoxy	; .A = x coordinate, .Y = y coordinate
@@ -150,12 +150,11 @@ vtui_screen_set:
 ; *****************************************************************************
 ; Set VERA bank (High memory) without touching anything else
 ; *****************************************************************************
-; INPUTS:	.A = Bank number, 0 or 1
+; INPUTS:	.C = Bank number, 0 or 1
 ; USES:		.A
 ; *****************************************************************************
 !macro VTUI_SET_BANK {
-	cmp	#0
-	beq	.setzero
+	bcc	.setzero
 	; Bank = 1
 	lda	VERA_ADDR_H
 	ora	#$01
@@ -559,9 +558,10 @@ vtui_border:
 	; VRAM
 	ldx	#1		; Set ADDRsel to 1
 	stx	VERA_CTRL
+	sec			; Set bank 1
 	+VTUI_SET_BANK
 	lda	#1
-	+VTUI_SET_STRIDE
+	+VTUI_SET_STRIDE	; Set stride to 1
 	lda	r0l		; Set destination address
 	sta	VERA_ADDR_L
 	lda	r0h
@@ -618,6 +618,7 @@ vtui_save_rect:
 	; VRAM
 	ldx	#1		; Set ADDRsel to 1
 	stx	VERA_CTRL
+	sec			; Set bank to 1
 	+VTUI_SET_BANK
 	lda	#1
 	+VTUI_SET_STRIDE

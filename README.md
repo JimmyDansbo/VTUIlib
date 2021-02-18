@@ -125,16 +125,16 @@ Purpose: Set the VERA bank to 0 or 1<br>
 Call address: `VTUILIB+5`<br>
 Macro name: `VTUI_SET_BANK`<br>
 Routine name: `vtui_set_bank`<br>
-Communication registers: .A<br>
+Communication registers: .C<br>
 Preparatory routines: none<br>
 Registers affected: .A<br>
 ZP registers affected: none<br>
 
-**Description** Set the VERA bank (high address bit). The value in .A can be either 0 or 1.
+**Description** Set the VERA bank (high address bit). The value in .C can be either 0 or 1.
 
 |Registers | Purpose               |
 |------|-----------------------|
-|  .A  | Single bit bank number (0 or 1) |
+|  .C  | Single bit bank number (0 or 1) |
 
 ## Function name: set_stride
 Purpose: Set the VERA stride value<br>
