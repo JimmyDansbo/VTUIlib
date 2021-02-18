@@ -26,7 +26,9 @@ r4h	= r4+1
 r5	= $0C
 r5l	= r5
 r5h	= r5+1
-
+r6	= $0E
+r6l	= r6
+r6h	= r6+1
 
 ; *************************** Color constants ********************************
 BLACK		= 0
@@ -285,7 +287,7 @@ vtui_print_str:
 ; *****************************************************************************
 ; INPUTS:	.A	= Character to use for drawing the line
 ;		r1l	= Width of box
-;		r1h	= Height of box
+;		r2l	= Height of box
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
 !macro VTUI_FILL_BOX {
@@ -298,7 +300,7 @@ vtui_print_str:
 	dey
 	bne	.hloop
 	inc	VERA_ADDR_M
-	dec	r1h
+	dec	r2l
 	bne	.vloop
 }
 vtui_fill_box:
@@ -310,21 +312,21 @@ vtui_fill_box:
 ; *****************************************************************************
 ; INPUTS:	.A	= Border mode (0-5) any other will default to mode 0
 ;		r1l	= width
-;		r1h	= height
+;		r2l	= height
 ;		.X	= bg-/fg-color
 ; USES		.Y, r0l & r0h
 ; *****************************************************************************
 !macro VTUI_BORDER {
 	; Define local variable names for ZP variables
 	; Makes the source a bit more readable
-.top_right=r2l
-.top_left =r2h
-.bot_right=r3l
-.bot_left =r3h
-.top	  =r4l
-.bottom   =r4h
-.left	  =r5l
-.right	  =r5h
+.top_right=r3l
+.top_left =r3h
+.bot_right=r4l
+.bot_left =r4h
+.top	  =r5l
+.bottom   =r5h
+.left	  =r6l
+.right	  =r6h
 
 	; Set the border drawing characters according to the border mode in .A
 .mode1: cmp	#1
@@ -419,7 +421,7 @@ vtui_fill_box:
 	dec	VERA_ADDR_L
 	dec	VERA_ADDR_L
 	inc	VERA_ADDR_M
-	ldy	r1h		;height
+	ldy	r2l		;height
 	dey
 	dey
 	lda	.right
@@ -430,7 +432,7 @@ vtui_fill_box:
 	lda	r0h
 	sta	VERA_ADDR_M
 	inc	VERA_ADDR_M
-	ldy	r1h		;height
+	ldy	r2l		;height
 	dey
 	lda	.left
 	+VTUI_VLINE			; Left line
@@ -470,7 +472,7 @@ vtui_border:
 ;		.A	= VRAM Bank (0 or 1) if .C=1
 ;		r0 	= Destination address
 ;		r1l	= width
-;		r1h	= height
+;		r2l	= height
 ; *****************************************************************************
 !macro VTUI_SAVE_RECT {
 	ldy	VERA_ADDR_L	; Save X coordinate for later
@@ -496,7 +498,7 @@ vtui_border:
 	ldx	r1l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M	; Increment Y coordinate
-	dec	r1h
+	dec	r2l
 	bne	.vloop
 	bra	.end
 .sysram:
@@ -513,7 +515,7 @@ vtui_border:
 	ldx	r1l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M
-	dec	r1h
+	dec	r2l
 	bne	.sloop
 .end:
 }
@@ -529,7 +531,7 @@ vtui_save_rect:
 ;		.A	= VRAM Bank (0 or 1) if .C=1
 ;		r0 	= Source address
 ;		r1l	= width
-;		r1h	= height
+;		r2l	= height
 ; *****************************************************************************
 !macro VTUI_REST_RECT {
 	ldy	VERA_ADDR_L	; Save X coordinate for later
@@ -555,7 +557,7 @@ vtui_save_rect:
 	ldx	r1l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M	; Increment Y coordinate
-	dec	r1h
+	dec	r2l
 	bne	.vloop
 	bra	.end
 .sysram:
@@ -572,7 +574,7 @@ vtui_save_rect:
 	ldx	r1l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M
-	dec	r1h
+	dec	r2l
 	bne	.sloop
 .end:
 }

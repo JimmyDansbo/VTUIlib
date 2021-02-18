@@ -83,10 +83,10 @@ After initialization, all functions can be called by referencing the base addres
 
 ## Registers
 
-Several zeropage addresses are used by the library for temporary storage space as well as parameter passing. Addresses used are `r0 - r5` (`$02 - $0D`). These are the same registers as is used by the new
+Several zeropage addresses are used by the library for temporary storage space as well as parameter passing. Addresses used are `r0 - r6` (`$02 - $0F`). These are the same registers as is used by the new
 kernal functions in the Commander X16.
 
-The VTUI library mostly uses r0 and r1 for parameter passing, r2-r5 are used for temporary storage. All zeropage registers can be discarded as soon as a routine has returned.
+The VTUI library mostly uses r0, r1l and r2l for parameter passing, r0-r6 are also used for temporary storage. All zeropage registers can be discarded as soon as a routine has returned.
 
 In addition to the zeropage memory, the VTUI library uses CPU registers for transferring arguments to the functions as well as temporary space and indexing.
 
@@ -284,10 +284,10 @@ Purpose: Draw a filled box<br>
 Call address: `VTUILIB+32`<br>
 Macro name: `VTUI_FILL_BOX`<br>
 Routine name: `vtui_fill_box`<br>
-Communication registers: r1l ($04), r1h ($05), .A & .X<br>
+Communication registers: r1l ($04), r2l ($06), .A & .X<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .Y<br>
-ZP registers affected: r1h ($05)<br>
+ZP registers affected: r2l ($06)<br>
 
 **Description** Draw a filled box starting at current position.<br>
 
@@ -295,7 +295,7 @@ ZP registers affected: r1h ($05)<br>
 |------|-----------------------|
 |  .A  | Character for filling |
 | r1l  | Width of box          |
-| r1h  | Height of box         |
+| r2l  | Height of box         |
 |  .X  | bg-/fg-color          |
 
 ## Function name: pet2scr
@@ -335,10 +335,10 @@ Purpose: Draw a box with border<br>
 Call address: `VTUILIB+41`<br>
 Macro name: `VTUI_BORDER`<br>
 Routine name: `vtui_border`<br>
-Communication registers: .A, .X, r1l ($04) & r1h ($05)<br>
+Communication registers: .A, .X, r1l ($04) & r2l ($06)<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .Y
-ZP registers affected: r0l ($02), r0h ($03), r2l - r5h ($06 - $0D)
+ZP registers affected: r0l ($02), r0h ($03), r3l - r6h ($08 - $0F)
 
 **Description** Create a box with a specific border.<br>
 
@@ -346,7 +346,7 @@ ZP registers affected: r0l ($02), r0h ($03), r2l - r5h ($06 - $0D)
 |------|---------------|
 |  .A  | Border mode   |
 | r1l  | Width of box  |
-| r1h  | Height of box |
+| r2l  | Height of box |
 |  .X  | bg-/fg-color  |
 
 ***Supported Modes***<br>
@@ -361,10 +361,10 @@ Purpose: Save an area from the screen to memory<br>
 Call address: `VTUILIB+44`<br>
 Macro name: `VTUI_SAVE_RECT`<br>
 Routine name: `vtui_save_rect`<br>
-Communication registers: .C, .A, r0 ($02-$03), r1l ($04), r1h ($05)<br>
+Communication registers: .C, .A, r0 ($02-$03), r1l ($04), r2l ($06)<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A, .X & .Y
-ZP registers affected: r0 ($02-$03), r1h ($05)
+ZP registers affected: r0 ($02-$03), r2l ($06)
 
 **Description** Save an area from screen to memory. Notice that each character on screen takes up 2 bytes of memory because a byte is used for color information.<br>
 
@@ -374,17 +374,17 @@ ZP registers affected: r0 ($02-$03), r1h ($05)
 |   .A   | VRAM bank if .C = 1 |
 |   r0   | 16bit destination address |
 |   r1l  | Width of area to save |
-|   r1h  | Height of area to save |
+|   r2l  | Height of area to save |
 
 ## Function name: rest_rect
 Purpose: Restore an area on screen from memory<br>
 Call address: `VTUILIB+47`<br>
 Macro name: `VTUI_REST_RECT`<br>
 Routine name: `vtui_rest_rect`<br>
-Communication registers: .C, .A, r0 ($02-$03), r1l ($04), r1h ($05)<br>
+Communication registers: .C, .A, r0 ($02-$03), r1l ($04), r2l ($06)<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A, .X & .Y
-ZP registers affected: r0 ($02-$03), r1h ($05)
+ZP registers affected: r0 ($02-$03), r2l ($06)
 
 **Description** Restore an area on screen from memory.<br>
 
@@ -394,4 +394,4 @@ ZP registers affected: r0 ($02-$03), r1h ($05)
 |   .A   | VRAM bank if .C = 1 |
 |   r0   | 16bit destination address |
 |   r1l  | Width of area to save |
-|   r1h  | Height of area to save |
+|   r2l  | Height of area to save |

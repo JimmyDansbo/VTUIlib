@@ -57,7 +57,7 @@ main:
 	lda	#80
 	sta	r1l
 	lda	#60
-	sta	r1h
+	sta	r2l
 	lda	#' '
 	ldx	#$10
 	jsr	VTUI_fill_box
@@ -105,7 +105,7 @@ main:
 	lda	#34
 	sta	r1l		; Width
 	lda	#18
-	sta	r1h		; Height
+	sta	r2l		; Height
 	lda	#3		; Bordermode
 	ldx	#$74		; Yellow background, purple foreground
 	jsr	VTUI_border
@@ -117,7 +117,7 @@ main:
 	lda	#32
 	sta	r1l		; Width
 	lda	#16
-	sta	r1h		; Height
+	sta	r2l		; Height
 	ldx	#$74		; Yellow background, purple foreground
 	lda	#' '		; Character used for filling box
 	jsr	VTUI_fill_box

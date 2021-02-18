@@ -33,7 +33,7 @@ main:
 
 	lda	#7
 	sta	r1l		; Width
-	sta	r1h		; Height
+	sta	r2l		; Height
 	sec			; Save to VRAM
 	lda	#1		; Bank 1
 	stz	r0l		; ADDR $0000
@@ -95,7 +95,7 @@ move_logo:
 
 	lda	#7
 	sta	r1l		; Width
-	sta	r1h		; Height
+	sta	r2l		; Height
 	sec			; Restore from VRAM
 	lda	#1		; Bank 1
 	stz	r0l		; ADDR $0100
@@ -108,7 +108,7 @@ move_logo:
 
 	lda	#7
 	sta	r1l		; Width
-	sta	r1h		; Height
+	sta	r2l		; Height
 	sec			; Save to VRAM
 	lda	#1		; Bank 1
 	stz	r0l		; ADDR $0100
@@ -121,7 +121,7 @@ move_logo:
 
 	lda	#7
 	sta	r1l		; Width
-	sta	r1h		; Height
+	sta	r2l		; Height
 	sec			; Restore from VRAM
 	lda	#1		; Bank 1
 	stz	r0l		; ADDR $0000
