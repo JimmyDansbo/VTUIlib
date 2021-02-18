@@ -263,18 +263,22 @@ vtui_scr2pet:
 ; *****************************************************************************
 ; Print a 0 terminated string PETSCII string
 ; *****************************************************************************
-; INPUTS	.C = Convert string (0 = no converstion, 1 = convert)
+; INPUTS	.A = Convert string (0 = no converstion, 1 = convert)
 ;		r0 = pointer to string
 ;		.X  = bg-/fg color
-; USES:		.Y
+; USES:		.A, .Y & r2l
 ; *****************************************************************************
 !macro VTUI_PRINT_STR {
+	sta	r2l
 	ldy	#0
 .loop:	lda	(r0),y		; Load character
 	beq	.end		; If 0, we are done
-	bcc	+
+	sty	r2h
+	ldy	r2l
+	beq	+
 	+VTUI_PET2SCR
 +	+VTUI_PLOT_CHAR
+	ldy	r2h
 	iny
 	bne	.loop		; Get next character
 .end:

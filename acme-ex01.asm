@@ -49,6 +49,7 @@ main:
 	lda	#>my_str
 	sta	r0h
 	ldx	#$61		; Color
+	lda	#1
 	jsr	vtui_print_str
 
 -	jsr	$FFE4		; GETIN
