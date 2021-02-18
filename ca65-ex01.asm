@@ -1,4 +1,4 @@
-.org $080D
+
 .segment "STARTUP"
 .segment "INIT"
 .segment "ONCE"
@@ -26,7 +26,7 @@ main:
 	dex
 	bne	:-
 
-	lda 0			; BANK 0
+	lda 	#0		; BANK 0
 	jsr	vtui_set_bank
 
 	lda	xcord
