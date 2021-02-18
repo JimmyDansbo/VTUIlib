@@ -336,7 +336,7 @@ vtui_fill_box:
 ; *****************************************************************************
 ; Create a box with a specific border
 ; *****************************************************************************
-; INPUTS:	.A	= Border mode (0-5) any other will default to mode 0
+; INPUTS:	.A	= Border mode (0-6) any other will default to mode 0
 ;		r1l	= width
 ;		r2l	= height
 ;		.X	= bg-/fg-color
@@ -408,7 +408,7 @@ elines:	lda	#$77		; lines on edges
 	sta	right
 	bra	dodraw
 mode5:	cmp	#5
-	bne	default
+	bne	mode6
 	lda	#$5F
 	sta	top_right
 	lda	#$69
@@ -418,6 +418,8 @@ mode5:	cmp	#5
 	lda	#$DF
 	sta	bot_left
 	bra	elines
+mode6:	cmp	#6
+	beq	dodraw		; Assume border chars are already set
 default:
 	lda	#$20
 def:	sta	top_right

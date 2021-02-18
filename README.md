@@ -340,7 +340,20 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: .Y
 ZP registers affected: r0l ($02), r0h ($03), r3l - r6h ($08 - $0F)
 
-**Description** Create a box with a specific border.<br>
+**Description** Create a box with a specific or custom border.
+
+Modes 0-5 are pre-defined, only works with the default character set and are shown below. If mode 6 is specified, the border characters can be defined as follows:<br>
+
+|Register|Address|Border character|
+|--------|-------|----------------|
+| r3l    | $08   | Top right corner |
+| r3h    | $09   | Top left corner |
+| r4l    | $0A   | Bottom right corner |
+| r4h    | $0B   | Bottom left corner |
+| r5l    | $0C   | Top horizontal line character |
+| r5h    | $0D   | Bottom horizontal line character |
+| r6l    | $0E   | Left vertical line character |
+| r6h    | $0F   | Right vertical line character |
 
 |Registers|Purpose     |
 |------|---------------|
@@ -351,10 +364,10 @@ ZP registers affected: r0l ($02), r0h ($03), r3l - r6h ($08 - $0F)
 
 ***Supported Modes***<br>
 
-|Borders| | | | | | |
-|-------|-|-|-|-|-|-|
-|Mode|0|1|2|3|4|5|
-|Visual|![border0](images/border0.jpg)|![border1](images/border1.jpg)|![border2](images/border2.jpg)|![border3](images/border3.jpg)|![border4](images/border4.jpg)|![border5](images/border5.jpg)|
+|Borders| | | | | | | |
+|-------|-|-|-|-|-|-|-|
+|Mode|0|1|2|3|4|5|6|
+|Visual|![border0](images/border0.jpg)|![border1](images/border1.jpg)|![border2](images/border2.jpg)|![border3](images/border3.jpg)|![border4](images/border4.jpg)|![border5](images/border5.jpg)|Custom|
 
 ## Function name: save_rect
 Purpose: Save an area from the screen to memory<br>

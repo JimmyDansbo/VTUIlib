@@ -384,7 +384,7 @@ vtui_fill_box:
 ; *****************************************************************************
 ; Create a box with a specific border
 ; *****************************************************************************
-; INPUTS:	.A	= Border mode (0-5) any other will default to mode 0
+; INPUTS:	.A	= Border mode (0-6) any other will default to mode 0
 ;		r1l	= width
 ;		r2l	= height
 ;		.X	= bg-/fg-color
@@ -417,14 +417,15 @@ vtui_fill_box:
 	sta	.bot_right
 	lda	#$6D
 	sta	.bot_left
-.clines	lda	#$40		; centered lines
+.clines:
+	lda	#$40		; centered lines
 	sta	.top
 	sta	.bottom
 	lda	#$42
 	sta	.left
 	sta	.right
 	bra	.dodraw
-.mode3	cmp	#3
+.mode3:	cmp	#3
 	bne	.mode4
 	lda	#$49
 	sta	.top_right
@@ -435,7 +436,7 @@ vtui_fill_box:
 	lda	#$4A
 	sta	.bot_left
 	bra	.clines
-.mode4	cmp	#4
+.mode4:	cmp	#4
 	bne	.mode5
 	lda	#$50
 	sta	.top_right
@@ -445,7 +446,8 @@ vtui_fill_box:
 	sta	.bot_right
 	lda	#$4C
 	sta	.bot_left
-.elines	lda	#$77		; lines on edges
+.elines:
+	lda	#$77		; lines on edges
 	sta	.top
 	lda	#$6F
 	sta	.bottom
@@ -454,8 +456,8 @@ vtui_fill_box:
 	lda	#$6A
 	sta	.right
 	bra	.dodraw
-.mode5	cmp	#5
-	bne	.default
+.mode5:	cmp	#5
+	bne	.mode6
 	lda	#$5F
 	sta	.top_right
 	lda	#$69
@@ -465,6 +467,8 @@ vtui_fill_box:
 	lda	#$DF
 	sta	.bot_left
 	bra	.elines
+.mode6:	cmp	#6
+	beq	.dodraw		; Assume border chars are already set
 .default:
 	lda	#$20
 .def:	sta	.top_right
