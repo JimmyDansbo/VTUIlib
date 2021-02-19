@@ -80,18 +80,15 @@ vtui_screen_set:
 ; *****************************************************************************
 .macro VTUI_SET_BANK
 .scope
+	lda	VERA_ADDR_H
 	bcc	setzero
 	; Bank = 1
-	lda	VERA_ADDR_H
 	ora	#$01
-	sta	VERA_ADDR_H
 	bra	end
 setzero:
 	; Bank = 0
-	lda	VERA_ADDR_H
 	and	#$FE
-	sta	VERA_ADDR_H
-end:
+end:	sta	VERA_ADDR_H
 .endscope
 .endmacro
 vtui_set_bank:
