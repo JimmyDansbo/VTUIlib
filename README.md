@@ -276,7 +276,7 @@ ZP registers affected: none<br>
 
 |Registers | Purpose               |
 |------|-----------------------|
-|  .A  | Convert string (0 = no conversion, 1 = convert) |
+|  .A  | Convert string (0 = no conversion, $80 = convert) |
 |  r0  | Pointer to start of string |
 |  .X  | bg-/fg-color  |
 

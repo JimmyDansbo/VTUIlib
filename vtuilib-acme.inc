@@ -260,7 +260,7 @@ vtui_scr2pet:
 ; *****************************************************************************
 ; Print a 0 terminated string PETSCII string
 ; *****************************************************************************
-; INPUTS	.A = Convert string (0 = no converstion, 1 = convert)
+; INPUTS	.A = Convert string (0 = no converstion, $80 = convert)
 ;		r0 = pointer to string
 ;		.X  = bg-/fg color
 ; USES:		.A, .Y & r2
@@ -270,9 +270,8 @@ vtui_scr2pet:
 	ldy	#0
 .loop:	lda	(r0),y		; Load character
 	beq	.end		; If 0, we are done
-	sty	r2h
-	ldy	r2l
-	beq	+
+	bit	r2l
+	bpl	+
 	+VTUI_PET2SCR
 +	+VTUI_PLOT_CHAR
 	ldy	r2h
@@ -434,8 +433,8 @@ vtui_fill_box:
 	lda	r0l
 	sta	VERA_ADDR_L
 	lda	r0h
+	inc
 	sta	VERA_ADDR_M
-	inc	VERA_ADDR_M
 	ldy	r2l		;height
 	dey
 	lda	.left
