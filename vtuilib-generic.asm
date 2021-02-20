@@ -19,8 +19,8 @@
 	jmp	vtui_pet2scr	; .A = character to convert to screencode
 	jmp	vtui_scr2pet	; .A = character to convert to petscii
 	jmp	vtui_border	; .A=border,r1l=width,r2l=height,.X=color
-	jmp	vtui_save_rect	; .C=destram,.A=vrambank,r0=destaddr,r1l=width,r2l=height
-	jmp	vtui_rest_rect	; .C=destram,.A=vrambank,r0=srcaddr,r1l=width,r2l=height
+	jmp	vtui_save_rect	; .C=vrambank,.A=destram,r0=destaddr,r1l=width,r2l=height
+	jmp	vtui_rest_rect	; .C=vrambank,.A=srcram,r0=srcaddr,r1l=width,r2l=height
 	jmp	$0000		; Show that there are no more jumps
 
 ; ******************************* Constants *******************************
@@ -340,7 +340,7 @@ vtui_scr2pet:
 ; INPUTS	.A = Convert string (0 = no converstion, 1 = convert)
 ;		r0 = pointer to string
 ;		.X  = bg-/fg color
-; USES:		.A & .Y
+; USES:		.A, .Y & r2
 ; *****************************************************************************
 !macro VTUI_PRINT_STR {
 	sta	r2l
@@ -549,20 +549,20 @@ vtui_border:
 ; Copy contents of screen from current position to other memory area in
 ; either system RAM or VRAM
 ; *****************************************************************************
-; INPUTS:	.C	= Destination RAM (0=system RAM, 1=VRAM)
-;		.A	= VRAM Bank (0 or 1) if .C=1
+; INPUTS:	.C	= VRAM Bank (0 or 1) if .A>0
+;		.A	= Destination RAM (0=system RAM, 1=VRAM)
 ;		r0 	= Destination address
 ;		r1l	= width
 ;		r2l	= height
 ; *****************************************************************************
 !macro VTUI_SAVE_RECT {
 	ldy	VERA_ADDR_L	; Save X coordinate for later
-	bcc	.sysram
+	cmp	#0
+	beq	.sysram
 	; VRAM
 	ldx	#1		; Set ADDRsel to 1
 	stx	VERA_CTRL
-	sec			; Set bank 1
-	+VTUI_SET_BANK
+	+VTUI_SET_BANK		; Set bank according to .C
 	lda	#1
 	+VTUI_SET_STRIDE	; Set stride to 1
 	lda	r0l		; Set destination address
@@ -609,20 +609,20 @@ vtui_save_rect:
 ; Restore contents of screen from other memory area in either system RAM
 ; or VRAM starting at current position
 ; *****************************************************************************
-; INPUTS:	.C	= Source RAM (0=system RAM, 1=VRAM)
-;		.A	= VRAM Bank (0 or 1) if .C=1
+; INPUTS:	.C	= VRAM Bank (0 or 1) if .A>0
+;		.A	= Source RAM (0=system RAM, 1=VRAM)
 ;		r0 	= Source address
 ;		r1l	= width
 ;		r2l	= height
 ; *****************************************************************************
 !macro VTUI_REST_RECT {
 	ldy	VERA_ADDR_L	; Save X coordinate for later
-	bcc	.sysram
+	cmp	#0
+	beq	.sysram
 	; VRAM
 	ldx	#1		; Set ADDRsel to 1
 	stx	VERA_CTRL
-	sec			; Set bank to 1
-	+VTUI_SET_BANK
+	+VTUI_SET_BANK		; Set bank according to .C
 	lda	#1
 	+VTUI_SET_STRIDE
 	lda	r0l		; Set destination address

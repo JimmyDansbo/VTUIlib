@@ -386,8 +386,8 @@ ZP registers affected: r0 ($02-$03), r2l ($06)
 
 |Register|Purpose|
 |--------|-------|
-|   .C   |  Destination RAM (0=System RAM, 1=VRAM) |
-|   .A   | VRAM bank if .C = 1 |
+|   .A   |  Destination RAM (0=System RAM, 1=VRAM) |
+|   .C   | VRAM bank if .A > 0 |
 |   r0   | 16bit destination address |
 |   r1l  | Width of area to save |
 |   r2l  | Height of area to save |
@@ -406,8 +406,8 @@ ZP registers affected: r0 ($02-$03), r2l ($06)
 
 |Register|Purpose|
 |--------|-------|
-|   .C   | Source RAM (0=System RAM, 1=VRAM) |
-|   .A   | VRAM bank if .C = 1 |
+|   .A   | Source RAM (0=System RAM, 1=VRAM) |
+|   .C   | VRAM bank if .A > 0 |
 |   r0   | 16bit destination address |
 |   r1l  | Width of area to save |
 |   r2l  | Height of area to save |
