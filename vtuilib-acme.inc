@@ -271,10 +271,9 @@ vtui_scr2pet:
 .loop:	lda	(r0),y		; Load character
 	beq	.end		; If 0, we are done
 	bit	r2l
-	bpl	+
+	bmi	+
 	+VTUI_PET2SCR
 +	+VTUI_PLOT_CHAR
-	ldy	r2h
 	iny
 	bne	.loop		; Get next character
 .end:

@@ -88,7 +88,7 @@ main:
 	lda	#>Libname	; High byte of string start address
 	sta	r0h
 	ldx	#$10		; White background / black foreground
-	lda	#1
+	lda	#0
 	jsr	VTUI_print_str
 	; gotoxy 11, 5
 	lda	#11
@@ -137,7 +137,7 @@ main:
 	lda	#>Verstr	; High byte of string start address
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
-	lda	#1
+	lda	#0
 	jsr	VTUI_print_str
 	; Plot a character to create a header for our box
 	lda	#$6B		; Character
@@ -171,7 +171,7 @@ main:
 	lda	#>Boxstr	; High byte of string start address
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
-	lda	#1
+	lda	#0
 	jsr	VTUI_print_str
 
 	; gotoxy 5, 13
@@ -184,7 +184,7 @@ main:
 	lda	#>Hlinestr	; High byte of string start address
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
-	lda	#1
+	lda	#0
 	jsr	VTUI_print_str
 
 	; gotoxy 5, 15
@@ -197,7 +197,7 @@ main:
 	lda	#>Vlinestr	; High byte of string start address
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
-	lda	#1
+	lda	#0
 	jsr	VTUI_print_str
 
 	; gotoxy 5, 19
@@ -210,7 +210,7 @@ main:
 	lda	#>Plotstr	; High byte of string start address
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
-	lda	#1
+	lda	#0
 	jsr	VTUI_print_str
 
 	; gotoxy 5, 21
@@ -223,7 +223,7 @@ main:
 	lda	#>Dramstr	; High byte of string start address
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
-	lda	#1
+	lda	#0
 	jsr	VTUI_print_str
 
 	; gotoxy 5, 23
@@ -236,7 +236,7 @@ main:
 	lda	#>Morestr	; High byte of string start address
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
-	lda	#1
+	lda	#0
 	jsr	VTUI_print_str
 
 	jsr	$FFCF		; Wait for enter key
