@@ -21,6 +21,7 @@ This document describes the **V**ERA **T**ext **U**ser **I**nterface library.
 	* [set_bank](#function-name-set_bank)
 	* [set_stride](#function-name-set_stride)
 	* [set_decr](#function-name-set_decr)
+	* [clr_scr](#function-name-clr_scr)
 	* [gotoxy](#function-name-gotoxy)
 	* [plot_char](#function-name-plot_char)
 	* [scan_char](#function-name-scan_char)
