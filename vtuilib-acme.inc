@@ -58,6 +58,7 @@ LIGHTGRAY	= 15
 ; RETURNS:		.C = 1 in case of error.
 ; *****************************************************************************
 !macro VTUI_SCREEN_SET {
+	cmp	#0
 	beq	.doset		; If 0, we can set mode
 	cmp	#$02
 	beq	.doset		; If 2, we can set mode
@@ -263,14 +264,14 @@ vtui_scr2pet:
 ; INPUTS	.A = Convert string (0 = no converstion, $80 = convert)
 ;		r0 = pointer to string
 ;		.X  = bg-/fg color
-; USES:		.A, .Y & r2
+; USES:		.A, .Y & r1l
 ; *****************************************************************************
 !macro VTUI_PRINT_STR {
-	sta	r2l
+	sta	r1l
 	ldy	#0
 .loop:	lda	(r0),y		; Load character
 	beq	.end		; If 0, we are done
-	bit	r2l
+	bit	r1l
 	bmi	+
 	+VTUI_PET2SCR
 +	+VTUI_PLOT_CHAR

@@ -66,19 +66,26 @@ initialize:
 	; Write code to ZP to figure out where the library is loaded.
 	; This is done by jsr'ing to the code in ZP which in turn reads the
 	; return address from the stack.
-	lda	#$BA		; TSX
+OP_TSX		= $BA		; TSX opcode
+OP_LDA_ABS_X	= $BD		; LDA absolute,X opcode
+OP_LDY_ABS_X	= $BC		; LDY absolute,X opcode
+OP_RTS		= $60		; RTS opcode
+
+	lda	#OP_TSX		; TSX
 	sta	r0
-	lda	#$BD		; LDA absolute,x
+	lda	#OP_LDA_ABS_X	; LDA absolute,x
 	sta	r0+1
 	lda	#$01		; $0101
 	sta	r0+2
 	sta	r0+3
 	sta	r0+6
-	lda	#$BC		; LDY absolute,x
+	lda	#OP_LDY_ABS_X	; LDY absolute,x
 	sta	r0+4
 	lda	#$02		; $0102
 	sta	r0+5
-	lda	#$60		; RTS
+;	lda	#$01		; These two lines are replaced with sta r0+6
+;	sta	r0+6		; above to avoid an extra lda #$01
+	lda	#OP_RTS		; RTS
 	sta	r0+7
 	; Jump to the code in ZP that was just copied there by the code above.
 	; This is to get the return address stored on stack
@@ -135,6 +142,7 @@ initialize:
 ; RETURNS:		.C = 1 in case of error.
 ; *****************************************************************************
 !macro VTUI_SCREEN_SET {
+	cmp	#0
 	beq	.doset		; If 0, we can set mode
 	cmp	#$02
 	beq	.doset		; If 2, we can set mode
@@ -340,14 +348,14 @@ vtui_scr2pet:
 ; INPUTS	.A = Convert string (0 = no converstion, $80 = convert)
 ;		r0 = pointer to string
 ;		.X  = bg-/fg color
-; USES:		.A, .Y & r2
+; USES:		.A, .Y & r1l
 ; *****************************************************************************
 !macro VTUI_PRINT_STR {
-	sta	r2l
+	sta	r1l
 	ldy	#0
 .loop:	lda	(r0),y		; Load character
 	beq	.end		; If 0, we are done
-	bit	r2l
+	bit	r1l
 	bmi	+
 	+VTUI_PET2SCR
 +	+VTUI_PLOT_CHAR
