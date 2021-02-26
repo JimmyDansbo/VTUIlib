@@ -309,6 +309,26 @@ vtui_fill_box:
 	rts
 
 ; *****************************************************************************
+; Clear the entire screen with specific character and color
+; *****************************************************************************
+; INPUTS:	.A	= Character to use for filling
+;		.X	= bg- & fg-color
+; USES:		.Y, r1l & r2l
+; *****************************************************************************
+!macro VTUI_CLR_SCR {
+	stz	VERA_ADDR_M	; Ensure VERA address is at top left corner
+	stz	VERA_ADDR_L
+	ldy	#80		; Store max width = 80 columns
+	sty	r1l
+	ldy	#60		; Store max height = 60 lines
+	sty	r2l
+	+VTUI_FILL_BOX
+}
+vtui_clr_scr:
+	+VTUI_CLR_SCR
+	rts
+
+; *****************************************************************************
 ; Create a box with a specific border
 ; *****************************************************************************
 ; INPUTS:	.A	= Border mode (0-6) any other will default to mode 0

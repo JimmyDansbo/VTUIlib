@@ -168,10 +168,21 @@ ZP registers affected: none<br>
 |------|-----------------------|
 |  .C  | 0 = Increment, 1 = Decrement |
 
+## Function name: clr_scr
+Purpose: Clear the entire screen with specific character and color.<br>
+Call address: `VTUILIB+14`<br>
+Macro name: `VTUI_CLR_SCR`<br>
+Routine name: `vtui_clr_scr`<br>
+Communication registers: .A & .X<br>
+Preparatory routines: none<br>
+Registers affected: .Y
+ZP registers affected: r1l & r2l<br>
+
+**Description** Fill the entire screen (maximum 80x60) with the character in .A and the color in .X
 
 ## Function name: gotoxy
 Purpose: Set VERA address to point to specific coordinates on screen.<br>
-Call address: `VTUILIB+14`<br>
+Call address: `VTUILIB+17`<br>
 Macro name: `VTUI_GOTOXY`<br>
 Routine name: `vtui_gotoxy`<br>
 Communication registers: .A & .Y<br>
@@ -189,7 +200,7 @@ ZP registers affected: none<br>
 
 ## Function name: plot_char
 Purpose: Write a screencode character and color to screen.<br>
-Call address: `VTUILIB+17`<br>
+Call address: `VTUILIB+20`<br>
 Macro name: `VTUI_PLOT_CHAR`<br>
 Routine name: `vtui_plot_char`<br>
 Communication registers: .A & .X<br>
@@ -211,7 +222,7 @@ ZP registers affected: none<br>
 
 ## Function name: scan_char
 Purpose: Read a screencode character and color from screen memory<br>
-Call address: `VTUILIB+20`<br>
+Call address: `VTUILIB+23`<br>
 Macro name: `VTUI_SCAN_CHAR`<br>
 Routine name: `vtui_scan_char`<br>
 Communication registers: .A & .X<br>
@@ -228,7 +239,7 @@ ZP registers affected: none<br>
 
 ## Function name: hline
 Purpose: Draw a horizontal line from left to right.<br>
-Call address: `VTUILIB+23`<br>
+Call address: `VTUILIB+26`<br>
 Macro name: `VTUI_HLINE`<br>
 Routine name: `vtui_hline`<br>
 Communication registers: .A, .X & .Y<br>
@@ -246,7 +257,7 @@ ZP registers affected: none<br>
 
 ## Function name: vline
 Purpose: Draw a vertical line from top to bottom.<br>
-Call address: `VTUILIB+26`<br>
+Call address: `VTUILIB+29`<br>
 Macro name: `VTUI_VLINE`<br>
 Routine name: `vtui_vline`<br>
 Communication registers: .A, .X & .Y<br>
@@ -264,7 +275,7 @@ ZP registers affected: none<br>
 
 ## Function name: print_str
 Purpose: Print a string to screen.<br>
-Call address: `VTUILIB+29`<br>
+Call address: `VTUILIB+32`<br>
 Macro name: `VTUI_PRINT_STR`<br>
 Routine name: `vtui_print_str`<br>
 Communication registers: r0 ($02-$03), .A & .X<br>
@@ -282,7 +293,7 @@ ZP registers affected: none<br>
 
 ## Function name: fill_box
 Purpose: Draw a filled box<br>
-Call address: `VTUILIB+32`<br>
+Call address: `VTUILIB+35`<br>
 Macro name: `VTUI_FILL_BOX`<br>
 Routine name: `vtui_fill_box`<br>
 Communication registers: r1l ($04), r2l ($06), .A & .X<br>
@@ -301,7 +312,7 @@ ZP registers affected: r2l ($06)<br>
 
 ## Function name: pet2scr
 Purpose: Convert PETSCII to screencode<br>
-Call address: `VTUILIB+35`<br>
+Call address: `VTUILIB+38`<br>
 Macro name: `VTUI_PET2SCR`<br>
 Routine name: `vtui_pet2scr`<br>
 Communication registers: .A<br>
@@ -317,7 +328,7 @@ ZP registers affected: none<br>
 
 ## Function name: scr2pet
 Purpose: Convert screencode to PETSCII<br>
-Call address: `VTUILIB+38`<br>
+Call address: `VTUILIB+41`<br>
 Macro name: `VTUI_SCR2PET`<br>
 Routine name: `vtui_scr2pet`<br>
 Communication registers: .A<br>
@@ -333,7 +344,7 @@ ZP registers affected: none<br>
 
 ## Function name: border
 Purpose: Draw a box with border<br>
-Call address: `VTUILIB+41`<br>
+Call address: `VTUILIB+44`<br>
 Macro name: `VTUI_BORDER`<br>
 Routine name: `vtui_border`<br>
 Communication registers: .A, .X, r1l ($04) & r2l ($06)<br>
@@ -374,7 +385,7 @@ Modes 0-5 are pre-defined, only works with the default character set and are sho
 
 ## Function name: save_rect
 Purpose: Save an area from the screen to memory<br>
-Call address: `VTUILIB+44`<br>
+Call address: `VTUILIB+47`<br>
 Macro name: `VTUI_SAVE_RECT`<br>
 Routine name: `vtui_save_rect`<br>
 Communication registers: .C, .A, r0 ($02-$03), r1l ($04), r2l ($06)<br>
@@ -394,7 +405,7 @@ ZP registers affected: r0 ($02-$03), r2l ($06)
 
 ## Function name: rest_rect
 Purpose: Restore an area on screen from memory<br>
-Call address: `VTUILIB+47`<br>
+Call address: `VTUILIB+50`<br>
 Macro name: `VTUI_REST_RECT`<br>
 Routine name: `vtui_rest_rect`<br>
 Communication registers: .C, .A, r0 ($02-$03), r1l ($04), r2l ($06)<br>

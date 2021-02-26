@@ -9,6 +9,7 @@
 	jmp	vtui_set_bank	; .C = bank number (0 or 1)
 	jmp	vtui_set_stride	; .A = Stride value
 	jmp	vtui_set_decr	; .C (1 = decrement, 0 = increment)
+	jmp	vtui_clr_scr	; .A = Character, .X = bg-/fg-color
 	jmp	vtui_gotoxy	; .A = x coordinate, .Y = y coordinate
 	jmp	vtui_plot_char	; .A = character, .X = bg-/fg-color
 	jmp	vtui_scan_char	; like plot_char
@@ -366,6 +367,22 @@ vtui_scr2pet:
 vtui_print_str:
 	+VTUI_PRINT_STR
 	rts
+
+; *****************************************************************************
+; Clear the entire screen with specific character and color
+; *****************************************************************************
+; INPUTS:	.A	= Character to use for filling
+;		.X	= bg- & fg-color
+; USES:		.Y, r1l & r2l
+; *****************************************************************************
+vtui_clr_scr:
+	stz	VERA_ADDR_M	; Ensure VERA address is at top left corner
+	stz	VERA_ADDR_L
+	ldy	#80		; Store max width = 80 columns
+	sty	r1l
+	ldy	#60		; Store max height = 60 lines
+	sty	r2l
+	; this falls through to vtui_fill_box
 
 ; *****************************************************************************
 ; Create a filled box drawn from top left to bottom right

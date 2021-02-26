@@ -30,16 +30,19 @@ VTUI_screen_set	= LIBSTART+2
 VTUI_set_bank	= LIBSTART+5
 VTUI_set_stride	= LIBSTART+8
 VTUI_set_decr	= LIBSTART+11
-VTUI_gotoxy	= LIBSTART+14
-VTUI_plot_char	= LIBSTART+17
-VTUI_scan_char	= LIBSTART+20
-VTUI_hline	= LIBSTART+23
-VTUI_vline	= LIBSTART+26
-VTUI_print_str	= LIBSTART+29
-VTUI_fill_box	= LIBSTART+32
-VTUI_pet2scr	= LIBSTART+35
-VTUI_scr2pet	= LIBSTART+38
-VTUI_border	= LIBSTART+41
+VTUI_clr_scr	= LIBSTART+14
+VTUI_gotoxy	= LIBSTART+17
+VTUI_plot_char	= LIBSTART+20
+VTUI_scan_char	= LIBSTART+23
+VTUI_hline	= LIBSTART+26
+VTUI_vline	= LIBSTART+29
+VTUI_print_str	= LIBSTART+32
+VTUI_fill_box	= LIBSTART+35
+VTUI_pet2scr	= LIBSTART+38
+VTUI_scr2pet	= LIBSTART+41
+VTUI_border	= LIBSTART+44
+VTUI_save_rect	= LIBSTART+47
+VTUI_rest_rect	= LIBSTART+50
 
 main:
 	; Initialize the library
@@ -54,13 +57,9 @@ main:
 	clc
 	jsr	VTUI_set_decr
 	; Clear screen with white background and black foreground
-	lda	#80
-	sta	r1l
-	lda	#60
-	sta	r2l
 	lda	#' '
 	ldx	#$10
-	jsr	VTUI_fill_box
+	jsr	VTUI_clr_scr
 	; gotoxy 11, 2
 	lda	#11
 	ldy	#2
