@@ -1,6 +1,6 @@
 # VTUI library Programmers Reference
 
-Version 0.5
+Version 0.6
 
 *Author: Jimmy Dansbo*
 
@@ -54,7 +54,7 @@ The other two flavors are include files for their respective assemblers but will
 
 The generic VTUI library is designed to be loaded by standard CBM kernal functions [SETLFS](https://cx16.dk/c64-kernal-routines/setlfs.html), [SETNAM](https://cx16.dk/c64-kernal-routines/setnam.html) and [LOAD](https://cx16.dk/c64-kernal-routines/load.html).
 
-In several assemblers it is possible to load a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.5.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.5.BIN"`.
+In several assemblers it is possible to load a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.6.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.6.BIN"`.
 
 If an assembler is used to include the binary file, be aware that the first two bytes are a loading address so base address of the actual library will be: `VTUILIB=VTUI+2`.
 
@@ -288,13 +288,13 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A & .Y<br>
 ZP registers affected: none<br>
 
-**Description** Print a 0-terminated string to screen. If .A=0, The routine will convert PETSCII characters in the range $20-$59. Other characters will be converted to a large X-like character. If .A is set to $80, no conversion will take place. r0 ($02 & $03) is a 16bit zeropage pointer to the string. Background-/foreground color for the string must be provided in .X register.
+**Description** Print a 0-terminated string to screen. If .A=0, The routine will convert PETSCII characters in the range $20-$59. Other characters will be converted to a large X-like character. If .A is set to $80, no conversion will take place. r0 ($02 & $03) is a 16bit zeropage pointer to the string. Background-/foreground color for the string must be provided in .X register. If .X register is set to 0, the color-bytes in VRAM will not be set.
 
 |Registers | Purpose               |
 |------|-----------------------|
 |  .A  | Convert string (0 = convert, $80 = no conversion) |
 |  r0  | Pointer to start of string |
-|  .X  | bg-/fg-color  |
+|  .X  | bg-/fg-color (0 = don't change color) |
 
 ## Function name: fill_box
 Purpose: Draw a filled box<br>

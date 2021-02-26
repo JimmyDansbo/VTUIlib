@@ -263,7 +263,7 @@ vtui_scr2pet:
 ; *****************************************************************************
 ; INPUTS	.A = Convert string (0 = no converstion, $80 = convert)
 ;		r0 = pointer to string
-;		.X  = bg-/fg color
+;		.X  = bg-/fg color (0 = don't change color)
 ; USES:		.A, .Y & r1l
 ; *****************************************************************************
 !macro VTUI_PRINT_STR {
@@ -271,12 +271,17 @@ vtui_scr2pet:
 	ldy	#0
 .loop:	lda	(r0),y		; Load character
 	beq	.end		; If 0, we are done
+	iny
 	bit	r1l
 	bmi	+
 	+VTUI_PET2SCR
-+	+VTUI_PLOT_CHAR
-	iny
-	bne	.loop		; Get next character
++	sta	VERA_DATA0
+	cpx	#0
+	beq	+
+	stx	VERA_DATA0
+	bra	.loop
++	lda	VERA_DATA0
+	bra	.loop		; Get next character
 .end:
 }
 vtui_print_str:
