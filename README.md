@@ -43,9 +43,8 @@ VERA in the Commander X16 computer. The library is split up into 3 flavors.
 * ACME include file
 * CA65 include file
 
-The generic library is meant to be compiled into a binary by it self and loaded by the users
-program. The choice of compiler/assembler is entirely up to the user as long as it is possible
-to store values to zeropage and in registers before calling subroutines.
+The generic library is meant to be compiled with Acme into a binary by it self and loaded by the users
+program. The choice of compiler/assembler for the user program is entirely up to the user as long as it is possible to store values to zeropage and in registers before calling subroutines. This should make it possible to use the VTUI library from any assembler, C compiler or other programming language which makes it possible to set CPU registers.
 
 For examples, look at the exampleXX.asm files
 
@@ -55,7 +54,7 @@ The other two flavors are include files for their respective assemblers but will
 
 The generic VTUI library is designed to be loaded by standard CBM kernal functions [SETLFS](https://cx16.dk/c64-kernal-routines/setlfs.html), [SETNAM](https://cx16.dk/c64-kernal-routines/setnam.html) and [LOAD](https://cx16.dk/c64-kernal-routines/load.html).
 
-In several assemblers it is possible to load a a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.5.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.5.BIN"`.
+In several assemblers it is possible to load a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.5.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.5.BIN"`.
 
 If an assembler is used to include the binary file, be aware that the first two bytes are a loading address so base address of the actual library will be: `VTUILIB=VTUI+2`.
 
@@ -84,7 +83,7 @@ After initialization, all functions can be called by referencing the base addres
 
 ## Registers
 
-Several zeropage addresses are used by the library for temporary storage space as well as parameter passing. Addresses used are `r0 - r6` (`$02 - $0F`). These are the same registers as is used by the new
+Several zeropage addresses are used by the library for temporary storage space as well as parameter passing. Addresses used are `r0 - r6` (`$02 - $0F`). These are the same registers as are used by the new
 kernal functions in the Commander X16.
 
 The VTUI library mostly uses r0, r1l and r2l for parameter passing, r0-r6 are also used for temporary storage. All zeropage registers can be discarded as soon as a routine has returned.
@@ -176,10 +175,15 @@ Macro name: `VTUI_CLR_SCR`<br>
 Routine name: `vtui_clr_scr`<br>
 Communication registers: .A & .X<br>
 Preparatory routines: none<br>
-Registers affected: .Y
+Registers affected: .Y<br>
 ZP registers affected: r1l & r2l<br>
 
 **Description** Fill the entire screen (maximum 80x60) with the character in .A and the color in .X
+
+| Registers | Purpose    |
+|-----------|------------|
+|   .A      | Character to use for filling   |
+|   .X      | Colorcode to use for each char |
 
 ## Function name: gotoxy
 Purpose: Set VERA address to point to specific coordinates on screen.<br>
