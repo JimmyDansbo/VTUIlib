@@ -15,10 +15,10 @@ main:
 	sec			; BANK 1
 	jsr	vtui_set_bank
 
-	stz	$9F20
+	stz	$9F20		; ADDR $0100
 	lda	#1
 	sta	$9F21
-	ldx	#64
+	ldx	#7*7		; Size = 7*7
 	lda	#' '
 	ldy	#$61
 :	sta	$9F23
@@ -36,10 +36,10 @@ main:
 	lda	#7
 	sta	r1l		; Width
 	sta	r2l		; Height
-	lda	#1		; Save to VRAM
-	sec			; Bank 1
 	stz	r0l		; ADDR $0000
 	stz	r0h
+	lda	#$80		; Save to VRAM
+	sec			; Bank 1
 	jsr	vtui_save_rect
 
 	lda	#32		; X
@@ -99,10 +99,11 @@ move_logo:
 	lda	#7
 	sta	r1l		; Width
 	sta	r2l		; Height
-	lda	#1		; Restore from VRAM
-	sec			; Bank 1
 	stz	r0l		; ADDR $0100
+	lda	#1
 	sta	r0h
+	lda	#$80		; Restore from VRAM
+	sec			; Bank 1
 	jsr	vtui_rest_rect
 
 	lda	newx
@@ -112,10 +113,11 @@ move_logo:
 	lda	#7
 	sta	r1l		; Width
 	sta	r2l		; Height
-	lda	#1		; Save to VRAM
-	sec			; Bank 1
 	stz	r0l		; ADDR $0100
+	lda	#1
 	sta	r0h
+	lda	#$80		; Save to VRAM
+	sec			; Bank 1
 	jsr	vtui_save_rect
 
 	lda	newx
@@ -125,7 +127,7 @@ move_logo:
 	lda	#7
 	sta	r1l		; Width
 	sta	r2l		; Height
-	lda	#1		; Restore from VRAM
+	lda	#$80		; Restore from VRAM
 	sec			; Bank 1
 	stz	r0l		; ADDR $0000
 	stz	r0h

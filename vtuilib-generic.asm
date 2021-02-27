@@ -577,57 +577,63 @@ vtui_border:
 ; Copy contents of screen from current position to other memory area in
 ; either system RAM or VRAM
 ; *****************************************************************************
-; INPUTS:	.C	= VRAM Bank (0 or 1) if .A>0
-;		.A	= Destination RAM (0=system RAM, 1=VRAM)
+; INPUTS:	.C	= VRAM Bank (0 or 1) if .A=$80
+;		.A	= Destination RAM (0=system RAM, $80=VRAM)
 ;		r0 	= Destination address
 ;		r1l	= width
 ;		r2l	= height
+; USES:		r1h
 ; *****************************************************************************
 !macro VTUI_SAVE_RECT {
 	ldy	VERA_ADDR_L	; Save X coordinate for later
-	cmp	#0
-	beq	.sysram
-	; VRAM
-	ldx	#1		; Set ADDRsel to 1
-	stx	VERA_CTRL
-	+VTUI_SET_BANK		; Set bank according to .C
-	lda	#1
-	+VTUI_SET_STRIDE	; Set stride to 1
-	lda	r0l		; Set destination address
+	sta	r1h		; Save destination RAM 0=sys $80=vram
+	bit	r1h
+	bpl	.skip_vram_prep
+	lda	#1		; Set ADDRsel to 1
+	sta	VERA_CTRL
+	; Set stride and bank for VERA_DATA1
+	lda	VERA_ADDR_H
+	bcc	.bankzero
+	and	#$0F		; Set stride to 0, leave rest alone
+	ora	#$11		; Set stride to 1, bank to 1
+	bra	.storeval
+.bankzero:
+	and	#$0E		; Set stride to 0, bank to 0, leave rest
+	ora	#$10		; Set stride to 1, leave rest.
+.storeval:
+	sta	VERA_ADDR_H
+	; Set destination address for VERA_DATA1
+	lda	r0l
 	sta	VERA_ADDR_L
 	lda	r0h
 	sta	VERA_ADDR_M
 	stz	VERA_CTRL	; Set ADDRsel back to 0
+.skip_vram_prep:
 	ldx	r1l		; Load width
-.vloop:	lda	VERA_DATA0	; Copy Character
-	sta	VERA_DATA1
-	lda	VERA_DATA0	; Copy Color Code
-	sta	VERA_DATA1
-	dex
-	bne	.vloop
-	ldx	r1l		; Restore width
-	sty	VERA_ADDR_L	; Restore X coordinate
-	inc	VERA_ADDR_M	; Increment Y coordinate
-	dec	r2l
-	bne	.vloop
-	bra	.end
-.sysram:
-	; System RAM
-	ldx	r1l		; Load width
-.sloop:	lda	VERA_DATA0	; Copy Character
+.loop:	lda	VERA_DATA0	; Load character
+	bit	r1h
+	bmi	.sto_char_vram
 	sta	(r0)
-	+VTUI_INC16 r0		; Increment destination address
-	lda	VERA_DATA0	; Copy Color Code
+	+VTUI_INC16 r0
+	bra	.get_col
+.sto_char_vram:
+	sta	VERA_DATA1
+.get_col:
+	lda	VERA_DATA0	; Load color code
+	bit	r1h
+	bmi	.sto_col_vram
 	sta	(r0)
-	+VTUI_INC16 r0		; Increment destination address
-	dex
-	bne	.sloop
+	+VTUI_INC16 r0
+	bra	.cont
+.sto_col_vram:
+	sta	VERA_DATA1
+.cont:	dex
+	bne	.loop
 	ldx	r1l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M
 	dec	r2l
-	bne	.sloop
-.end:
+	bne	.loop
 }
 vtui_save_rect:
 	+VTUI_SAVE_RECT
@@ -637,57 +643,63 @@ vtui_save_rect:
 ; Restore contents of screen from other memory area in either system RAM
 ; or VRAM starting at current position
 ; *****************************************************************************
-; INPUTS:	.C	= VRAM Bank (0 or 1) if .A>0
-;		.A	= Source RAM (0=system RAM, 1=VRAM)
+; INPUTS:	.C	= VRAM Bank (0 or 1) if .A=$80
+;		.A	= Source RAM (0=system RAM, $80=VRAM)
 ;		r0 	= Source address
 ;		r1l	= width
 ;		r2l	= height
 ; *****************************************************************************
 !macro VTUI_REST_RECT {
 	ldy	VERA_ADDR_L	; Save X coordinate for later
-	cmp	#0
-	beq	.sysram
-	; VRAM
-	ldx	#1		; Set ADDRsel to 1
-	stx	VERA_CTRL
-	+VTUI_SET_BANK		; Set bank according to .C
-	lda	#1
-	+VTUI_SET_STRIDE
-	lda	r0l		; Set destination address
+	sta	r1h		; Save source RAM 0=sys $80=vram
+	bit	r1h
+	bpl	.skip_vram_prep
+	lda	#1		; Set ADDRsel to 1
+	sta	VERA_CTRL
+	; Set stride and bank for VERA_DATA1
+	lda	VERA_ADDR_H
+	bcc	.bankzero
+	and	#$0F		; Set stride to 0, leave rest alone
+	ora	#$11		; Set stride to 1, bank to 1
+	bra	.storeval
+.bankzero:
+	and	#$0E		; Set stride to 0, bank to 0, leave rest
+	ora	#$10		; Set stride to 1, leave rest.
+.storeval:
+	sta	VERA_ADDR_H
+	; Set source address for VERA_DATA1
+	lda	r0l
 	sta	VERA_ADDR_L
 	lda	r0h
 	sta	VERA_ADDR_M
 	stz	VERA_CTRL	; Set ADDRsel back to 0
+.skip_vram_prep:
 	ldx	r1l		; Load width
-.vloop:	lda	VERA_DATA1	; Copy Character
-	sta	VERA_DATA0
-	lda	VERA_DATA1	; Copy Color Code
-	sta	VERA_DATA0
-	dex
-	bne	.vloop
-	ldx	r1l		; Restore width
-	sty	VERA_ADDR_L	; Restore X coordinate
-	inc	VERA_ADDR_M	; Increment Y coordinate
-	dec	r2l
-	bne	.vloop
-	bra	.end
-.sysram:
-	; System RAM
-	ldx	r1l		; Load width
-.sloop:	lda	(r0)		; Copy Character
-	sta	VERA_DATA0
-	+VTUI_INC16	r0	; Increment destination address
-	lda	(r0)		; Copy Color Code
-	sta	VERA_DATA0
-	+VTUI_INC16	r0	; Increment destination address
-	dex
-	bne	.sloop
+.loop:	bit	r1h
+	bmi	.cpy_char_vram
+	lda	(r0)		; Copy char from sysram
+	+VTUI_INC16 r0
+	bra	.sto_char
+.cpy_char_vram:
+	lda	VERA_DATA1	; Copy char from VRAM
+.sto_char:
+	sta	VERA_DATA0	; Store char to screen
+	bit	r1h
+	bmi	.cpy_col_vram
+	lda	(r0)		; Copy color from sysram
+	+VTUI_INC16 r0
+	bra	.sto_col
+.cpy_col_vram:
+	lda	VERA_DATA1	; Copy color from VRAM
+.sto_col:
+	sta	VERA_DATA0	; Store color to screen
+.cont:	dex
+	bne	.loop
 	ldx	r1l		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M
 	dec	r2l
-	bne	.sloop
-.end:
+	bne	.loop
 }
 vtui_rest_rect:
 	+VTUI_REST_RECT

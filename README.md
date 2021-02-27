@@ -396,14 +396,14 @@ Routine name: `vtui_save_rect`<br>
 Communication registers: .C, .A, r0 ($02-$03), r1l ($04), r2l ($06)<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A, .X & .Y
-ZP registers affected: r0 ($02-$03), r2l ($06)
+ZP registers affected: r0 ($02-$03), r1h ($05), r2l ($06)
 
 **Description** Save an area from screen to memory. Notice that each character on screen takes up 2 bytes of memory because a byte is used for color information.<br>
 
 |Register|Purpose|
 |--------|-------|
-|   .A   |  Destination RAM (0=System RAM, 1=VRAM) |
-|   .C   | VRAM bank if .A > 0 |
+|   .A   |  Destination RAM (0=System RAM, $80=VRAM) |
+|   .C   | VRAM bank if .A = $80 |
 |   r0   | 16bit destination address |
 |   r1l  | Width of area to save |
 |   r2l  | Height of area to save |
@@ -416,14 +416,14 @@ Routine name: `vtui_rest_rect`<br>
 Communication registers: .C, .A, r0 ($02-$03), r1l ($04), r2l ($06)<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A, .X & .Y
-ZP registers affected: r0 ($02-$03), r2l ($06)
+ZP registers affected: r0 ($02-$03), r1h ($05), r2l ($06)
 
 **Description** Restore an area on screen from memory.<br>
 
 |Register|Purpose|
 |--------|-------|
-|   .A   | Source RAM (0=System RAM, 1=VRAM) |
-|   .C   | VRAM bank if .A > 0 |
+|   .A   | Source RAM (0=System RAM, $80=VRAM) |
+|   .C   | VRAM bank if .A = $80 |
 |   r0   | 16bit destination address |
 |   r1l  | Width of area to save |
 |   r2l  | Height of area to save |
