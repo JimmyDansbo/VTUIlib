@@ -259,9 +259,9 @@ vtui_scr2pet:
 	rts
 
 ; *****************************************************************************
-; Print a 0 terminated string PETSCII string
+; Print a 0 terminated PETSCII/Screencode string.
 ; *****************************************************************************
-; INPUTS	.A = Convert string (0 = no converstion, $80 = convert)
+; INPUTS	.A = Convert string (0 = Convert from PETSCII, $80 = no conversion)
 ;		r0 = pointer to string
 ;		.X  = bg-/fg color (0 = don't change color)
 ; USES:		.A, .Y & r1l
