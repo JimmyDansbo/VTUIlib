@@ -303,20 +303,17 @@ vtui_hline:
 ; *****************************************************************************
 vtui_vline:
 	sta	r1h
-	lda	VERA_ADDR_L
-	sta	r2h
-	lda	r1h
-.loop:	sta	VERA_DATA0
+@loop:	sta	VERA_DATA0
 	lda	VERA_ADDR_H
 	cmp	#$10
 	bne	+
 	stx	VERA_DATA0
-+	lda	r2h		; Return to original X coordinate
-	sta	VERA_ADDR_L
++	dec	VERA_ADDR_L		; Return to original X coordinate
+	dec	VERA_ADDR_L
 	lda	r1h
 	inc	VERA_ADDR_M	; Increment Y coordinate
 	dey
-	bne	.loop
+	bne	@loop
 	rts
 
 ; *****************************************************************************
@@ -470,6 +467,8 @@ vtui_fill_box:
 vtui_border:
 	; Define local variable names for ZP variables
 	; Makes the source a bit more readable
+@width	  =r1l
+@height	  =r2l
 @top_right=r3l
 @top_left =r3h
 @bot_right=r4l
@@ -558,11 +557,11 @@ vtui_border:
 	sta	@right
 @dodraw:
 
+	; Find jumptable address of needed functions
 	lda	#$4C		; JMP absolute
 	sta	PLOT_CHAR
 	sta	HLINE
 	sta	VLINE
-
 	pla			; Get low part of address and save i .Y
 	tay
 	sec
@@ -572,7 +571,6 @@ vtui_border:
 	pha
 	sbc	#$00		; Calculate high jumptable addr of PLOT_CHAR
 	sta	PLOT_CHAR+2
-
 	tya			; Get low part of address
 	sec
 	sbc	#(BORD-HLIN)+2	; Calculate low jumptable address of HLINE
@@ -581,7 +579,6 @@ vtui_border:
 	pha
 	sbc	#$00		; Calculate high jumptable addr of HLINE
 	sta	HLINE+2
-
 	tya			; Get low part of address
 	sec
 	sbc	#(BORD-VLIN)+2	; Calculate low jumptable address of VLINE
@@ -591,23 +588,24 @@ vtui_border:
 	sta	VLINE+2
 
 	; Save initial position
-	lda	VERA_ADDR_L
+	lda	VERA_ADDR_L	; X coordinate
 	sta	r0l
-	lda	VERA_ADDR_M
+	lda	VERA_ADDR_M	; Y coordinate
 	sta	r0h
-	ldy	r1l		; width
+	ldy	@width		; width
 	dey
 	lda	@top_left
 	jsr	PLOT_CHAR	; Top left corner
 	dey
 	lda	@top
 	jsr	HLINE		; Top line
+
 	lda	@top_right
 	jsr	PLOT_CHAR	; Top right corner
 	dec	VERA_ADDR_L
 	dec	VERA_ADDR_L
 	inc	VERA_ADDR_M
-	ldy	r2l		;height
+	ldy	@height		;height
 	dey
 	dey
 	lda	@right
@@ -618,17 +616,17 @@ vtui_border:
 	lda	r0h
 	inc
 	sta	VERA_ADDR_M
-	ldy	r2l		;height
+	ldy	@height		;height
 	dey
 	lda	@left
 	jsr	VLINE		; Left line
 	dec	VERA_ADDR_M
 	lda	@bot_left
 	jsr	PLOT_CHAR	; Bottom left corner
-	ldy	r1l
+	ldy	@width
 	dey
 	lda	@bottom
-	JSR	HLINE		; Bottom line
+	jsr	HLINE		; Bottom line
 	dec	VERA_ADDR_L
 	dec	VERA_ADDR_L
 	lda	@bot_right
