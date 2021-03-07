@@ -250,7 +250,6 @@ vtui_set_decr:
 vtui_plot_char:
 	sta	VERA_DATA0	; Store character
 	lda	VERA_ADDR_H	; Isolate stride & decr value
-	and	#$F7
 	cmp	#$10		; If stride=1 & decr=0 we can write color
 	bne	+
 	stx	VERA_DATA0	; Write color
@@ -267,14 +266,13 @@ vtui_plot_char:
 vtui_scan_char:
 	ldx	VERA_DATA0	; Read character
 	lda	VERA_ADDR_H	; Isolate stride & decr value
-	and	#$F8
 	cmp	#$10		; If stride=1 & decr=0 we can read color
 	bne	+
 	txa			; Move char to .A
 	ldx	VERA_DATA0	; Read color
-	bra	@end
+	rts
 +	txa			; Move char to .A
-@end:	rts
+	rts
 
 ; *****************************************************************************
 ; Create a horizontal line going from left to right.
@@ -285,7 +283,12 @@ vtui_scan_char:
 ; *****************************************************************************
 vtui_hline:
 @loop:	sta	VERA_DATA0
+	pha			; Save .A so it can be used to check stride
+	lda	VERA_ADDR_H
+	cmp	#$10		; If Stride=1, Decr=0 & VRAM ADDR bit 16=0
+	bne	+		; we can write the color
 	stx	VERA_DATA0
++	pla			; Restore .A
 	dey
 	bne	@loop
 	rts
@@ -296,12 +299,21 @@ vtui_hline:
 ; INPUTS:	.A	= Character to use for drawing the line
 ;		.Y	= Height of the line
 ;		.X	= bg- & fg-color
+; USES:		r1h & r2h
 ; *****************************************************************************
 vtui_vline:
+	sta	r1h
+	lda	VERA_ADDR_L
+	sta	r2h
+	lda	r1h
 .loop:	sta	VERA_DATA0
+	lda	VERA_ADDR_H
+	cmp	#$10
+	bne	+
 	stx	VERA_DATA0
-	dec	VERA_ADDR_L	; Return to original X coordinate
-	dec	VERA_ADDR_L
++	lda	r2h		; Return to original X coordinate
+	sta	VERA_ADDR_L
+	lda	r1h
 	inc	VERA_ADDR_M	; Increment Y coordinate
 	dey
 	bne	.loop
@@ -358,20 +370,25 @@ vtui_scr2pet:
 @end:	rts
 
 ; *****************************************************************************
-; Print a 0 terminated PETSCII/Screencode string.
+; Print PETSCII/Screencode string.
 ; *****************************************************************************
 ; INPUTS	.A = Convert string (0 = Convert from PETSCII, $80 = no conversion)
 ;		r0 = pointer to string
-;		.X  = bg-/fg color (0 = don't change color)
-; USES:		.A, .Y & r1l
+;		.Y = length of string
+;		.X  = bg-/fg color (only used if stride=0,decr=0&bank=0)
+; USES:		.A, .Y & r1
 ; *****************************************************************************
 vtui_print_str:
-	sta	r1l
-
+	sta	r1l		; Store to check for conversion
+	sty	r1h		; Store Y for later use
+	; Calculate the jumptable addresses of functions needed by this
+	; routine. It is done by having a JSR instead of a JMP in the
+	; jumptable which means that the jumptable address of this function
+	; is pushed on to the stack. This in turn can be used to calculate
+	; jumptable addresses of other functions.
 	lda	#$4C		; JMP absolute
 	sta	PLOT_CHAR
 	sta	PET2SCR
-
 	pla			; Get low part of address and save i .Y
 	tay
 	sec
@@ -381,24 +398,24 @@ vtui_print_str:
 	pha
 	sbc	#$00		; Calculate high jumptable addr of PLOT_CHAR
 	sta	PLOT_CHAR+2
-
 	tya			; Get low part of address
 	clc
-	adc	#(P2SC-PSTR)-2
+	adc	#(P2SC-PSTR)-2	; Calculate low jumptable address of PET2SCR
 	sta	PET2SCR+1
-	pla
-	adc	#$00
+	pla			; Get high part of address
+	adc	#$00		; Calculate high jumptable addr of PET2SCR
 	sta	PET2SCR+2
 
 	ldy	#0
-@loop:	lda	(r0),y		; Load character
-	beq	@end		; If 0, we are done
-	iny
+@loop:	cpy	r1h
+	beq	@end
+	lda	(r0),y		; Load character
 	bit	r1l		; Check if we need to convert character
 	bmi	@noconv
 	jsr	PET2SCR		; Do conversion
 @noconv:
 	jsr	PLOT_CHAR
+	iny
 	bra	@loop		; Get next character
 @end:	rts
 
@@ -448,7 +465,7 @@ vtui_fill_box:
 ;		r1l	= width
 ;		r2l	= height
 ;		.X	= bg-/fg-color
-; USES		.Y, r0l & r0h
+; USES		.Y, r0, r1h & r2h
 ; *****************************************************************************
 vtui_border:
 	; Define local variable names for ZP variables
