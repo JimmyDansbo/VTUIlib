@@ -58,7 +58,6 @@ r5h	= r5+1
 r6	= $0E
 r6l	= r6
 r6h	= r6+1
-
 r7	= $10
 r7l	= r7
 r7h	= r7+1
@@ -92,6 +91,25 @@ r12h	= r12+1
 .end:
 }
 
+; *****************************************************************************
+; Add 3 to 16 bit value
+; *****************************************************************************
+; INPUT:	.addr = low byte of the 16bit value to increment
+; *****************************************************************************
+!macro ADD3 .addr {
+	lda	.addr
+	clc
+	adc	#$03
+	sta	.addr
+	lda	.addr+1
+	adc	#$00
+	sta	.addr+1
+}
+
+!macro ADD16 .dest, .src {
+
+}
+
 ; ******************************* Functions ***********************************
 
 ; *****************************************************************************
@@ -121,51 +139,42 @@ OP_RTS	= $60		; RTS opcode
 	sta	r0+3
 	lda	#OP_RTS
 	sta	r0+4
-
+@base=r0
+@ptr=r1
 	; Jump to the code in ZP that was just copied there by the code above.
 	; This is to get the return address stored on stack
 	jsr	r0		; Get current PC value
 	sec
 	sbc	#*-2		; Calculate start of our program
-	sta	r0		; And store it in r0
+	sta	@base		; And store it in @base
 	tya
 	sbc	#$00
-	sta	r0+1
-	lda	r0		; Calculate location of first address in
+	sta	@base+1
+	lda	@base		; Calculate location of first address in
 	clc			; jump table
 	adc	#$03
-	sta	r1
-	lda	r0+1
+	sta	@ptr
+	lda	@base+1
 	adc	#$00
-	sta	r1+1
-	ldy	#$01		; .Y used for indexing high byte of pointers
-	lda	(r1),y
+	sta	@ptr+1
+
+	ldy	#1		; .Y used for indexing high byte of pointers
+	lda	(@ptr),y
 	beq	@loop		; If high byte of pointer is 0, we can continue
 	rts			; Otherwise initialization has already been run
-@loop:	clc
-	lda	(r1)		; Low part of jumptable address
-	beq	@mightend	; If it is zero, we might have reaced the end of jumptable
-	adc	r0l		; Add start address of our program to the jumptable address
-	sta	(r1)
-	lda	(r1),y
-	adc	r0h
-	sta	(r1),y
-	bra	@prepnext
-@mightend:
-	adc	r0l		; Add start address of our program to the jumptable address
-	sta	(r1)
-	lda	(r1),y		; High part of jumptable address
-	beq	@end		; If it is zero, we have reaced end of jumptable
-	adc	r0h
-	sta	(r1),y
-@prepnext:			; Prepare r1 pointer for next entry in jumptable
-	clc			; (add 3 to current value)
-	lda	r1l
-	adc	#$03
-	sta	r1l
-	lda	r1h
-	adc	#$00
-	sta	r1h
+
+@loop:	lda	(@ptr)		; Check if lowbyte of address is 0
+	bne	+		; If not, we have not reached end of jumptable
+	lda	(@ptr),y	; Chech if highbyte of address is 0
+	beq	@end		; If it is, we have reaced end of jumptable
++	clc
+	lda	(@ptr)		; Low part of jumptable address
+	adc	@base		; Add start address of our program to the jumptable address
+	sta	(@ptr)
+	lda	(@ptr),y
+	adc	@base+1
+	sta	(@ptr),y
+	+ADD3	@ptr		; (add 3 to current value)
 	bra	@loop
 @end:	rts
 
