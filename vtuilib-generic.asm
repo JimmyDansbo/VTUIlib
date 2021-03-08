@@ -259,7 +259,7 @@ vtui_set_decr:
 vtui_plot_char:
 	sta	VERA_DATA0	; Store character
 	lda	VERA_ADDR_H	; Isolate stride & decr value
-	cmp	#$10		; If stride=1 & decr=0 we can write color
+	cmp	#$10		; If stride=1,decr=0&bank=0 we can write color
 	bne	+
 	stx	VERA_DATA0	; Write color
 +	rts
@@ -289,6 +289,7 @@ vtui_scan_char:
 ; INPUTS:	.A	= Character to use for drawing the line
 ;		.Y	= Length of the line
 ;		.X	= bg- & fg-color
+; USES:		.Y & 1 byte on stack
 ; *****************************************************************************
 vtui_hline:
 @loop:	sta	VERA_DATA0
@@ -304,25 +305,26 @@ vtui_hline:
 
 ; *****************************************************************************
 ; Create a vertical line going from top to bottom.
+; Function only works when stride is either 1 or 2 and both decr and bank = 0
 ; *****************************************************************************
 ; INPUTS:	.A	= Character to use for drawing the line
 ;		.Y	= Height of the line
-;		.X	= bg- & fg-color
-; USES:		r1h & r2h
+;		.X	= bg- & fg-color (if stride=1)
+; USES:		Y & 1 byte on stack
 ; *****************************************************************************
 vtui_vline:
-	sta	r1h
-@loop:	sta	VERA_DATA0
+	sta	VERA_DATA0	; Write character
+	pha			; Save .A so it can be used to check stride
 	lda	VERA_ADDR_H
-	cmp	#$10
+	cmp	#$10		; Store color if stride=1,decr=0&bank=0
 	bne	+
-	stx	VERA_DATA0
-+	dec	VERA_ADDR_L		; Return to original X coordinate
+	stx	VERA_DATA0	; Store colorcode
++	dec	VERA_ADDR_L	; Return to original X coordinate
 	dec	VERA_ADDR_L
-	lda	r1h
 	inc	VERA_ADDR_M	; Increment Y coordinate
+	pla			; Restore .A for next iteration
 	dey
-	bne	@loop
+	bne	vtui_vline
 	rts
 
 ; *****************************************************************************
