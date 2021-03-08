@@ -50,6 +50,7 @@ main:
 	sta	r0h
 	ldx	#$61		; Color
 	lda	#0
+	ldy	#xcord-my_str
 	jsr	vtui_print_str
 
 -	jsr	$FFE4		; GETIN
@@ -137,7 +138,7 @@ move_logo:
 	sta	ycord
 	rts
 
-my_str	!text	"USE ARROW KEYS!",0
+my_str	!text	"USE ARROW KEYS!"
 xcord	!byte	0
 ycord	!byte	0
 newx	!byte	0

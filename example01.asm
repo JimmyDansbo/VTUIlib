@@ -42,6 +42,7 @@ VTUI_scr2pet	= LIBSTART+41
 VTUI_border	= LIBSTART+44
 VTUI_save_rect	= LIBSTART+47
 VTUI_rest_rect	= LIBSTART+50
+VTUI_input_str	= LIBSTART+53
 
 main:
 	; Load the library using standard Kernal functions
@@ -86,8 +87,9 @@ main:
 	sta	r0l
 	lda	#>Libname	; High byte of string start address
 	sta	r0h
-	ldx	#0		; Use existing color information
+	ldx	#$01   		; White text on black background
 	lda	#0
+	ldy	#Verstr-Libname
 	jsr	VTUI_print_str
 	; gotoxy 11, 5
 	lda	#11
@@ -109,6 +111,7 @@ main:
 	sta	r2l		; Height
 	lda	#3		; Bordermode
 	ldx	#$74		; Yellow background, purple foreground
+
 	jsr	VTUI_border
 	; gotoxy 4, 10
 	lda	#4
@@ -137,6 +140,7 @@ main:
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	lda	#0
+	ldy	#Boxstr-Verstr
 	jsr	VTUI_print_str
 	; Plot a character to create a header for our box
 	lda	#$6B		; Character
@@ -171,6 +175,7 @@ main:
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	lda	#0
+	ldy	#Hlinestr-Boxstr
 	jsr	VTUI_print_str
 
 	; gotoxy 5, 13
@@ -184,6 +189,7 @@ main:
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	lda	#0
+	ldy	#Vlinestr-Hlinestr
 	jsr	VTUI_print_str
 
 	; gotoxy 5, 15
@@ -197,6 +203,7 @@ main:
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	lda	#0
+	ldy	#Plotstr-Vlinestr
 	jsr	VTUI_print_str
 
 	; gotoxy 5, 19
@@ -210,6 +217,7 @@ main:
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	lda	#0
+	ldy	#Dramstr-Plotstr
 	jsr	VTUI_print_str
 
 	; gotoxy 5, 21
@@ -223,6 +231,7 @@ main:
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	lda	#0
+	ldy	#Morestr-Dramstr
 	jsr	VTUI_print_str
 
 	; gotoxy 5, 23
@@ -236,6 +245,7 @@ main:
 	sta	r0h
 	ldx	#$74		; Yellow background, purple foreground
 	lda	#0
+	ldy	#Fname-Morestr
 	jsr	VTUI_print_str
 
 	jsr	$FFCF		; Wait for enter key
@@ -257,14 +267,14 @@ load_library:
 	jsr	$FFD5		; LOAD
 	rts
 
-Libname		!text	"VTUI LIBRARY",0
-Verstr		!text	"VERSION 0.6A",0
-Boxstr		!text	"BOXES WITH OR WITHOUT BORDERS",0
-Hlinestr	!text	"HORIZONTAL LINES",0
-Vlinestr	!text	"VERTICAL LINES",0
-Plotstr		!text	"PLOT OR SCAN CHARACTERS",0
-Dramstr		!text	"DIRECTLY TO/FROM SCREEN RAM",0
-Morestr		!text	"***MORE TO SEE AND TO COME***",0
+Libname		!text	"VTUI LIBRARY"
+Verstr		!text	"VERSION 0.6A"
+Boxstr		!text	"BOXES WITH OR WITHOUT BORDERS"
+Hlinestr	!text	"HORIZONTAL LINES"
+Vlinestr	!text	"VERTICAL LINES"
+Plotstr		!text	"PLOT OR SCAN CHARACTERS"
+Dramstr		!text	"DIRECTLY TO/FROM SCREEN RAM"
+Morestr		!text	"***MORE TO SEE AND TO COME***"
 
 Fname		!text	"VTUI0.6A.BIN"
 End_fname
