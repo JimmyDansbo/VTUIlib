@@ -120,6 +120,8 @@ r12h	= r12+1
 ;		r0, r1, r2 & r3 (ZP addresses $02-$09)
 ; *****************************************************************************
 initialize:
+@base	= r0
+@ptr	= r1
 	; Write code to ZP to figure out where the library is loaded.
 	; This is done by jsr'ing to the code in ZP which in turn reads the
 	; return address from the stack.
@@ -139,8 +141,6 @@ OP_RTS	= $60		; RTS opcode
 	sta	r0+3
 	lda	#OP_RTS
 	sta	r0+4
-@base=r0
-@ptr=r1
 	; Jump to the code in ZP that was just copied there by the code above.
 	; This is to get the return address stored on stack
 	jsr	r0		; Get current PC value
@@ -221,14 +221,15 @@ vtui_set_bank:
 ; USES:			r0l
 ; *****************************************************************************
 vtui_set_stride:
+@tmp	= r0l
 	asl			; Stride is stored in upper nibble
 	asl
 	asl
 	asl
-	sta	r0l
+	sta	@tmp
 	lda	VERA_ADDR_H	; Set stride value to 0 in VERA_ADDR_H
 	and	#$0F
-	ora	r0l
+	ora	@tmp
 	sta	VERA_ADDR_H
 	rts
 
@@ -354,7 +355,7 @@ vtui_pet2scr:
 	cmp	#$60
 	bcs	@nonprintable	; .A < $60 so it is a letter, subtract ($3F+1)
 	sbc	#$3F		; to convert to screencode
-	bra	@end
+	rts
 @nonprintable:
 	lda	#$56
 @end:	rts
@@ -372,7 +373,7 @@ vtui_scr2pet:
 	bcs	@end		; .A >=$20 & < $40 means petscii is the same
 	; .A < $20 and is a letter
 	adc	#$40
-	bra	@end
+	rts
 @nonprintable:
 	lda	#$76
 @end:	rts
@@ -387,8 +388,10 @@ vtui_scr2pet:
 ; USES:		.A, .Y & r1
 ; *****************************************************************************
 vtui_print_str:
-	sta	r1l		; Store to check for conversion
-	sty	r1h		; Store Y for later use
+@conv	= r1l
+@length	= r1h
+	sta	@conv		; Store to check for conversion
+	sty	@length		; Store Y for later use
 	; Calculate the jumptable addresses of functions needed by this
 	; routine. It is done by having a JSR instead of a JMP in the
 	; jumptable which means that the jumptable address of this function
@@ -415,10 +418,10 @@ vtui_print_str:
 	sta	PET2SCR+2
 
 	ldy	#0
-@loop:	cpy	r1h
+@loop:	cpy	@length
 	beq	@end
 	lda	(r0),y		; Load character
-	bit	r1l		; Check if we need to convert character
+	bit	@conv		; Check if we need to convert character
 	bmi	@noconv
 	jsr	PET2SCR		; Do conversion
 @noconv:
@@ -435,12 +438,14 @@ vtui_print_str:
 ; USES:		.Y, r1l & r2l
 ; *****************************************************************************
 vtui_clr_scr:
+@width	= r1l
+@height	= r2l
 	stz	VERA_ADDR_M	; Ensure VERA address is at top left corner
 	stz	VERA_ADDR_L
 	ldy	#80		; Store max width = 80 columns
-	sty	r1l
+	sty	@width
 	ldy	#60		; Store max height = 60 lines
-	sty	r2l
+	sty	@height
 	; this falls through to vtui_fill_box
 
 ; *****************************************************************************
@@ -452,17 +457,20 @@ vtui_clr_scr:
 ;		.X	= bg- & fg-color
 ; *****************************************************************************
 vtui_fill_box:
+@width	= r1l
+@height	= r2l
+@xcord	= r0l
 	ldy	VERA_ADDR_L
-	sty	r0l
-@vloop:	ldy	r0l		; Load x coordinate
+	sty	@xcord
+@vloop:	ldy	@xcord		; Load x coordinate
 	sty	VERA_ADDR_L	; Set x coordinate
-	ldy	r1l
+	ldy	@width
 @hloop:	sta	VERA_DATA0
 	stx	VERA_DATA0
 	dey
 	bne	@hloop
 	inc	VERA_ADDR_M
-	dec	r2l
+	dec	@height
 	bne	@vloop
 	rts
 
@@ -478,16 +486,18 @@ vtui_fill_box:
 vtui_border:
 	; Define local variable names for ZP variables
 	; Makes the source a bit more readable
-@width	  =r1l
-@height	  =r2l
-@top_right=r3l
-@top_left =r3h
-@bot_right=r4l
-@bot_left =r4h
-@top	  =r5l
-@bottom   =r5h
-@left	  =r6l
-@right	  =r6h
+@xcord		= r0l
+@ycord		= r0h
+@width		= r1l
+@height		= r2l
+@top_right	= r3l
+@top_left	= r3h
+@bot_right	= r4l
+@bot_left	= r4h
+@top		= r5l
+@bottom		= r5h
+@left		= r6l
+@right		= r6h
 
 	; Set the border drawing characters according to the border mode in .A
 @mode1: cmp	#1
@@ -600,9 +610,9 @@ vtui_border:
 
 	; Save initial position
 	lda	VERA_ADDR_L	; X coordinate
-	sta	r0l
+	sta	@xcord
 	lda	VERA_ADDR_M	; Y coordinate
-	sta	r0h
+	sta	@ycord
 	ldy	@width		; width
 	dey
 	lda	@top_left
@@ -622,9 +632,9 @@ vtui_border:
 	lda	@right
 	jsr	VLINE		; Right line
 	; Restore initial VERA address
-	lda	r0l
+	lda	@xcord
 	sta	VERA_ADDR_L
-	lda	r0h
+	lda	@ycord
 	inc
 	sta	VERA_ADDR_M
 	ldy	@height		;height
@@ -656,9 +666,13 @@ vtui_border:
 ; USES:		r1h
 ; *****************************************************************************
 vtui_save_rect:
+@destram	= r1h
+@width		= r1l
+@height		= r2l
+@destptr	= r0
 	ldy	VERA_ADDR_L	; Save X coordinate for later
-	sta	r1h		; Save destination RAM 0=sys $80=vram
-	bit	r1h
+	sta	@destram	; Save destination RAM 0=sys $80=vram
+	bit	@destram
 	bpl	@skip_vram_prep
 	lda	#1		; Set ADDRsel to 1
 	sta	VERA_CTRL
@@ -674,36 +688,36 @@ vtui_save_rect:
 @storeval:
 	sta	VERA_ADDR_H
 	; Set destination address for VERA_DATA1
-	lda	r0l
+	lda	@destptr
 	sta	VERA_ADDR_L
-	lda	r0h
+	lda	@destptr+1
 	sta	VERA_ADDR_M
 	stz	VERA_CTRL	; Set ADDRsel back to 0
 @skip_vram_prep:
-	ldx	r1l		; Load width
+	ldx	@width		; Load width
 @loop:	lda	VERA_DATA0	; Load character
-	bit	r1h
+	bit	@destram
 	bmi	@sto_char_vram
-	sta	(r0)
-	+INC16	r0
+	sta	(@destptr)
+	+INC16	@destptr
 	bra	@get_col
 @sto_char_vram:
 	sta	VERA_DATA1
 @get_col:
 	lda	VERA_DATA0	; Load color code
-	bit	r1h
+	bit	@destram
 	bmi	@sto_col_vram
-	sta	(r0)
-	+INC16	r0
+	sta	(@destptr)
+	+INC16	@destptr
 	bra	@cont
 @sto_col_vram:
 	sta	VERA_DATA1
 @cont:	dex
 	bne	@loop
-	ldx	r1l		; Restore width
+	ldx	@width		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M
-	dec	r2l
+	dec	@height
 	bne	@loop
 	rts
 
@@ -718,9 +732,14 @@ vtui_save_rect:
 ;		r2l	= height
 ; *****************************************************************************
 vtui_rest_rect:
+@srcram		= r1h
+@width		= r1l
+@height		= r2l
+@srcptr		= r0
+
 	ldy	VERA_ADDR_L	; Save X coordinate for later
-	sta	r1h		; Save source RAM 0=sys $80=vram
-	bit	r1h
+	sta	@srcram		; Save source RAM 0=sys $80=vram
+	bit	@srcram
 	bpl	@skip_vram_prep
 	lda	#1		; Set ADDRsel to 1
 	sta	VERA_CTRL
@@ -736,26 +755,26 @@ vtui_rest_rect:
 @storeval:
 	sta	VERA_ADDR_H
 	; Set source address for VERA_DATA1
-	lda	r0l
+	lda	@srcptr
 	sta	VERA_ADDR_L
-	lda	r0h
+	lda	@srcptr+1
 	sta	VERA_ADDR_M
 	stz	VERA_CTRL	; Set ADDRsel back to 0
 @skip_vram_prep:
-	ldx	r1l		; Load width
-@loop:	bit	r1h
+	ldx	@width		; Load width
+@loop:	bit	@srcram
 	bmi	@cpy_char_vram
-	lda	(r0)		; Copy char from sysram
-	+INC16	r0
+	lda	(@srcptr)	; Copy char from sysram
+	+INC16	@srcptr
 	bra	@sto_char
 @cpy_char_vram:
 	lda	VERA_DATA1	; Copy char from VRAM
 @sto_char:
 	sta	VERA_DATA0	; Store char to screen
-	bit	r1h
+	bit	@srcram
 	bmi	@cpy_col_vram
-	lda	(r0)		; Copy color from sysram
-	+INC16	r0
+	lda	(@srcptr)	; Copy color from sysram
+	+INC16	@srcptr
 	bra	@sto_col
 @cpy_col_vram:
 	lda	VERA_DATA1	; Copy color from VRAM
@@ -763,9 +782,9 @@ vtui_rest_rect:
 	sta	VERA_DATA0	; Store color to screen
 @cont:	dex
 	bne	@loop
-	ldx	r1l		; Restore width
+	ldx	@width		; Restore width
 	sty	VERA_ADDR_L	; Restore X coordinate
 	inc	VERA_ADDR_M
-	dec	r2l
+	dec	@height
 	bne	@loop
 	rts
