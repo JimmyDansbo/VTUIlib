@@ -286,6 +286,6 @@ vtui_rest_rect	= VTUI_LIB+50
 	jsr	vtui_rest_rect
 }
 
-VTUI:	!bin	"VTUI0.6A.BIN"
+VTUI:	!bin	"VTUI0.7.BIN"
 
 VTUI_LIB_END:

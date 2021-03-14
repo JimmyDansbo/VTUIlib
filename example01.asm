@@ -238,17 +238,23 @@ main:
 	lda	#5
 	ldy	#23
 	jsr	VTUI_gotoxy
+
+	lda	#2
+	jsr	VTUI_set_stride
+
 	; Print string with info about boxes
 	lda	#<Morestr	; Low byte of string start address
 	sta	r0l
 	lda	#>Morestr	; High byte of string start address
 	sta	r0h
-	ldx	#$74		; Yellow background, purple foreground
+;	ldx	#$74		; Yellow background, purple foreground
 	lda	#0
 	ldy	#Fname-Morestr
 	jsr	VTUI_print_str
 
-	jsr	$FFCF		; Wait for enter key
+-	jsr	$FFE4		; GETIN
+	beq	-
+
 	rts
 
 ; Load library using standard Kernal functions
@@ -268,7 +274,7 @@ load_library:
 	rts
 
 Libname		!text	"VTUI LIBRARY"
-Verstr		!text	"VERSION 0.6A"
+Verstr		!text	"VERSION 0.7"
 Boxstr		!text	"BOXES WITH OR WITHOUT BORDERS"
 Hlinestr	!text	"HORIZONTAL LINES"
 Vlinestr	!text	"VERTICAL LINES"
@@ -276,5 +282,5 @@ Plotstr		!text	"PLOT OR SCAN CHARACTERS"
 Dramstr		!text	"DIRECTLY TO/FROM SCREEN RAM"
 Morestr		!text	"***MORE TO SEE AND TO COME***"
 
-Fname		!text	"VTUI0.6A.BIN"
+Fname		!text	"VTUI0.7.BIN"
 End_fname

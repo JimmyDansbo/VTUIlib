@@ -106,10 +106,6 @@ r12h	= r12+1
 	sta	.addr+1
 }
 
-!macro ADD16 .dest, .src {
-
-}
-
 ; ******************************* Functions ***********************************
 
 ; *****************************************************************************
@@ -677,14 +673,9 @@ vtui_save_rect:
 	lda	#1		; Set ADDRsel to 1
 	sta	VERA_CTRL
 	; Set stride and bank for VERA_DATA1
-	lda	VERA_ADDR_H
-	bcc	@bankzero
-	and	#$0F		; Set stride to 0, leave rest alone
-	ora	#$11		; Set stride to 1, bank to 1
-	bra	@storeval
-@bankzero:
-	and	#$0E		; Set stride to 0, bank to 0, leave rest
-	ora	#$10		; Set stride to 1, leave rest.
+	lda	#$11		; Stride=1 & Bank = 1
+	bcs	@storeval	; If C=1, store value
+	lda	#$10		; Stride=1 & Bank = 0
 @storeval:
 	sta	VERA_ADDR_H
 	; Set destination address for VERA_DATA1
@@ -736,7 +727,6 @@ vtui_rest_rect:
 @width		= r1l
 @height		= r2l
 @srcptr		= r0
-
 	ldy	VERA_ADDR_L	; Save X coordinate for later
 	sta	@srcram		; Save source RAM 0=sys $80=vram
 	bit	@srcram
@@ -744,14 +734,9 @@ vtui_rest_rect:
 	lda	#1		; Set ADDRsel to 1
 	sta	VERA_CTRL
 	; Set stride and bank for VERA_DATA1
-	lda	VERA_ADDR_H
-	bcc	@bankzero
-	and	#$0F		; Set stride to 0, leave rest alone
-	ora	#$11		; Set stride to 1, bank to 1
-	bra	@storeval
-@bankzero:
-	and	#$0E		; Set stride to 0, bank to 0, leave rest
-	ora	#$10		; Set stride to 1, leave rest.
+	lda	#$11		; Stride=1 & Bank = 1
+	bcs	@storeval	; If C=1, store value
+	lda	#$10		; Stride=1 & Bank = 0
 @storeval:
 	sta	VERA_ADDR_H
 	; Set source address for VERA_DATA1

@@ -1,6 +1,6 @@
 # VTUI library Programmers Reference
 
-Version 0.6a
+Version 0.7
 
 *Author: Jimmy Dansbo*
 
@@ -38,23 +38,21 @@ This document describes the **V**ERA **T**ext **U**ser **I**nterface library.
 ## Overview
 
 The VTUI library is meant to provide a set of functions for creating Text User Interfaces using
-VERA in the Commander X16 computer. The library is split up into 3 flavors.
-* Generic
-* ACME include file
-* CA65 include file
+VERA in the Commander X16 computer.
 
-The generic library is meant to be compiled with Acme into a binary by it self and loaded by the users
+The library is meant to be compiled with Acme into a binary by it self and loaded by the users
 program. The choice of compiler/assembler for the user program is entirely up to the user as long as it is possible to store values to zeropage and in registers before calling subroutines. This should make it possible to use the VTUI library from any assembler, C compiler or other programming language which makes it possible to set CPU registers.
 
 For examples, look at the exampleXX.asm files
 
-The other two flavors are include files for their respective assemblers but will function the same way as the generic library.
+Include files are provided for the ACME and CA65 assembler, but all they do, is load the binary file
+and provide the routine names as both functions and macros although the macros just call the subroutines.
 
 ## Loading
 
-The generic VTUI library is designed to be loaded by standard CBM kernal functions [SETLFS](https://cx16.dk/c64-kernal-routines/setlfs.html), [SETNAM](https://cx16.dk/c64-kernal-routines/setnam.html) and [LOAD](https://cx16.dk/c64-kernal-routines/load.html).
+The VTUI library is designed to be loaded by standard CBM kernal functions [SETLFS](https://cx16.dk/c64-kernal-routines/setlfs.html), [SETNAM](https://cx16.dk/c64-kernal-routines/setnam.html) and [LOAD](https://cx16.dk/c64-kernal-routines/load.html).
 
-In several assemblers it is possible to load a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.6A.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.6A.BIN"`.
+In several assemblers it is possible to load a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.6A.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.6A.BIN"`. The ACME and CA65 include files use this method to load the library.
 
 If an assembler is used to include the binary file, be aware that the first two bytes are a loading address so base address of the actual library will be: `VTUILIB=VTUI+2`.
 
@@ -64,11 +62,11 @@ When the library is loaded and VTUILIB is pointing to the memory address where t
 
 ## Including
 
-Include files are provided for the ACME and the CA65 assemblers. Obviously it is not necessary to to load the library separately if it is included. The include files are also missing the initialization routine as it is not needed when included.
+Include files are provided for the ACME and the CA65 assemblers. Obviously it is not necessary to to load the library separately if it is included. The include files takes care of loading and initializing the library and providing function and macro names.
 
 One advantage of using include files instead of the generic library is that the include files provide constants for the 16 default colors, constants for VERA addresses and names for the zeropage registers used by the library.
 
-Another advantage is that all functions are provided both as macros and routines. All macro names are all upper case and all start with VTUI_ followed by the function name. Functionas are all lower case, start with vtui_ followed by the function name.
+In the include files, all functions are provided both as macros and routines. All macro names are all upper case and all start with VTUI_ followed by the function name. Functionas are all lower case, start with vtui_ followed by the function name. - Note that all macros just contain a call to the subroutine.
 
 Example: `VTUI_GOTOXY` is the macro name and `vtui_gotoxy` is the function name.
 
@@ -76,17 +74,17 @@ For examples look at acme-exXX.asm or ca65-exXX.asm file(s)
 
 ## Initialization
 
-As the generic VTUI library is built without knowledge of where in memory it will be loaded, it is
+As the VTUI library is built without knowledge of where in memory it will be loaded, it is
 necessary to initialize the library before use. The initialization ensures that the jumptable at the beginning of the library is updated to point to the correct address where functions are loaded.
 
 After initialization, all functions can be called by referencing the base address of the library `VTUILIB`
 
 ## Registers
 
-Several zeropage addresses are used by the library for temporary storage space as well as parameter passing. Addresses used are `r0 - r6` (`$02 - $0F`). These are the same registers as are used by the new
+Several zeropage addresses are used by the library for temporary storage space as well as parameter passing. Addresses used are `r0 - r12` (`$02 - $1B`). These are the same registers as are used by the new
 kernal functions in the Commander X16.
 
-The VTUI library mostly uses r0, r1l and r2l for parameter passing, r0-r6 are also used for temporary storage. All zeropage registers can be discarded as soon as a routine has returned.
+The VTUI library mostly uses r0, r1l and r2l for parameter passing, r0-r12 are also used for temporary storage and addresses to subroutines. All zeropage registers can be discarded as soon as a routine has returned.
 
 In addition to the zeropage memory, the VTUI library uses CPU registers for transferring arguments to the functions as well as temporary space and indexing.
 
@@ -178,7 +176,7 @@ Preparatory routines: none<br>
 Registers affected: .Y<br>
 ZP registers affected: r1l & r2l<br>
 
-**Description** Fill the entire screen (maximum 80x60) with the character in .A and the color in .X
+**Description** Fill the entire screen (maximum 80x60) with the character in .A and the color in .X. The routine is only designed to function with VERA decrement set to 0 and stride set to 1.
 
 | Registers | Purpose    |
 |-----------|------------|
@@ -197,14 +195,14 @@ ZP registers affected: none<br>
 
 **Description** Point the VERA address to a specific set of coordinates on screen. This works in both 80x60 mode and 40x30 mode. If the point is outside of visible area and character is plotted, it will not be visible. There is no error handling. .Y is the y-coordinate (0-29/59) and .A is the x-coordinate (0-39/79). This function does not actually display anything on screen.
 
-|Registers | Purpose               |
-|------|-----------------------|
+|Registers | Purpose  |
+|------|--------------|
 |  .A  | x coordinate |
 |  .X  | y coordinate |
 
 
 ## Function name: plot_char
-Purpose: Write a screencode character and color to screen.<br>
+Purpose: Write a screencode character and possibly color to screen.<br>
 Call address: `VTUILIB+20`<br>
 Macro name: `VTUI_PLOT_CHAR`<br>
 Routine name: `vtui_plot_char`<br>
@@ -213,12 +211,12 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Write the screencode character in .A to the screen at current address. The routine expects VERA to increment by one as it writes the background-/foreground-color in .X to VERA without touching VERA addresses.<br>
+**Description** Write the screencode character in .A to the screen at current address. If VERA increment is set to 2, the value in .X will not be written, essentially letting the character use the color already set in VRAM. If VERA increment is 1, the value in .X will be written as the colorcode. Any other increment value is unsupported.<br>
 
 |Registers | Purpose               |
 |------|-----------------------|
 |  .A  | Character to write to screen |
-|  .X  | bg-/fg-color to write to screen |
+|  .X  | bg-/fg-color to write to screen (if VERA stride=1) |
 
 **VERA screencodes**<br>
 ![VERA charactermap](https://cx16.dk/veratext/verachars.jpg)<br>
@@ -226,7 +224,7 @@ ZP registers affected: none<br>
 ![VERA colors](https://cx16.dk/veratext/veracolors.jpg)
 
 ## Function name: scan_char
-Purpose: Read a screencode character and color from screen memory<br>
+Purpose: Read a screencode character and possibly color from screen memory<br>
 Call address: `VTUILIB+23`<br>
 Macro name: `VTUI_SCAN_CHAR`<br>
 Routine name: `vtui_scan_char`<br>
@@ -235,12 +233,12 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Read the screencode character at current VERA address into .A. The routine expects VERA to increment by one as it reads the background-/foreground-color into .X without touching VERA addresses.
+**Description** Read the screencode character at current VERA address into .A. If VERA increment is set to 2, colorcode will not be read into .X. If VERA increment is 1, the colorcode will be read into .X. Any other increment value is unsupported.<br>
 
 |Registers | Purpose               |
 |------|-----------------------|
 |  .A  | Character read from screen memory |
-|  .X  | Colorcode read from screen memory |
+|  .X  | Colorcode read from screen memory (if VERA stride=1) |
 
 ## Function name: hline
 Purpose: Draw a horizontal line from left to right.<br>
@@ -252,12 +250,12 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A<br>
 ZP registers affected: none<br>
 
-**Description** Draw a horizontal line from left to right, starting at current position. Length of the line is provided in .Y register. Character to use for drawing the line is provided in .A register and the background-/foreground-color to use is provided in .X register.
+**Description** Draw a horizontal line from left to right, starting at current position. Length of the line is provided in .Y register. Character to use for drawing the line is provided in .A register and the background-/foreground-color to use is provided in .X register. Colorcode in .X is only used if VERA stride is set to 1. When stride is set to 2, the existing color information is not overwritten. Any other stride value is unsupported.
 
 |Registers | Purpose               |
 |------|-----------------------|
 |  .A  | Character for drawing line |
-|  .X  | bg-/fg-color  |
+|  .X  | bg-/fg-color (if VERA stride=1) |
 |  .Y  | length of line  |
 
 ## Function name: vline
@@ -270,12 +268,12 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A<br>
 ZP registers affected: none<br>
 
-**Description** Draw a vertical line from top to bottom, starting at current position. Height of the line is provided in .Y register. Character to use for drawing the line is provided in .A and the background-/foreground-color to use is provided in .X register.
+**Description** Draw a vertical line from top to bottom, starting at current position. Height of the line is provided in .Y register. Character to use for drawing the line is provided in .A and the background-/foreground-color to use is provided in .X register. Colorcode in .X is only used if VERA stride is set to 1. When stride is set to 2, the existing color information is not overwritten. Any other stride value is unsupported.
 
 |Registers | Purpose               |
 |------|-----------------------|
 |  .A  | Character for drawing line |
-|  .X  | bg-/fg-color  |
+|  .X  | bg-/fg-color (if VERA stride=1) |
 |  .Y  | Height of line  |
 
 ## Function name: print_str
@@ -283,18 +281,19 @@ Purpose: Print a string to screen.<br>
 Call address: `VTUILIB+32`<br>
 Macro name: `VTUI_PRINT_STR`<br>
 Routine name: `vtui_print_str`<br>
-Communication registers: r0 ($02-$03), .A & .X<br>
+Communication registers: r0 ($02-$03), .A, .X & .Y<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A & .Y<br>
-ZP registers affected: none<br>
+ZP registers affected: r7 & r8l ($10-12) & r11h & r12 ($19-$1B)<br>
 
-**Description** Print a 0-terminated string to screen. If .A=0, The routine will convert PETSCII characters in the range $20-$59. Other characters will be converted to a large X-like character. If .A is set to $80, no conversion will take place. r0 ($02 & $03) is a 16bit zeropage pointer to the string. Background-/foreground color for the string must be provided in .X register. If .X register is set to 0, the color-bytes in VRAM will not be set.
+**Description** Print string of .Y length to screen. If .A=0, The routine will convert PETSCII characters in the range $20-$59. Other characters will be converted to a large X-like character. If .A is set to $80, no conversion will take place. r0 ($02 & $03) is a 16bit zeropage pointer to the string. Background-/foreground color for the string is provided in .X register if VERA stride value is 1. If stride is set to 2, the color information in VRAM is not changed, essentially allowing the string to be printed with the color information already stored in VRAM. Any other stride value is unsupported.
 
 |Registers | Purpose               |
 |------|-----------------------|
 |  .A  | Convert string (0 = convert, $80 = no conversion) |
+|  .X  | bg-/fg-color (if VERA stride=1)|
+|  .Y  | Length of string |
 |  r0  | Pointer to start of string |
-|  .X  | bg-/fg-color (0 = don't change color) |
 
 ## Function name: fill_box
 Purpose: Draw a filled box<br>
@@ -306,7 +305,7 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: .Y<br>
 ZP registers affected: r2l ($06)<br>
 
-**Description** Draw a filled box starting at current position.<br>
+**Description** Draw a filled box starting at current position. This function only supports a VERA stride value of 1.<br>
 
 |Registers | Purpose               |
 |------|-----------------------|
@@ -355,9 +354,9 @@ Routine name: `vtui_border`<br>
 Communication registers: .A, .X, r1l ($04) & r2l ($06)<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .Y
-ZP registers affected: r0l ($02), r0h ($03), r3l - r6h ($08 - $0F)
+ZP registers affected: r0l ($02), r0h ($03), r3l - r6h ($08 - $0F), r7 - r11l ($10 - $18)
 
-**Description** Create a box with a specific or custom border.
+**Description** Create a box with a specific or custom border. Color information is written if VERA stride is set to 1. If stride is set to 2, color information will not be overwritten. All other stride values are unsupported.
 
 Modes 0-5 are pre-defined, only works with the default character set and are shown below. If mode 6 is specified, the border characters can be defined as follows:<br>
 
@@ -379,7 +378,7 @@ Modes 0-5 are pre-defined, only works with the default character set and are sho
 |  .A  | Border mode   |
 | r1l  | Width of box  |
 | r2l  | Height of box |
-|  .X  | bg-/fg-color  |
+|  .X  | bg-/fg-color (if VERA stride=1) |
 
 ***Supported Modes***<br>
 
@@ -398,7 +397,7 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A, .X & .Y
 ZP registers affected: r0 ($02-$03), r1h ($05), r2l ($06)
 
-**Description** Save an area from screen to memory. Notice that each character on screen takes up 2 bytes of memory because a byte is used for color information.<br>
+**Description** Save an area from screen to memory. Notice that each character on screen takes up 2 bytes of memory because a byte is used for color information. Function only supports VERA stride value of 1.<br>
 
 |Register|Purpose|
 |--------|-------|
@@ -418,7 +417,7 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A, .X & .Y
 ZP registers affected: r0 ($02-$03), r1h ($05), r2l ($06)
 
-**Description** Restore an area on screen from memory.<br>
+**Description** Restore an area on screen from memory. Function only supports VERA stride value of 1.<br>
 
 |Register|Purpose|
 |--------|-------|

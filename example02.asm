@@ -250,7 +250,7 @@ main:
 	rts
 
 Libname		!text	"VTUI LIBRARY"
-Verstr		!text	"VERSION 0.6A"
+Verstr		!text	"VERSION 0.7"
 Boxstr		!text	"BOXES WITH OR WITHOUT BORDERS"
 Hlinestr	!text	"HORIZONTAL LINES"
 Vlinestr	!text	"VERTICAL LINES"
@@ -258,4 +258,4 @@ Plotstr		!text	"PLOT OR SCAN CHARACTERS"
 Dramstr		!text	"DIRECTLY TO/FROM SCREEN RAM"
 Morestr		!text	"***MORE TO SEE AND TO COME***"
 
-VTUI		!bin	"VTUI0.6A.BIN"
+VTUI		!bin	"VTUI0.7.BIN"
