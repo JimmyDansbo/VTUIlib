@@ -86,6 +86,7 @@ vtui_scr2pet	= VTUI_LIB+41
 vtui_border	= VTUI_LIB+44
 vtui_save_rect	= VTUI_LIB+47
 vtui_rest_rect	= VTUI_LIB+50
+vtui_input_str	= VTUI_LIB+53
 
 	jsr	vtui_initialize
 	jmp	VTUI_LIB_END
@@ -286,6 +287,19 @@ vtui_rest_rect	= VTUI_LIB+50
 	jsr	vtui_rest_rect
 }
 
-VTUI:	!bin	"VTUI0.7.BIN"
+; *****************************************************************************
+; Show a cursor and get a string input from keyboard.
+; *****************************************************************************
+; INPUTS:	r0 = pointer to buffer to hold string (must be pre-allocated)
+;		.Y = maximum length of string
+;		.X = color information for input characters
+; OUPUTS:	.Y = actual length of input
+; USES:		.A & r1
+; *****************************************************************************
+!macro VTUI_INPUT_STR {
+	jsr	vtui_input_str
+}
+
+VTUI:	!bin	"VTUI0.8.BIN"
 
 VTUI_LIB_END:

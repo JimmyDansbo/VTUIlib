@@ -1,6 +1,6 @@
 # VTUI library Programmers Reference
 
-Version 0.7
+Version 0.8
 
 *Author: Jimmy Dansbo*
 
@@ -28,6 +28,7 @@ This document describes the **V**ERA **T**ext **U**ser **I**nterface library.
 	* [hline](#function-name-hline)
 	* [vline](#function-name-vline)
 	* [print_str](#function-name-print_str)
+	* [input_str](#function-name-input-str)
 	* [fill_box](#function-name-fill_box)
 	* [pet2scr](#function-name-pet2scr)
 	* [scr2pet](#function-name-scr2pet)
@@ -52,7 +53,7 @@ and provide the routine names as both functions and macros although the macros j
 
 The VTUI library is designed to be loaded by standard CBM kernal functions [SETLFS](https://cx16.dk/c64-kernal-routines/setlfs.html), [SETNAM](https://cx16.dk/c64-kernal-routines/setnam.html) and [LOAD](https://cx16.dk/c64-kernal-routines/load.html).
 
-In several assemblers it is possible to load a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.7.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.7.BIN"`. The ACME and CA65 include files use this method to load the library.
+In several assemblers it is possible to load a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.8.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.8.BIN"`. The ACME and CA65 include files use this method to load the library.
 
 If an assembler is used to include the binary file, be aware that the first two bytes are a loading address so base address of the actual library will be: `VTUILIB=VTUI+2`.
 
@@ -294,6 +295,24 @@ ZP registers affected: r7 & r8l ($10-12) & r11h & r12 ($19-$1B)<br>
 |  .X  | bg-/fg-color (if VERA stride=1)|
 |  .Y  | Length of string |
 |  r0  | Pointer to start of string |
+
+## Function name: input_str
+Purpose: Read a string of a certain length from keyboard.<br>
+Call address: `VTUILIB+53`<br>
+Macro name: `VTUI_INPUT_STR`<br>
+Routine name: `vtui_INPUT_str`<br>
+Communication registers: r0 ($02-$03), .A, .X & .Y<br>
+Preparatory routines: gotoxy (optional)<br>
+Registers affected: .A & .Y<br>
+ZP registers affected: r1 ($04-05)<br>
+
+**Description** Show a cursor and get input from keyboard. Input is written to screen and stored in the buffer at r0. The function does not return until enter/return is pressed. At that time the buffer will contain the entered string and .Y will contain the actual length of the input string.
+
+|Registers | Purpose               |
+|------|-----------------------|
+|  .X  | bg-/fg-color |
+|  .Y  | maximum length of string / Actual length on return |
+|  r0  | Pointer to pre-allocated buffer |
 
 ## Function name: fill_box
 Purpose: Draw a filled box<br>

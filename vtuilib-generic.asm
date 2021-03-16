@@ -22,9 +22,17 @@ SC2P:	jmp	vtui_scr2pet	; .A = character to convert to petscii
 BORD:	jsr	vtui_border	; .A=border,r1l=width,r2l=height,.X=color
 SREC:	jmp	vtui_save_rect	; .C=vrambank,.A=destram,r0=destaddr,r1l=width,r2l=height
 RREC:	jmp	vtui_rest_rect	; .C=vrambank,.A=srcram,r0=srcaddr,r1l=width,r2l=height
+INST:	jmp	vtui_input_str	; r0 = pointer to buffer, .Y=max length, X=color
 	jmp	$0000		; Show that there are no more jumps
 
 ; ******************************* Constants ***********************************
+OP_PHA		= $48		; PHA opcode
+OP_PLA		= $68		; PLA opcode
+OP_PHY		= $5A		; PHY opcode
+OP_PLY		= $7A		; PLY opcode
+OP_RTS		= $60		; RTS opcode
+OP_JMP_ABS	= $4C		; JMP absolute opcode
+
 PLOT_CHAR	= $10		; zp jump to plot_char function
 HLINE		= $13		; zp jump to hline function
 VLINE		= $16		; zp jump to vline function
@@ -121,12 +129,6 @@ initialize:
 	; Write code to ZP to figure out where the library is loaded.
 	; This is done by jsr'ing to the code in ZP which in turn reads the
 	; return address from the stack.
-OP_PHA	= $48		; PHA opcode
-OP_PLA	= $68		; PLA opcode
-OP_PHY	= $5A		; PHY opcode
-OP_PLY	= $7A		; PLY opcode
-OP_RTS	= $60		; RTS opcode
-
 	lda	#OP_PLA
 	sta	r0
 	lda	#OP_PLY
@@ -384,6 +386,7 @@ vtui_scr2pet:
 ; USES:		.A, .Y & r1
 ; *****************************************************************************
 vtui_print_str:
+@str	= r0
 @conv	= r1l
 @length	= r1h
 	sta	@conv		; Store to check for conversion
@@ -393,7 +396,7 @@ vtui_print_str:
 	; jumptable which means that the jumptable address of this function
 	; is pushed on to the stack. This in turn can be used to calculate
 	; jumptable addresses of other functions.
-	lda	#$4C		; JMP absolute
+	lda	#OP_JMP_ABS	; JMP absolute
 	sta	PLOT_CHAR
 	sta	PET2SCR
 	pla			; Get low part of address and save i .Y
@@ -416,7 +419,7 @@ vtui_print_str:
 	ldy	#0
 @loop:	cpy	@length
 	beq	@end
-	lda	(r0),y		; Load character
+	lda	(@str),y	; Load character
 	bit	@conv		; Check if we need to convert character
 	bmi	@noconv
 	jsr	PET2SCR		; Do conversion
@@ -575,7 +578,7 @@ vtui_border:
 @dodraw:
 
 	; Find jumptable address of needed functions
-	lda	#$4C		; JMP absolute
+	lda	#OP_JMP_ABS	; JMP absolute
 	sta	PLOT_CHAR
 	sta	HLINE
 	sta	VLINE
@@ -773,3 +776,80 @@ vtui_rest_rect:
 	dec	@height
 	bne	@loop
 	rts
+
+; *****************************************************************************
+; Show a cursor and get a string input from keyboard.
+; *****************************************************************************
+; INPUTS:	r0 = pointer to buffer to hold string (must be pre-allocated)
+;		.Y = maximum length of string
+;		.X = color information for input characters
+; OUPUTS:	.Y = actual length of input
+; USES:		.A & r1
+; *****************************************************************************
+vtui_input_str:
+@ptr	= r0
+@length	= r1l
+@invcol	= r1h
+
+	sty	@length		; Store maximum length
+
+	lda	#$A0		; Show a "cursor"
+	sta	VERA_DATA0
+	stx	VERA_DATA0
+	dec	VERA_ADDR_L
+	dec	VERA_ADDR_L
+
+	ldy	#0
+@inputloop:
+	phx
+	phy
+	jsr	$FFE4		; Read keyboard input
+	ply
+	plx
+
+	cmp	#$0D		; If RETURN has been pressed, we exit
+	beq	@end
+	cmp	#$14		; We need to handle backspace
+	bne	@istext
+	cpy	#0		; If .Y is 0, we can not delete
+	beq	@inputloop
+	; Here we need to handle backspace
+	dey
+	lda	#' '		; Delete cursor
+	sta	VERA_DATA0
+
+	lda	VERA_ADDR_L	; Go 2 chars back = 4 bytes
+	sbc	#3
+	sta	VERA_ADDR_L
+
+	lda	#$A0		; Overwrite last char with cursor
+	sta	VERA_DATA0
+
+	dec	VERA_ADDR_L
+	bra	@inputloop
+@istext:
+	cpy	@length
+	beq	@inputloop	; If .Y = @length, we can not add character
+
+	sta	(@ptr),y	; Store char in buffer
+	cmp	#$20		; If < $20, we can not use it
+	bcc	@inputloop
+	cmp	#$40		; If < $40 & >= $20, screencode is equal to petscii
+	bcc	@stvera
+	cmp	#$60		; If > $60, we can not use it
+	bcs	@inputloop
+	sbc	#$3F		; When .A >= $40 & < $60, subtract $3F to get screencode
+@stvera:
+	sta	VERA_DATA0	; Write char to screen with colorcode
+	stx	VERA_DATA0
+
+	lda	#$A0		; Write cursor
+	sta	VERA_DATA0
+	stx	VERA_DATA0
+
+	dec	VERA_ADDR_L	; Set VERA to point at cursor
+	dec	VERA_ADDR_L
+	iny			; Inc .Y to show a char has been added
+	bra	@inputloop
+
+@end:	rts
