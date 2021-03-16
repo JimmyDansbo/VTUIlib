@@ -286,7 +286,7 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A & .Y<br>
 ZP registers affected: r7 & r8l ($10-12) & r11h & r12 ($19-$1B)<br>
 
-**Description** Print string of .Y length to screen. If .A=0, The routine will convert PETSCII characters in the range $20-$59. Other characters will be converted to a large X-like character. If .A is set to $80, no conversion will take place. r0 ($02 & $03) is a 16bit zeropage pointer to the string. Background-/foreground color for the string is provided in .X register if VERA stride value is 1. If stride is set to 2, the color information in VRAM is not changed, essentially allowing the string to be printed with the color information already stored in VRAM. Any other stride value is unsupported.
+**Description** Print string of .Y length to screen. If .A=0, The routine will convert PETSCII characters in the range $20-$5F. Other characters will be converted to a large X-like character. If .A is set to $80, no conversion will take place. r0 ($02 & $03) is a 16bit zeropage pointer to the string. Background-/foreground color for the string is provided in .X register if VERA stride value is 1. If stride is set to 2, the color information in VRAM is not changed, essentially allowing the string to be printed with the color information already stored in VRAM. Any other stride value is unsupported.
 
 |Registers | Purpose               |
 |------|-----------------------|
@@ -324,7 +324,7 @@ Preparatory routines: none<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Convert the PETSCII character in .A to screencode. Supported range is $20-$59. Other characters will be converted to a large X-like character.
+**Description** Convert the PETSCII character in .A to screencode. Supported range is $20-$5F. Other characters will be converted to a large X-like character.
 
 |Registers | Purpose               |
 |------|-----------------------|
@@ -340,7 +340,7 @@ Preparatory routines: none<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Convert the screencode in .A to PETSCII. Supported range is $00-$39. Other characters will be converted to a large X-like character.
+**Description** Convert the screencode in .A to PETSCII. Supported range is $00-$3F. Other characters will be converted to a large X-like character.
 
 |Registers | Purpose               |
 |------|-----------------------|
