@@ -300,7 +300,7 @@ ZP registers affected: r7 & r8l ($10-12) & r11h & r12 ($19-$1B)<br>
 Purpose: Read a string of a certain length from keyboard.<br>
 Call address: `VTUILIB+53`<br>
 Macro name: `VTUI_INPUT_STR`<br>
-Routine name: `vtui_INPUT_str`<br>
+Routine name: `vtui_input_str`<br>
 Communication registers: r0 ($02-$03), .A, .X & .Y<br>
 Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A & .Y<br>
