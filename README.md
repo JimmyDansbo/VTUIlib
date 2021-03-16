@@ -28,7 +28,7 @@ This document describes the **V**ERA **T**ext **U**ser **I**nterface library.
 	* [hline](#function-name-hline)
 	* [vline](#function-name-vline)
 	* [print_str](#function-name-print_str)
-	* [input_str](#function-name-input-str)
+	* [input_str](#function-name-input_str)
 	* [fill_box](#function-name-fill_box)
 	* [pet2scr](#function-name-pet2scr)
 	* [scr2pet](#function-name-scr2pet)
