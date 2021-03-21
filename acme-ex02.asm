@@ -49,10 +49,6 @@ main:
 	+VTUI_INPUT_STR			; Get a string from user
 	sty	StrLen			; Store actual length of string
 
-	lda	#' '
-	ldx	#(BLUE<<4)|WHITE
-	+VTUI_PLOT_CHAR			; Remove cursor after input
-
 	lda	#20			; Goto 20, 20
 	ldy	#20
 	+VTUI_GOTOXY

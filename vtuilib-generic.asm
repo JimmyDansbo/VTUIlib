@@ -852,4 +852,7 @@ vtui_input_str:
 	iny			; Inc .Y to show a char has been added
 	bra	@inputloop
 
-@end:	rts
+@end:	lda	#' '
+	sta	VERA_DATA0
+	stx	VERA_DATA0
+	rts
