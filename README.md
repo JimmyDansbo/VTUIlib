@@ -306,7 +306,7 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A & .Y<br>
 ZP registers affected: r1 ($04-05)<br>
 
-**Description** Show a cursor and get input from keyboard. Input is written to screen and stored in the buffer at r0. The function does not return until enter/return is pressed. At that time the buffer will contain the entered string and .Y will contain the actual length of the input string.
+**Description** Show a cursor and get input from keyboard. Input is written to screen and stored in the buffer at r0. The function does not return until enter/return is pressed. At that time the buffer will contain the entered string as PETSCII and .Y will contain the actual length of the input string.
 
 |Registers | Purpose               |
 |------|-----------------------|
