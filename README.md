@@ -199,7 +199,7 @@ ZP registers affected: none<br>
 |Registers | Purpose  |
 |------|--------------|
 |  .A  | x coordinate |
-|  .X  | y coordinate |
+|  .Y  | y coordinate |
 
 
 ## Function name: plot_char
