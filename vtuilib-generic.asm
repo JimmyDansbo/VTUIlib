@@ -1,7 +1,10 @@
 !cpu w65c02
+
+START_ADDR=$0400
+
 ; Program counter is set to 0 to make it easier to calculate the addresses
 ; in the jumptable as all that needs to be done is add the actual offset.
-*=$0000
+*=START_ADDR
 
 ; ******************************* Jumptable ***********************************
 INIT:	bra	initialize	; No inputs
@@ -143,7 +146,7 @@ initialize:
 	; This is to get the return address stored on stack
 	jsr	r0		; Get current PC value
 	sec
-	sbc	#*-2		; Calculate start of our program
+	sbc	#*-START_ADDR-2	; Calculate start of our program
 	sta	@base		; And store it in @base
 	tya
 	sbc	#$00
@@ -784,12 +787,11 @@ vtui_rest_rect:
 ;		.Y = maximum length of string
 ;		.X = color information for input characters
 ; OUPUTS:	.Y = actual length of input
-; USES:		.A & r1
+; USES:		.A & r1l
 ; *****************************************************************************
 vtui_input_str:
 @ptr	= r0
 @length	= r1l
-@invcol	= r1h
 
 	sty	@length		; Store maximum length
 
@@ -854,5 +856,5 @@ vtui_input_str:
 
 @end:	lda	#' '
 	sta	VERA_DATA0
-	stx	VERA_DATA0
+
 	rts
