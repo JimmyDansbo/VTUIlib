@@ -1,10 +1,7 @@
 !cpu w65c02
-
-START_ADDR=$0400
-
 ; Program counter is set to 0 to make it easier to calculate the addresses
 ; in the jumptable as all that needs to be done is add the actual offset.
-*=START_ADDR
+*=$0000
 
 ; ******************************* Jumptable ***********************************
 INIT:	bra	initialize	; No inputs
@@ -27,6 +24,15 @@ SREC:	jmp	vtui_save_rect	; .C=vrambank,.A=destram,r0=destaddr,r1l=width,r2l=heig
 RREC:	jmp	vtui_rest_rect	; .C=vrambank,.A=srcram,r0=srcaddr,r1l=width,r2l=height
 INST:	jmp	vtui_input_str	; r0 = pointer to buffer, .Y=max length, X=color
 	jmp	$0000		; Show that there are no more jumps
+
+border_modes:;	 TR  TL  BR  BL TOP BOT  L   R
+	!byte	$20,$20,$20,$20,$20,$20,$20,$20
+	!byte	$66,$66,$66,$66,$66,$66,$66,$66
+	!byte	$6E,$70,$7D,$6D,$40,$40,$42,$42
+	!byte	$49,$55,$4B,$4A,$40,$40,$42,$42
+	!byte	$50,$4F,$7A,$4C,$77,$6F,$74,$6A
+	!byte	$5F,$69,$E9,$DF,$77,$6F,$74,$6A
+
 
 ; ******************************* Constants ***********************************
 OP_PHA		= $48		; PHA opcode
@@ -146,7 +152,7 @@ initialize:
 	; This is to get the return address stored on stack
 	jsr	r0		; Get current PC value
 	sec
-	sbc	#*-START_ADDR-2	; Calculate start of our program
+	sbc	#*-2		; Calculate start of our program
 	sta	@base		; And store it in @base
 	tya
 	sbc	#$00
@@ -501,91 +507,45 @@ vtui_border:
 @left		= r6l
 @right		= r6h
 
+	cmp	#6		; Skip border loading if mode is >= 6
+	bcs	@find_funcs
+
+	; Find address of border_modes lookup table
+	sta	PLOT_CHAR+3	; Save Mode number
+	pla			; Get low part of address and save in .Y
+	tay
+
+	; Calculate address of beginning of border_modes table
+	clc
+	adc	#(border_modes-BORD)-2
+	sta	PLOT_CHAR	; Using PLOT_CHAR ZP variables temporarily
+	pla			; Get high part of address
+	pha
+	adc	#$00
+	sta	PLOT_CHAR+1
+	phy			; Ensure entire address is pushed back on stack
+
 	; Set the border drawing characters according to the border mode in .A
-@mode1: cmp	#1
-	bne	@mode2
-	lda	#$66
-	bra	@def
-@mode2: cmp	#2
-	bne	@mode3
-	lda	#$6E
-	sta	@top_right
-	lda	#$70
-	sta	@top_left
-	lda	#$7D
-	sta	@bot_right
-	lda	#$6D
-	sta	@bot_left
-@clines:
-	lda	#$40		; centered lines
-	sta	@top
-	sta	@bottom
-	lda	#$42
-	sta	@left
-	sta	@right
-	bra	@dodraw
-@mode3:	cmp	#3
-	bne	@mode4
-	lda	#$49
-	sta	@top_right
-	lda	#$55
-	sta	@top_left
-	lda	#$4B
-	sta	@bot_right
-	lda	#$4A
-	sta	@bot_left
-	bra	@clines
-@mode4:	cmp	#4
-	bne	@mode5
-	lda	#$50
-	sta	@top_right
-	lda	#$4F
-	sta	@top_left
-	lda	#$7A
-	sta	@bot_right
-	lda	#$4C
-	sta	@bot_left
-@elines:
-	lda	#$77		; lines on edges
-	sta	@top
-	lda	#$6F
-	sta	@bottom
-	lda	#$74
-	sta	@left
-	lda	#$6A
-	sta	@right
-	bra	@dodraw
-@mode5:	cmp	#5
-	bne	@mode6
-	lda	#$5F
-	sta	@top_right
-	lda	#$69
-	sta	@top_left
-	lda	#$E9
-	sta	@bot_right
-	lda	#$DF
-	sta	@bot_left
-	bra	@elines
-@mode6:	cmp	#6
-	beq	@dodraw		; Assume border chars are already set
-@default:
-	lda	#$20
-@def:	sta	@top_right
-	sta	@top_left
-	sta	@bot_right
-	sta	@bot_left
-	sta	@top
-	sta	@bottom
-	sta	@left
-	sta	@right
-@dodraw:
+	phx			; Save color information on stack
+	ldx	#0
+	lda	PLOT_CHAR+3	; Restore mode number
+	asl			; Multiply with 8 to get index to lookup table
+	asl
+	asl
+	tay
+
+-	lda	(PLOT_CHAR),y	; Load character from lookup table
+	sta	@top_right,x	; Store it in ZP
+	iny
+	inx
+	cpx	#8
+	bne	-
+
+	plx			; Restore color information from stack
 
 	; Find jumptable address of needed functions
-	lda	#OP_JMP_ABS	; JMP absolute
-	sta	PLOT_CHAR
-	sta	HLINE
-	sta	VLINE
-	pla			; Get low part of address and save i .Y
+@find_funcs:
+	pla			; Get low part of address and save in .Y
 	tay
 	sec
 	sbc	#(BORD-PLCH)+2	; Caculate low jumptable address of PLOT_CHAR
@@ -609,6 +569,10 @@ vtui_border:
 	pla
 	sbc	#$00
 	sta	VLINE+2
+	lda	#OP_JMP_ABS	; JMP absolute
+	sta	PLOT_CHAR
+	sta	HLINE
+	sta	VLINE
 
 	; Save initial position
 	lda	VERA_ADDR_L	; X coordinate
