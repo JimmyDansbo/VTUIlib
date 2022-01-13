@@ -617,8 +617,8 @@ vtui_border:
 	dec	VERA_ADDR_L
 	dec	VERA_ADDR_L
 	lda	@bot_right
-	jsr	PLOT_CHAR	; Bottom right corner
-	rts
+	jmp	PLOT_CHAR	; Bottom right corner
+
 
 ; *****************************************************************************
 ; Copy contents of screen from current position to other memory area in
