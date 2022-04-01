@@ -347,9 +347,12 @@ vtui_vline:
 ;		.Y = y coordinate
 ; *****************************************************************************
 vtui_gotoxy:
-	sty	VERA_ADDR_M	; Set y coordinate
 	asl			; Multiply x coord with 2 for correct coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
+	tya
+	clc
+	adc	VERA_ADDR_M	; Add Y coord to current address
+	sta	VERA_ADDR_M	; Set y coordinate
 	rts
 
 ; *****************************************************************************
