@@ -113,7 +113,7 @@ Preparatory routines: none<br>
 Registers affected: .A, .X & .Y<br>
 ZP registers affected: none<br>
 
-**Description** This function sets or toggles the screenmode. Supported modes are:
+**Description** This function sets the screenmode. Supported modes are:
 | Mode | Description |
 |------|-------------|
 |  $00 | 80x60 text  |
