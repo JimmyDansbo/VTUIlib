@@ -350,8 +350,7 @@ vtui_gotoxy:
 	asl			; Multiply x coord with 2 for correct coordinate
 	sta	VERA_ADDR_L	; Set x coordinate
 	tya
-	clc
-	adc	VERA_ADDR_M	; Add Y coord to current address
+	adc	#$B0		; Add Y coord to base address
 	sta	VERA_ADDR_M	; Set y coordinate
 	rts
 
@@ -468,7 +467,7 @@ vtui_clr_scr:
 ; *****************************************************************************
 ; Create a filled box drawn from top left to bottom right
 ; *****************************************************************************
-; INPUTS:	.A	= Character to use for drawing the line
+; INPUTS:	.A	= Character to use for drawing
 ;		r1l	= Width of box
 ;		r2l	= Height of box
 ;		.X	= bg- & fg-color
