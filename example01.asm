@@ -50,7 +50,7 @@ main:
 	; Initialize the library
 	jsr	VTUI_initialize
 	; Set screen mode to 40x30
-	lda	#$00
+	lda	#$03
 	jsr	VTUI_screen_set
 	; Set stride to 1, most functions rely on stride being 1
 	lda	#$01
@@ -274,7 +274,7 @@ load_library:
 	rts
 
 Libname		!text	"VTUI LIBRARY"
-Verstr		!text	"VERSION 0.8"
+Verstr		!text	"VERSION 0.9"
 Boxstr		!text	"BOXES WITH OR WITHOUT BORDERS"
 Hlinestr	!text	"HORIZONTAL LINES"
 Vlinestr	!text	"VERTICAL LINES"
@@ -282,5 +282,5 @@ Plotstr		!text	"PLOT OR SCAN CHARACTERS"
 Dramstr		!text	"DIRECTLY TO/FROM SCREEN RAM"
 Morestr		!text	"***MORE TO SEE AND TO COME***"
 
-Fname		!text	"VTUI0.8.BIN"
+Fname		!text	"VTUI0.9.BIN"
 End_fname
