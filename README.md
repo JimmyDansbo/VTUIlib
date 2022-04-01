@@ -116,13 +116,14 @@ ZP registers affected: none<br>
 **Description** This function sets or toggles the screenmode. Supported modes are:
 | Mode | Description |
 |------|-------------|
-|  $00 | 80x60 text |
-|  $01 | 80x30 text |
-|  $02 | 40x60 text |
-|  $03 | 40x30 text |
-|  $04 | 40x15 text |
-|  $05 | 20x30 text |
-|  $06 | 20x15 text |
+|  $00 | 80x60 text  |
+|  $01 | 80x30 text  |
+|  $02 | 40x60 text  |
+|  $03 | 40x30 text  |
+|  $04 | 40x15 text  |
+|  $05 | 20x30 text  |
+|  $06 | 20x15 text  |
+
 Unsupported modes will fail with .C set.
 
 |Registers | Purpose               |
