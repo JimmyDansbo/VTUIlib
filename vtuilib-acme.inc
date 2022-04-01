@@ -300,6 +300,6 @@ vtui_input_str	= VTUI_LIB+53
 	jsr	vtui_input_str
 }
 
-VTUI:	!bin	"VTUI0.8.BIN"
+VTUI:	!bin	"VTUI0.9.BIN"
 
 VTUI_LIB_END:
