@@ -231,6 +231,7 @@ ZP registers affected: none<br>
 |  .X  | bg-/fg-color to write to screen (if VERA stride=1) |
 
 **VERA screencodes**<br>
+[https://cx16.dk/veratext/verachars.jpg](https://cx16.dk/veratext/verachars.jpg)
 ![VERA charactermap](https://cx16.dk/veratext/verachars.jpg)<br>
 **VERA colors**<br>
 ![VERA colors](https://cx16.dk/veratext/veracolors.jpg)
