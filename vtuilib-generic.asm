@@ -186,22 +186,24 @@ initialize:
 @end:	rts
 
 ; *****************************************************************************
-; Use KERNAL API to set screen to 80x60 or 40x30 or swap between them.
+; Use KERNAL API to set screen mode or swap between them.
 ; *****************************************************************************
-; INPUT:		.A = Screenmode ($00, $02 or $FF)
+; INPUT:		.A = Screenmode ($00-$06 & $80 or $FF)
 ; USES:			.A, .X & ,Y
 ; RETURNS:		.C = 1 in case of error.
+; Supported screen modes as of ROM version R39:
+; $00: 80x60 text
+; $01: 80x30 text
+; $02: 40x60 text
+; $03: 40x30 text
+; $04: 40x15 text
+; $05: 20x30 text
+; $06: 20x15 text
+; $80: 320x200@256c (40x26 text)
 ; *****************************************************************************
 vtui_screen_set:
-	cmp	#0
-	beq	@doset		; If 0, we can set mode
-	cmp	#$02
-	beq	@doset		; If 2, we can set mode
-	cmp	#$FF
-	bne	@end		; If $FF, we can set mode
-@doset:	jsr	$FF5F		; screen_set_mode X16 kernal API call.
-@end:
-	rts
+	clc			; Clear carry to ensure screen mode is set
+	jmp	$FF5F		; screen_set_mode X16 kernal API call.
 
 ; *****************************************************************************
 ; Set VERA bank (High memory) without touching anything else
