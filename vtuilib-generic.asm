@@ -281,7 +281,7 @@ vtui_plot_char:
 ; *****************************************************************************
 ; OUTPUS:	.A = character
 ;		.X = bg-/fg-color
-; USES		.X & Y
+; USES		.X & .Y
 ; *****************************************************************************
 vtui_scan_char:
 	ldy	VERA_DATA0	; Read character
@@ -305,7 +305,8 @@ vtui_hline:
 @loop:	sta	VERA_DATA0
 	pha			; Save .A so it can be used to check stride
 	lda	VERA_ADDR_H
-	cmp	#$10		; If Stride=1, Decr=0 & VRAM ADDR bit 16=0
+	and	#$F8		; ; Ignore VRAM Bank
+	cmp	#$10		; If Stride=1 & Decr=0
 	bne	+		; we can write the color
 	stx	VERA_DATA0
 +	pla			; Restore .A
