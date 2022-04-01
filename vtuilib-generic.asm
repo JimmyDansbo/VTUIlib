@@ -281,17 +281,16 @@ vtui_plot_char:
 ; *****************************************************************************
 ; OUTPUS:	.A = character
 ;		.X = bg-/fg-color
-; USES		.X
+; USES		.X & Y
 ; *****************************************************************************
 vtui_scan_char:
-	ldx	VERA_DATA0	; Read character
+	ldy	VERA_DATA0	; Read character
 	lda	VERA_ADDR_H	; Isolate stride & decr value
+	and	#$F8		; Ignore VRAM Bank
 	cmp	#$10		; If stride=1 & decr=0 we can read color
 	bne	+
-	txa			; Move char to .A
 	ldx	VERA_DATA0	; Read color
-	rts
-+	txa			; Move char to .A
++	tya			; Move char to .A
 	rts
 
 ; *****************************************************************************
