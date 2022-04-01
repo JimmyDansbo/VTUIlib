@@ -416,7 +416,7 @@ vtui_print_str:
 	lda	#OP_JMP_ABS	; JMP absolute
 	sta	PLOT_CHAR
 	sta	PET2SCR
-	pla			; Get low part of address and save i .Y
+	pla			; Get low part of address and save in .Y
 	tay
 	sec
 	sbc	#(PSTR-PLCH)+2	; Caculate low jumptable address of PLOT_CHAR
@@ -456,7 +456,8 @@ vtui_print_str:
 vtui_clr_scr:
 @width	= r1l
 @height	= r2l
-	stz	VERA_ADDR_M	; Ensure VERA address is at top left corner
+	ldy	#$B0
+	sty	VERA_ADDR_M	; Ensure VERA address is at top left corner
 	stz	VERA_ADDR_L
 	ldy	#80		; Store max width = 80 columns
 	sty	@width
