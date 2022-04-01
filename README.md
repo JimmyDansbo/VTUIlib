@@ -1,6 +1,6 @@
 # VTUI library Programmers Reference
 
-Version 0.8
+Version 0.9
 
 *Author: Jimmy Dansbo*
 
@@ -53,7 +53,7 @@ and provide the routine names as both functions and macros although the macros j
 
 The VTUI library is designed to be loaded by standard CBM kernal functions [SETLFS](https://cx16.dk/c64-kernal-routines/setlfs.html), [SETNAM](https://cx16.dk/c64-kernal-routines/setnam.html) and [LOAD](https://cx16.dk/c64-kernal-routines/load.html).
 
-In several assemblers it is possible to load a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.8.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.8.BIN"`. The ACME and CA65 include files use this method to load the library.
+In several assemblers it is possible to load a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.9.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.9.BIN"`. The ACME and CA65 include files use this method to load the library.
 
 If an assembler is used to include the binary file, be aware that the first two bytes are a loading address so base address of the actual library will be: `VTUILIB=VTUI+2`.
 
@@ -104,20 +104,30 @@ ZP registers affected: r0, r1, r2 & r3 ($02-$09)<br>
 **Description:** The routine, initialize, writes a very small subroutine in zeropage memory $02-$09 and calls it to get the return address off of the stack. This is the way the library figures out the correct addresses and updates the builtin jumptable.
 
 ### Function name: screen_set
-Purpose: Set the screen mode to supported text mode<br>
+Purpose: Set the screen mode to supported mode<br>
 Call address: `VTUILIB+2`<br>
 Macro name: `VTUI_SCREEN_SET`<br>
 Routine name: `vtui_screen_set`<br>
-Communication registers: .A<br>
+Communication registers: .A & .C<br>
 Preparatory routines: none<br>
 Registers affected: .A, .X & .Y<br>
 ZP registers affected: none<br>
 
-**Description** This function sets or toggles the screenmode. Supported modes are 0 = 40x30 & 2 80x60. Mode 255 ($FF) will toggle between the two modes. Any other mode will fail silently.
+**Description** This function sets or toggles the screenmode. Supported modes are:
+| Mode | Description |
+|------|-------------|
+|  $00 | 80x60 text |
+|  $01 | 80x30 text |
+|  $02 | 40x60 text |
+|  $03 | 40x30 text |
+|  $04 | 40x15 text |
+|  $05 | 20x30 text |
+|  $06 | 20x15 text |
+Unsupported modes will fail with .C set.
 
 |Registers | Purpose               |
 |------|-----------------------|
-|  .A  | Screen mode ($00, $02 or $FF) |
+|  .A  | Screen mode |
 
 ## Function name: set_bank
 Purpose: Set the VERA bank to 0 or 1<br>
