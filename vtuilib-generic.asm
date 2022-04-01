@@ -269,6 +269,7 @@ vtui_set_decr:
 vtui_plot_char:
 	sta	VERA_DATA0	; Store character
 	lda	VERA_ADDR_H	; Isolate stride & decr value
+	and	#$F8		; Ignore VRAM Bank
 	cmp	#$10		; If stride=1,decr=0&bank=0 we can write color
 	bne	+
 	stx	VERA_DATA0	; Write color
