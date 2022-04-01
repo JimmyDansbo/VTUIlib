@@ -12,7 +12,7 @@ main:
 	stz	newx
 	stz	newy
 
-	sec			; BANK 1
+	clc			; BANK 0
 	jsr	vtui_set_bank
 
 	stz	$9F20		; ADDR $0100
@@ -26,7 +26,7 @@ main:
 	dex
 	bne	:-
 
-	clc			; BANK 0
+	sec			; BANK 1
 	jsr	vtui_set_bank
 
 	lda	xcord
@@ -39,7 +39,7 @@ main:
 	stz	r0l		; ADDR $0000
 	stz	r0h
 	lda	#$80		; Save to VRAM
-	sec			; Bank 1
+	clc			; Bank 0
 	jsr	vtui_save_rect
 
 	lda	#32		; X
@@ -104,7 +104,7 @@ move_logo:
 	lda	#1
 	sta	r0h
 	lda	#$80		; Restore from VRAM
-	sec			; Bank 1
+	clc			; Bank 0
 	jsr	vtui_rest_rect
 
 	lda	newx
@@ -118,7 +118,7 @@ move_logo:
 	lda	#1
 	sta	r0h
 	lda	#$80		; Save to VRAM
-	sec			; Bank 1
+	clc			; Bank 0
 	jsr	vtui_save_rect
 
 	lda	newx
@@ -129,7 +129,7 @@ move_logo:
 	sta	r1l		; Width
 	sta	r2l		; Height
 	lda	#$80		; Restore from VRAM
-	sec			; Bank 1
+	clc			; Bank 0
 	stz	r0l		; ADDR $0000
 	stz	r0h
 	jsr	vtui_rest_rect
