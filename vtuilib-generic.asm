@@ -302,7 +302,7 @@ vtui_scan_char:
 ; USES:		.Y & 1 byte on stack
 ; *****************************************************************************
 vtui_hline:
-@loop:	sta	VERA_DATA0
+	sta	VERA_DATA0
 	pha			; Save .A so it can be used to check stride
 	lda	VERA_ADDR_H
 	and	#$F8		; ; Ignore VRAM Bank
@@ -311,12 +311,13 @@ vtui_hline:
 	stx	VERA_DATA0
 +	pla			; Restore .A
 	dey
-	bne	@loop
+	bne	vtui_hline
 	rts
 
 ; *****************************************************************************
 ; Create a vertical line going from top to bottom.
-; Function only works when stride is either 1 or 2 and both decr and bank = 0
+; Function only works when stride is either 1 or 2 and decr = 0
+; If stride is 1, color is expected in .X
 ; *****************************************************************************
 ; INPUTS:	.A	= Character to use for drawing the line
 ;		.Y	= Height of the line
@@ -327,7 +328,8 @@ vtui_vline:
 	sta	VERA_DATA0	; Write character
 	pha			; Save .A so it can be used to check stride
 	lda	VERA_ADDR_H
-	cmp	#$10		; Store color if stride=1,decr=0&bank=0
+	and	#$F8		; ; Ignore VRAM Bank
+	cmp	#$10		; Store color if stride=1 & decr=0
 	bne	+
 	stx	VERA_DATA0	; Store colorcode
 +	dec	VERA_ADDR_L	; Return to original X coordinate
