@@ -5,7 +5,7 @@
 
 ; ******************************* Jumptable ***********************************
 INIT:	bra	initialize	; No inputs
-SCRS:	jmp	vtui_screen_set	; .A = Screenmode ($00, $02 or $FF)
+SCRS:	jmp	vtui_screen_set	; .A = Screenmode
 SETB:	jmp	vtui_set_bank	; .C = bank number (0 or 1)
 SETS:	jmp	vtui_set_stride	; .A = Stride value
 SETD:	jmp	vtui_set_decr	; .C (1 = decrement, 0 = increment)
@@ -270,7 +270,7 @@ vtui_plot_char:
 	sta	VERA_DATA0	; Store character
 	lda	VERA_ADDR_H	; Isolate stride & decr value
 	and	#$F8		; Ignore VRAM Bank
-	cmp	#$10		; If stride=1,decr=0&bank=0 we can write color
+	cmp	#$10		; If stride=1 & decr=0 we can write color
 	bne	+
 	stx	VERA_DATA0	; Write color
 +	rts
@@ -305,7 +305,7 @@ vtui_hline:
 	sta	VERA_DATA0
 	pha			; Save .A so it can be used to check stride
 	lda	VERA_ADDR_H
-	and	#$F8		; ; Ignore VRAM Bank
+	and	#$F8		; Ignore VRAM Bank
 	cmp	#$10		; If Stride=1 & Decr=0
 	bne	+		; we can write the color
 	stx	VERA_DATA0
@@ -328,7 +328,7 @@ vtui_vline:
 	sta	VERA_DATA0	; Write character
 	pha			; Save .A so it can be used to check stride
 	lda	VERA_ADDR_H
-	and	#$F8		; ; Ignore VRAM Bank
+	and	#$F8		; Ignore VRAM Bank
 	cmp	#$10		; Store color if stride=1 & decr=0
 	bne	+
 	stx	VERA_DATA0	; Store colorcode
