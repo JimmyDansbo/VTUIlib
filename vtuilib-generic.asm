@@ -172,7 +172,7 @@ initialize:
 
 @loop:	lda	(@ptr)		; Check if lowbyte of address is 0
 	bne	+		; If not, we have not reached end of jumptable
-	lda	(@ptr),y	; Chech if highbyte of address is 0
+	lda	(@ptr),y	; Check if highbyte of address is 0
 	beq	@end		; If it is, we have reaced end of jumptable
 +	clc
 	lda	(@ptr)		; Low part of jumptable address
@@ -213,12 +213,8 @@ vtui_screen_set:
 ; *****************************************************************************
 vtui_set_bank:
 	lda	VERA_ADDR_H
-	bcc	@setzero
-	; Bank = 1
 	ora	#$01
-	bra	@end
-@setzero:
-	; Bank = 0
+	bcs	@end
 	and	#$FE
 @end:	sta	VERA_ADDR_H
 	rts
