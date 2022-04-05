@@ -15,7 +15,7 @@ PLCH:	jmp	vtui_plot_char	; .A = character, .X = bg-/fg-color
 SCCH:	jmp	vtui_scan_char	; like plot_char
 HLIN:	jmp	vtui_hline	; .A = Character, .Y = length, .X = color
 VLIN:	jmp	vtui_vline	; .A = Character, .Y = height, .X = color
-PSTR:	jsr	vtui_print_str	; r0 = pointer to string, .X = color
+PSTR:	jmp	vtui_print_str	; r0 = pointer to string, .X = color
 FBOX:	jmp	vtui_fill_box	; .A=Char,r1l=width,r2l=height,.X=color
 P2SC:	jmp	vtui_pet2scr	; .A = character to convert to screencode
 SC2P:	jmp	vtui_scr2pet	; .A = character to convert to petscii
@@ -260,14 +260,18 @@ vtui_set_decr:
 ;		.X = bg-/fg-color
 ; USES:		.A
 ; *****************************************************************************
-vtui_plot_char:
+!macro VTUI_PLOT_CHAR {
 	sta	VERA_DATA0	; Store character
 	lda	VERA_ADDR_H	; Isolate stride & decr value
 	and	#$F8		; Ignore VRAM Bank
-	cmp	#$10		; If stride=1,decr=0&bank=0 we can write color
+	cmp	#$10		; If stride=1 & decr=0 we can write color
 	bne	+
 	stx	VERA_DATA0	; Write color
-+	rts
++
+}
+vtui_plot_char:
+	+VTUI_PLOT_CHAR
+	rts
 
 ; *****************************************************************************
 ; Read character and possibly color from current VERA address
@@ -354,19 +358,23 @@ vtui_gotoxy:
 ; INPUTS:	.A = character to convert
 ; OUTPUS:	.A = converted character or $56 if invalid input
 ; *****************************************************************************
-vtui_pet2scr:
+!macro VTUI_PET2SCR {
 	cmp	#$20
-	bcc	@nonprintable	; .A < $20
+	bcc	.nonprintable	; .A < $20
 	cmp	#$40
-	bcc	@end		; .A < $40 means screen code is the same
+	bcc	.end		; .A < $40 means screen code is the same
 	; .A >= $40 - might be letter
-	cmp	#$60
-	bcs	@nonprintable	; .A < $60 so it is a letter, subtract ($3F+1)
-	sbc	#$3F		; to convert to screencode
+	cmp	#$60		; .A < $60 so it is a letter
+	bcc	+
+.nonprintable:
+	lda	#$56+$40	; Load nonprintable char + value being subtracted.
++	sbc	#$3F		; subtract ($3F+1) to convert to screencode
+.end:
+}
+vtui_pet2scr:
+	+VTUI_PET2SCR
 	rts
-@nonprintable:
-	lda	#$56
-@end:	rts
+
 
 ; *****************************************************************************
 ; Convert screencodes between $00 and $3F to PETSCII.
@@ -401,40 +409,15 @@ vtui_print_str:
 @length	= r1h
 	sta	@conv		; Store to check for conversion
 	sty	@length		; Store Y for later use
-	; Calculate the jumptable addresses of functions needed by this
-	; routine. It is done by having a JSR instead of a JMP in the
-	; jumptable which means that the jumptable address of this function
-	; is pushed on to the stack. This in turn can be used to calculate
-	; jumptable addresses of other functions.
-	lda	#OP_JMP_ABS	; JMP absolute
-	sta	PLOT_CHAR
-	sta	PET2SCR
-	pla			; Get low part of address and save in .Y
-	tay
-	sec
-	sbc	#(PSTR-PLCH)+2	; Caculate low jumptable address of PLOT_CHAR
-	sta	PLOT_CHAR+1
-	pla			; Get high part of address and store in stack again
-	pha
-	sbc	#$00		; Calculate high jumptable addr of PLOT_CHAR
-	sta	PLOT_CHAR+2
-	tya			; Get low part of address
-	clc
-	adc	#(P2SC-PSTR)-2	; Calculate low jumptable address of PET2SCR
-	sta	PET2SCR+1
-	pla			; Get high part of address
-	adc	#$00		; Calculate high jumptable addr of PET2SCR
-	sta	PET2SCR+2
-
 	ldy	#0
 @loop:	cpy	@length
 	beq	@end
 	lda	(@str),y	; Load character
 	bit	@conv		; Check if we need to convert character
 	bmi	@noconv
-	jsr	PET2SCR		; Do conversion
+	+VTUI_PET2SCR		; Do conversion
 @noconv:
-	jsr	PLOT_CHAR
+	+VTUI_PLOT_CHAR
 	iny
 	bra	@loop		; Get next character
 @end:	rts
