@@ -246,10 +246,8 @@ vtui_set_stride:
 ; *****************************************************************************
 vtui_set_decr:
 	lda	VERA_ADDR_H
-	bcc	@setzero
 	ora	#%00001000
-	bra	@end
-@setzero:
+	bcs	@end
 	and	#%11110111
 @end:	sta	VERA_ADDR_H
 	rts
