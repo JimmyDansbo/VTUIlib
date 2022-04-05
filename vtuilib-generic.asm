@@ -45,7 +45,6 @@ OP_JMP_ABS	= $4C		; JMP absolute opcode
 PLOT_CHAR	= $10		; zp jump to plot_char function
 HLINE		= $13		; zp jump to hline function
 VLINE		= $16		; zp jump to vline function
-PET2SCR		= $19		; zp jump to pet2scr function
 
 VERA_ADDR_L	= $9F20
 VERA_ADDR_M	= $9F21
@@ -118,9 +117,9 @@ r12h	= r12+1
 	clc
 	adc	#$03
 	sta	.addr
-	lda	.addr+1
-	adc	#$00
-	sta	.addr+1
+	bcc	.end
+	inc	.addr+1
+.end:
 }
 
 ; ******************************* Functions ***********************************
