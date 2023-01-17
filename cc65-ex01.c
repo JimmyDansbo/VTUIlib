@@ -13,7 +13,6 @@ int main() {
 	vtui_load(0x9000);
 	vtui_initialize();
 
-
 	if (vtui_screen_set(SCRMODE40X30)) {
 		vtui_set_stride(1);
 		vtui_set_decr(0);
@@ -64,7 +63,7 @@ int main() {
 		vtui_print_str("directly to/from screen ram", 27, 0x74, TRUE);
 		vtui_gotoxy(5, 23);
 		vtui_set_stride(2);
-		vtui_print_str("*** now with ca65 support ***", 29, 0xFF, TRUE);
+		vtui_print_str("*** now with cc65 support ***", 29, 0xFF, TRUE);
 	}
 
 	return 0;
