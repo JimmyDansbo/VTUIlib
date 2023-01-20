@@ -1,5 +1,5 @@
-#ifndef _library_h_
-#define _library_h_
+#ifndef _vtuilib-cc65_h_
+#define _vtuilib-cc65_h_
 
 #define VIDRAM 0x80
 #define SYSRAM 0x00

@@ -54,55 +54,60 @@ r9		= $14
 r9l		= r9
 r9h		= r9+1
 r10		= $16
-r10l	= r10
-r10h	= r10+1
+r10l		= r10
+r10h		= r10+1
 r11		= $18
-r11l	= r11
-r11h	= r11+1
+r11l		= r11
+r11h		= r11+1
 r12		= $1A
-r12l	= r12
-r12h	= r12+1
+r12l		= r12
+r12h		= r12+1
 
 .segment "CODE"
 
 _vtui_load:
-; X = high, A = low
+	; X = high and A = low part of address where library should be loaded
+	; Initialize the jump-table at the end of the file with correct addresses
 	sta	vtui_initialize+1
 	stx	vtui_initialize+2
-	clc
+	clc				; Add 2 to jump-address as first one in library is branch
 	adc	#2
 	bcc :+
 	inx
-:	ldy	#3
+:	ldy	#3			; Use .Y for indexing into jump table below
 :	sta	vtui_initialize+1,y	; store low value
 	txa
 	sta	vtui_initialize+2,y	; store high value
-	lda vtui_initialize+1,y
-	clc
+	lda	vtui_initialize+1,y	; read low value into .A again
+	clc				; Add 3 to jump-address
 	adc	#3
 	bcc :+
 	inx
-:	iny
+:	iny				; Add 3 to .Y indexing
 	iny
 	iny
-	cpy #57
+	cpy #57				; Ensure we have gone through all addresses below
 	bne	:--
 
-	lda	#1		; Logical file number (must be unique)
-	ldx	#8		; Device number (8 local filesystem)
-	ldy	#0		; Secondary command 0 = dont use addr in file
-	jsr	$FFBA		; SETLFS
+	; Now use kernal function to load the actual library to memory
+	lda	#1			; Logical file number (must be unique)
+	ldx	#8			; Device number (8 local filesystem)
+	ldy	#0			; Secondary command 0 = dont use addr in file
+	jsr	$FFBA			; SETLFS
 	lda	#(End_fname-Fname)	; Length of filename
-	ldx	#<Fname		; Address of filename
+	ldx	#<Fname			; Address of filename
 	ldy	#>Fname
-	jsr	$FFBD		; SETNAM
-	lda	#0		; 0=load, 1=verify
+	jsr	$FFBD			; SETNAM
+	lda	#0			; 0=load, 1=verify
 	ldx	vtui_initialize+1
 	ldy	vtui_initialize+2
-	jmp	$FFD5		; LOAD
+	jmp	$FFD5			; LOAD
 
 _vtui_initialize:
-;	lda	#$8E		; Uppercase
+	; Library is designed to work with standard PETSCII character set, but
+	; CC65 switches to lower/upper case character set.
+	; The two lines below would switch back to standard PETSCII
+;	lda	#$8E			; Uppercase
 ;	jsr	$FFD2
 	jmp	vtui_initialize
 _vtui_screen_set:
@@ -147,19 +152,16 @@ _vtui_vline:
 	jsr	popa
 	jmp	vtui_vline
 _vtui_print_str:
-	eor	#1					; If value is 0, it needs to be $80
-	lsr						; else it needs to be 0
-	ror
-	pha						; Store value on stack while fetching other parameters
+	pha				; Store value on stack while fetching other parameters
 	jsr	popa
-	tax						; Color
+	tax				; Color
 	jsr	popa
-	tay						; Length
+	tay				; Length
 	jsr	popa
-	sta	r0					; String pointer low byte
+	sta	r0			; String pointer low byte
 	jsr	popa
-	sta	r0+1				; String pointer high byte
-	pla						; Conversion value from normal stack
+	sta	r0+1			; String pointer high byte
+	pla				; Conversion value from normal stack
 	jmp	vtui_print_str
 _vtui_fill_box:
 	tax
@@ -186,35 +188,35 @@ _vtui_border:
 	jsr	popa
 	jmp	vtui_border
 _vtui_save_rect:
-	tay						; VRAM bank
+	tay				; VRAM bank
 	jsr	popa
 	sta	r2l
 	jsr	popa
 	sta	r1l
 	jsr	popa
-	pha						; Destination RAM
+	pha				; Destination RAM
 	jsr	popa
 	sta	r0l
 	jsr	popa
 	sta	r0h
 	tya
-	ror						; Set .C = VRAM bank
+	ror				; Set .C = VRAM bank
 	pla
 	jmp	vtui_save_rect
 _vtui_rest_rect:
-	tay						; VRAM bank
+	tay				; VRAM bank
 	jsr	popa
 	sta	r2l
 	jsr	popa
 	sta	r1l
 	jsr	popa
-	pha						; Destination RAM
+	pha				; Destination RAM
 	jsr	popa
 	sta	r0l
 	jsr	popa
 	sta	r0h
 	tya
-	ror						; Set .C = VRAM bank
+	ror				; Set .C = VRAM bank
 	pla
 	jmp	vtui_rest_rect
 _vtui_input_str:
