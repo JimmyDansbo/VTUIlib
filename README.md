@@ -48,6 +48,7 @@ For examples, look at the exampleXX.asm files
 
 Include files are provided for the ACME and CA65 assembler, but all they do, is load the binary file
 and provide the routine names as both functions and macros although the macros just call the subroutines.
+A cc65 header file and wrapper has recently been developed to ease support in cc65 projects.
 
 ## Loading
 
@@ -61,6 +62,8 @@ When using the CBM kernal functions to load the library, the LOAD command will r
 
 When the library is loaded and VTUILIB is pointing to the memory address where the library starts (load address + 2 if loaded by assembler, otherwise just load address) it needs to be initalized by calling the initialization subroutine at VTUILIB address. All functions of the library are called by reference to the base VTUILIB address.
 
+The cc65 wrapper includes a function to load the library to any memory address. Remember to call the initialize function after the library has been loaded.
+
 ## Including
 
 Include files are provided for the ACME and the CA65 assemblers. Obviously it is not necessary to to load the library separately if it is included. The include files takes care of loading and initializing the library and providing function and macro names.
@@ -72,6 +75,8 @@ In the include files, all functions are provided both as macros and routines. Al
 Example: `VTUI_GOTOXY` is the macro name and `vtui_gotoxy` is the function name.
 
 For examples look at acme-exXX.asm or ca65-exXX.asm file(s)
+
+For inclusion in cc65 projects, make sure to include `vtuilib-cc65.h`. Have a look at the `build.sh` script to see how to assemble the library and link it to your own cc65 project. `cc65-ex01.c` should be a fairly comprehensive example on how to use the VTUI library in a cc65 project. Calling conventions can be found in `vtuilib-cc65.h`, but the actual functionality of the functions is still best described in this document.
 
 ## Initialization
 

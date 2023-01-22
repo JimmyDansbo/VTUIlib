@@ -1,17 +1,21 @@
+#include <stdlib.h>
 #include "vtuilib-cc65.h"
 
-#define PETSCII_TRUE  0x00
-#define PETSCII_FALSE 0x80
-
 int main() {
+
+	// Load VTUI library into pre-allocated memory and initialize it
+	// ensure defined memory is large enough to hold VTUI library
+//	char	vtui[1023];
+//	vtui_load(vtui, "vtui0.9.bin");
+//	vtui_initialize(vtui);
+
+	// Load VTUI library to address 0x0400 and initialize it
+	vtui_load((char*)0x0400, "vtui0.9.bin");
+	vtui_initialize((char*)0x0400);
 
 	// Switch to standard PETSCII character set
 	__asm__ ("lda #$8E");
 	__asm__ ("jsr $FFD2");
-
-	// Load VTUI library to address 0x0400 and initialize it
-	vtui_load(0x0400);
-	vtui_initialize();
 
 	if (vtui_screen_set(SCRMODE40X30)) {
 		vtui_set_stride(1);
