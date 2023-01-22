@@ -106,7 +106,7 @@ _vtui_initialize:
 	stx	vtui_initialize+2
 	clc				; Add 2 to jump-address as first one in library
 	adc	#2			; is branch
-	bcc :+
+	bcc	:+
 	inx
 :	ldy	#3			; Use .Y for indexing into jump table below
 :	sta	vtui_initialize+1,y	; store low value
@@ -115,12 +115,12 @@ _vtui_initialize:
 	lda	vtui_initialize+1,y	; read low value into .A again
 	clc				; Add 3 to jump-address
 	adc	#3
-	bcc :+
+	bcc	:+
 	inx
 :	iny				; Add 3 to .Y indexing
 	iny
 	iny
-	cpy #57				; Ensure we have gone through all addresses
+	cpy	#57			; Ensure we have gone through all addresses
 	bne	:--			; below
 
 	; Library is designed to work with standard PETSCII character set, but
@@ -190,7 +190,7 @@ _vtui_plot_char:
 ; Low byte is the character
 ; High byte is the colorcode if VERA stride = 1 and VERA increment = 0
 ; *****************************************************************************
-_vtui_scan_char:.byte $db
+_vtui_scan_char:
 	jmp	vtui_scan_char
 
 ; *****************************************************************************
@@ -332,6 +332,7 @@ _vtui_input_str:
 	ldx	#0
 	rts
 
+; Jump table into jumptable in actual VTUI library :(
 vtui_initialize:
 	jmp	$0000
 vtui_screen_set:
