@@ -69,7 +69,7 @@ r12h	= r12+1
 ; Use KERNAL functions to load a file from device 8 to memory at
 ; specific address
 ; *****************************************************************************
-_vtui_load:.byte $db
+_vtui_load:
 	sta	r0l			; Save high-byte of filename-address
 	stx	r0h			; Save low-byte of filename-address
 
