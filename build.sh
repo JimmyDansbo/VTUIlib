@@ -1,6 +1,6 @@
 #!/bin/bash
-rm -rf *.o *.PRG VTUI0.9.BIN
-acme -f cbm -o VTUI0.9.BIN -l vtuilib-generic.lst vtuilib-generic.asm
+rm -rf *.o *.PRG *.BIN
+acme -f cbm -o VTUI1.0.BIN -l vtuilib-generic.lst vtuilib-generic.asm
 acme -f cbm -o EXAMPL01.PRG example01.asm
 acme -f cbm -o EXAMPL02.PRG example02.asm
 acme -f cbm -o ACME-EX1.PRG acme-ex01.asm

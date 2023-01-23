@@ -6,11 +6,11 @@ int main() {
 	// Load VTUI library into pre-allocated memory and initialize it
 	// ensure defined memory is large enough to hold VTUI library
 //	char	vtui[1023];
-//	vtui_load(vtui, "vtui0.9.bin");
+//	vtui_load(vtui, "vtui1.0.bin");
 //	vtui_initialize(vtui);
 
 	// Load VTUI library to address 0x0400 and initialize it
-	vtui_load((char*)0x0400, "vtui0.9.bin");
+	vtui_load((char*)0x0400, "vtui1.0.bin");
 	vtui_initialize((char*)0x0400);
 
 	// Switch to standard PETSCII character set
@@ -18,8 +18,12 @@ int main() {
 	__asm__ ("jsr $FFD2");
 
 	if (vtui_screen_set(SCRMODE40X30)) {
-		vtui_set_stride(1);
-		vtui_set_decr(0);
+		if (vtui_get_bank()!=1)
+			vtui_set_bank(1);
+		if (vtui_get_stride()!=1)
+			vtui_set_stride(1);
+		if (vtui_get_decr()!=0)
+			vtui_set_decr(0);
 		vtui_clr_scr(vtui_pet2scr(' '), (LIGHTGRAY<<4)+BLACK);
 
 		vtui_gotoxy(11, 2);
@@ -45,7 +49,7 @@ int main() {
 		// Write a character to show header starts
 		vtui_plot_char(0x73, 0x74);
 		// Write box header
-		vtui_print_str("version 0.9", 11, (YELLOW<<4)+PURPLE, PETSCII_TRUE);
+		vtui_print_str("version 1.0", 11, (YELLOW<<4)+PURPLE, PETSCII_TRUE);
 		// Write a character to show header ends
 		vtui_plot_char(0x6B, 0x74);
 		vtui_gotoxy(3, 17);

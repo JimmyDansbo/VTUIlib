@@ -23,6 +23,9 @@ BORD:	jsr	vtui_border	; .A=border,r1l=width,r2l=height,.X=color
 SREC:	jmp	vtui_save_rect	; .C=vrambank,.A=destram,r0=destaddr,r1l=width,r2l=height
 RREC:	jmp	vtui_rest_rect	; .C=vrambank,.A=srcram,r0=srcaddr,r1l=width,r2l=height
 INST:	jmp	vtui_input_str	; r0 = pointer to buffer, .Y=max length, X=color
+GETB:	jmp	vtui_get_bank	; Return current bank number in .C
+GETS:	jmp	vtui_get_stride	; Return current stride value in .A
+GETD:	jmp	vtui_get_decr	; Return current decrement value in .C
 	jmp	$0000		; Show that there are no more jumps
 
 border_modes:;	 TR  TL  BR  BL TOP BOT  L   R
@@ -795,5 +798,40 @@ vtui_input_str:
 
 @end:	lda	#' '
 	sta	VERA_DATA0
+	rts
 
+; *****************************************************************************
+; Get the current VRAM bank/high-bit and return it in .C
+; *****************************************************************************
+; Returns 1 or 0 in .C corresponding to current VRAM bank/high-bit
+; *****************************************************************************
+vtui_get_bank:
+	lda	VERA_ADDR_H
+	lsr
+	rts
+
+; *****************************************************************************
+; Get the current VERA stride value
+; *****************************************************************************
+; Returns the current stride value in .A
+; *****************************************************************************
+vtui_get_stride:
+	lda	VERA_ADDR_H
+	lsr
+	lsr
+	lsr
+	lsr
+	rts
+
+; *****************************************************************************
+; Get the current decrement value
+; *****************************************************************************
+; Returns decrement value in .C, 0 = increment, 1 = decrement
+; *****************************************************************************
+vtui_get_decr:
+	lda	VERA_ADDR_H
+	lsr
+	lsr
+	lsr
+	lsr
 	rts

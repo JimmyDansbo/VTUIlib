@@ -43,6 +43,9 @@ VTUI_border	= LIBSTART+44
 VTUI_save_rect	= LIBSTART+47
 VTUI_rest_rect	= LIBSTART+50
 VTUI_input_str	= LIBSTART+53
+VTUI_get_bank	= LIBSTART+56
+vtui_get_stride	= LIBSTART+59
+vtui_get_decr	= LIBSTART+62
 
 main:
 	; Load the library using standard Kernal functions
@@ -274,13 +277,13 @@ load_library:
 	rts
 
 Libname		!text	"VTUI LIBRARY"
-Verstr		!text	"VERSION 0.9"
+Verstr		!text	"VERSION 1.0"
 Boxstr		!text	"BOXES WITH OR WITHOUT BORDERS"
 Hlinestr	!text	"HORIZONTAL LINES"
 Vlinestr	!text	"VERTICAL LINES"
 Plotstr		!text	"PLOT OR SCAN CHARACTERS"
 Dramstr		!text	"DIRECTLY TO/FROM SCREEN RAM"
-Morestr		!text	"***MORE TO SEE AND TO COME***"
+Morestr		!text	"*** NOW WITH CC65 SUPPORT ***"
 
-Fname		!text	"VTUI0.9.BIN"
+Fname		!text	"VTUI1.0.BIN"
 End_fname

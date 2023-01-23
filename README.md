@@ -157,7 +157,7 @@ ZP registers affected: none<br>
 
 ## Function name: get_bank
 Purpose: Get the current VERA bank<br>
-Call address: `VTUILIB+53`<br>
+Call address: `VTUILIB+56`<br>
 Macro name: `VTUI_GET_BANK`<br>
 Routine name: `vtui_get_bank`<br>
 Communication registers: .C<br>
@@ -189,7 +189,7 @@ ZP registers affected: r0l ($02)<br>
 
 ## Function name: get_stride
 Purpose: Get the current VERA stride value<br>
-Call address: `VTUILIB+56`<br>
+Call address: `VTUILIB+59`<br>
 Macro name: `VTUI_GET_STRIDE`<br>
 Routine name: `vtui_get_stride`<br>
 Communication registers: .A<br>
@@ -221,7 +221,7 @@ ZP registers affected: none<br>
 
 ## Function name: get_decr
 Purpose: Get the current VERA decrement bit<br>
-Call address: `VTUILIB+59`<br>
+Call address: `VTUILIB+62`<br>
 Macro name: `VTUI_GET_DECR`<br>
 Routine name: `vtui_set_decr`<br>
 Communication registers: .C<br>

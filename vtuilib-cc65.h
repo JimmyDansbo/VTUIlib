@@ -45,11 +45,14 @@ extern void	__fastcall__ vtui_initialize(char *addr);
 extern char	__fastcall__ vtui_screen_set(char mode);
 // Set high bit (bank) of VERA address without touching anything else in VERA_ADDR_H
 extern void	__fastcall__ vtui_set_bank(char bank);
+extern char	__fastcall__ vtui_get_bank();
 // Set stride value without touching anything else in VERA_ADDR_H
 extern void	__fastcall__ vtui_set_stride(char stride);
+extern char	__fastcall__ vtui_get_stride();
 // Set Decrement bit in VERA_ADDR_H without touching anything else, use the defined
 // VTUI_INC and VTUI_DEC constants for clarity
 extern void	__fastcall__ vtui_set_decr(char decr);
+extern char	__fastcall__ vtui_get_decr();
 // Fill screen with "fillchar" characters and set their color to "color"
 extern void	__fastcall__ vtui_clr_scr(char fillchar, char color);
 // Set VERA address registers to point to X,Y coordinates (max 79,59). Assumes bank=1

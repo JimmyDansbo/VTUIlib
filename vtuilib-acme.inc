@@ -87,6 +87,9 @@ vtui_border	= VTUI_LIB+44
 vtui_save_rect	= VTUI_LIB+47
 vtui_rest_rect	= VTUI_LIB+50
 vtui_input_str	= VTUI_LIB+53
+vtui_get_bank	= VTUI_LIB+56
+vtui_get_stride	= VTUI_LIB+59
+vtui_get_decr	= VTUI_LIB+62
 
 	jsr	vtui_initialize
 	jmp	VTUI_LIB_END
@@ -113,6 +116,16 @@ vtui_input_str	= VTUI_LIB+53
 }
 
 ; *****************************************************************************
+; Get current VERA bank (high memory bit)
+; *****************************************************************************
+; USES:		.A
+; RETURNS:	.C = Bank number, 0 or 1
+; *****************************************************************************
+!macro VTUI_GET_BANK {
+	jsr	vtui_get_bank
+}
+
+; *****************************************************************************
 ; Set the stride without changing other values in VERA_ADDR_H
 ; *****************************************************************************
 ; INPUT:		.A = Stride value
@@ -123,6 +136,15 @@ vtui_input_str	= VTUI_LIB+53
 }
 
 ; *****************************************************************************
+; Get current VERA stride value
+; *****************************************************************************
+; RETURNS:		.A = stride value
+; *****************************************************************************
+!macro VTUI_GET_STRIDE {
+	jsr	vtui_get_stride
+}
+
+; *****************************************************************************
 ; Set the decrement value without changing other values in VERA_ADDR_H
 ; *****************************************************************************
 ; INPUT:		.C (1 = decrement, 0 = increment)
@@ -130,6 +152,16 @@ vtui_input_str	= VTUI_LIB+53
 ; *****************************************************************************
 !macro VTUI_SET_DECR {
 	jsr	vtui_set_decr
+}
+
+; *****************************************************************************
+; Get the current VERA decrement value
+; *****************************************************************************
+; USES:			.A
+; RETURNS:		.C (1 = decrement, 0 = increment)
+; *****************************************************************************
+!macro VTUI_GET_DECR {
+	jsr	vtui_get_decr
 }
 
 ; *****************************************************************************
@@ -300,6 +332,6 @@ vtui_input_str	= VTUI_LIB+53
 	jsr	vtui_input_str
 }
 
-VTUI:	!bin	"VTUI0.9.BIN"
+VTUI:	!bin	"VTUI1.0.BIN"
 
 VTUI_LIB_END:

@@ -6,8 +6,11 @@
 .export _vtui_initialize
 .export _vtui_screen_set
 .export _vtui_set_bank
+.export _vtui_get_bank
 .export _vtui_set_stride
+.export _vtui_get_stride
 .export _vtui_set_decr
+.export _vtui_get_decr
 .export _vtui_clr_scr
 .export _vtui_gotoxy
 .export _vtui_plot_char
@@ -120,7 +123,7 @@ _vtui_initialize:
 :	iny				; Add 3 to .Y indexing
 	iny
 	iny
-	cpy	#57			; Ensure we have gone through all addresses
+	cpy	#66			; Ensure we have gone through all addresses
 	bne	:--			; below
 
 	; Library is designed to work with standard PETSCII character set, but
@@ -149,10 +152,27 @@ _vtui_set_bank:
 	jmp	vtui_set_bank
 
 ; *****************************************************************************
+; Return current bank number
+; *****************************************************************************
+_vtui_get_bank:
+	ldx	#0
+	jsr	vtui_get_bank
+	lda	#0
+	rol
+	rts
+
+; *****************************************************************************
 ; Set VERA stride, value passed as argument and available in A
 ; *****************************************************************************
 _vtui_set_stride:
 	jmp	vtui_set_stride
+
+; *****************************************************************************
+; Return current stride value
+; *****************************************************************************
+_vtui_get_stride:
+	ldx	#0
+	jmp	vtui_get_stride
 
 ; *****************************************************************************
 ; Move inc/dec value into .C and call vtui_set_decr
@@ -160,6 +180,16 @@ _vtui_set_stride:
 _vtui_set_decr:
 	ror
 	jmp	vtui_set_decr
+
+; *****************************************************************************
+; Return current decrement value
+; *****************************************************************************
+_vtui_get_decr:.byte $db
+	ldx	#0
+	jsr	vtui_get_decr
+	lda	#0
+	rol
+	rts
 
 ; *****************************************************************************
 ; Get char and color arguments into registers and call vtui_clr_scr
@@ -370,4 +400,10 @@ vtui_save_rect:
 vtui_rest_rect:
 	jmp	$0000
 vtui_input_str:
+	jmp	$0000
+vtui_get_bank:
+	jmp	$0000
+vtui_get_stride:
+	jmp	$0000
+vtui_get_decr:
 	jmp	$0000
