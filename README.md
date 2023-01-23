@@ -187,6 +187,22 @@ ZP registers affected: r0l ($02)<br>
 |------|-----------------------|
 |  .A  | 4 bit stride value |
 
+## Function name: get_stride
+Purpose: Get the current VERA stride value<br>
+Call address: `VTUILIB+56`<br>
+Macro name: `VTUI_GET_STRIDE`<br>
+Routine name: `vtui_get_stride`<br>
+Communication registers: .A<br>
+Preparatory routines: none<br>
+Registers affected: .A<br>
+ZP registers affected: none<br>
+
+**Description** Get the current VERA stride value.
+
+|Registers|Purpose|
+|------|-------|
+|  .A  | 4 bit stride value |
+
 ## Function name: set_decr
 Purpose: Set the VERA decrement bit<br>
 Call address: `VTUILIB+11`<br>
