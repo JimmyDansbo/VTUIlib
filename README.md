@@ -1,10 +1,10 @@
 # VTUI library Programmers Reference
 
-Version 0.9
+Version 1.0
 
 *Author: Jimmy Dansbo*
 
-**This is preliminary documentation and can change at any point.**
+**Note that this documentation can change at any point.**
 
 This document describes the **V**ERA **T**ext **U**ser **I**nterface library.
 
@@ -19,8 +19,11 @@ This document describes the **V**ERA **T**ext **U**ser **I**nterface library.
 	* [initialize](#function-name-initialize)
 	* [screen_set](#function-name-screen_set)
 	* [set_bank](#function-name-set_bank)
+	* [get_bank](#function-name-get_bank)
 	* [set_stride](#function-name-set_stride)
+	* [get_stride](#function-name-get_stride)
 	* [set_decr](#function-name-set_decr)
+	* [get_decr](#function-name-get_decr)
 	* [clr_scr](#function-name-clr_scr)
 	* [gotoxy](#function-name-gotoxy)
 	* [plot_char](#function-name-plot_char)
@@ -54,7 +57,7 @@ A cc65 header file and wrapper has recently been developed to ease support in cc
 
 The VTUI library is designed to be loaded by standard CBM kernal functions [SETLFS](https://cx16.dk/c64-kernal-routines/setlfs.html), [SETNAM](https://cx16.dk/c64-kernal-routines/setnam.html) and [LOAD](https://cx16.dk/c64-kernal-routines/load.html).
 
-In several assemblers it is possible to load a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI0.9.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI0.9.BIN"`. The ACME and CA65 include files use this method to load the library.
+In several assemblers it is possible to load a binary file directly with the sourcecode. for ACME it is done something like this `VTUI !BIN "VTUI1.0.BIN"` and for CA65 it would be done like this `VTUI .INCBIN "VTUI1.0.BIN"`. The ACME and CA65 include files use this method to load the library.
 
 If an assembler is used to include the binary file, be aware that the first two bytes are a loading address so base address of the actual library will be: `VTUILIB=VTUI+2`.
 
@@ -128,6 +131,7 @@ ZP registers affected: none<br>
 |  $04 | 40x15 text  |
 |  $05 | 20x30 text  |
 |  $06 | 20x15 text  |
+|  $FF | Swap 0 & 3  |
 
 Unsupported modes will fail with .C set.
 
@@ -149,6 +153,22 @@ ZP registers affected: none<br>
 
 |Registers | Purpose               |
 |------|-----------------------|
+|  .C  | Single bit bank number (0 or 1) |
+
+## Function name: get_bank
+Purpose: Get the current VERA bank<br>
+Call address: `VTUILIB+53`<br>
+Macro name: `VTUI_GET_BANK`<br>
+Routine name: `vtui_get_bank`<br>
+Communication registers: .C<br>
+Preparatory routines: none<br>
+Registers affected: .A<br>
+ZP registers affected: none<br>
+
+**Description** Get the current VERA bank (high address bit). The value will be returned in .C either 0 or 1.
+
+|Registers | Purpose    |
+|------|------------|
 |  .C  | Single bit bank number (0 or 1) |
 
 ## Function name: set_stride
