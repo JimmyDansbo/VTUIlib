@@ -210,13 +210,29 @@ Macro name: `VTUI_SET_DECR`<br>
 Routine name: `vtui_set_decr`<br>
 Communication registers: .C<br>
 Preparatory routines: none<br>
-Registers affected: .A
+Registers affected: .A<br>
 ZP registers affected: none<br>
 
 **Description** Set the VERA decrement bit. The decrement bit decides if the stride value is added to- or subtracted from the current VERA address. Carry Clear (.C=0) means increment by stride value. Carry Set (.C=1) means decrement by stride value.
 
 |Registers | Purpose               |
 |------|-----------------------|
+|  .C  | 0 = Increment, 1 = Decrement |
+
+## Function name: get_decr
+Purpose: Get the current VERA decrement bit<br>
+Call address: `VTUILIB+59`<br>
+Macro name: `VTUI_GET_DECR`<br>
+Routine name: `vtui_set_decr`<br>
+Communication registers: .C<br>
+Preparatory routines: none<br>
+Registers affected: .A<br>
+ZP registers affected: none<br>
+
+**Description** Get the current VERA decrement bit.
+
+| Registers | Purpose |
+|------|-------|
 |  .C  | 0 = Increment, 1 = Decrement |
 
 ## Function name: clr_scr
