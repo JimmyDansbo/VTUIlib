@@ -184,7 +184,7 @@ _vtui_set_decr:
 ; *****************************************************************************
 ; Return current decrement value
 ; *****************************************************************************
-_vtui_get_decr:.byte $db
+_vtui_get_decr:
 	ldx	#0
 	jsr	vtui_get_decr
 	lda	#0
