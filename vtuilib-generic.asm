@@ -323,8 +323,8 @@ vtui_vline:
 	cmp	#$10		; Store color if stride=1 & decr=0
 	bne	+
 	stx	VERA_DATA0	; Store colorcode
-+	dec	VERA_ADDR_L	; Return to original X coordinate
-	dec	VERA_ADDR_L
+	dec	VERA_ADDR_L	; Return to original X coordinate
++	dec	VERA_ADDR_L
 	inc	VERA_ADDR_M	; Increment Y coordinate
 	pla			; Restore .A for next iteration
 	dey
@@ -463,11 +463,11 @@ vtui_fill_box:
 ; *****************************************************************************
 ; Create a box with a specific border
 ; *****************************************************************************
-; INPUTS:	.A	= Border mode (0-6) any other will default to mode 0
+; INPUTS:	.A	= Border mode (0-6) 6+ expectes borders to be loaded
 ;		r1l	= width
 ;		r2l	= height
 ;		.X	= bg-/fg-color
-; USES		.Y, r0, r1h & r2h
+; USES		.Y, r0, r1l, r2l, r3, r4, r5, r6, r7, r8, r9, r10 & r11l
 ; *****************************************************************************
 vtui_border:
 	; Define local variable names for ZP variables
@@ -528,29 +528,30 @@ vtui_border:
 	sec
 	sbc	#(BORD-PLCH)+2	; Caculate low jumptable address of PLOT_CHAR
 	sta	PLOT_CHAR+1
-	pla			; Get high part of address and store in stack again
-	pha
+	pla			; Get high part of address
+	phx			; Save color information on stack
+	tax			; Store high part of address in .X for later use
 	sbc	#$00		; Calculate high jumptable addr of PLOT_CHAR
 	sta	PLOT_CHAR+2
 	tya			; Get low part of address
 	sec
 	sbc	#(BORD-HLIN)+2	; Calculate low jumptable address of HLINE
 	sta	HLINE+1
-	pla			; Get high part of address and store in stack again
-	pha
+	txa			; Get high part of address from .X
 	sbc	#$00		; Calculate high jumptable addr of HLINE
 	sta	HLINE+2
 	tya			; Get low part of address
 	sec
 	sbc	#(BORD-VLIN)+2	; Calculate low jumptable address of VLINE
 	sta	VLINE+1
-	pla
+	txa			; Get high part of address from .X
 	sbc	#$00
 	sta	VLINE+2
 	lda	#OP_JMP_ABS	; JMP absolute
 	sta	PLOT_CHAR
 	sta	HLINE
 	sta	VLINE
+	plx			; Restore color information from stack
 
 	; Save initial position
 	lda	VERA_ADDR_L	; X coordinate
