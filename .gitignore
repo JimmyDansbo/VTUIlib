@@ -2,3 +2,5 @@
 *.sym
 *.PRG
 *.lst
+*.o
+*.BIN
