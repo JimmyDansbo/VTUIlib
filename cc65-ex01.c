@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "vtuilib-cc65.h"
 
 int main() {
