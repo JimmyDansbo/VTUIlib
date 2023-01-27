@@ -323,8 +323,8 @@ vtui_vline:
 	cmp	#$10		; Store color if stride=1 & decr=0
 	bne	+
 	stx	VERA_DATA0	; Store colorcode
-	dec	VERA_ADDR_L	; Return to original X coordinate
-+	dec	VERA_ADDR_L
++	dec	VERA_ADDR_L	; Return to original X coordinate
+	dec	VERA_ADDR_L
 	inc	VERA_ADDR_M	; Increment Y coordinate
 	pla			; Restore .A for next iteration
 	dey
