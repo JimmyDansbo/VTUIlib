@@ -752,6 +752,8 @@ vtui_input_str:
 	ply
 	plx
 
+	cmp	#$00
+	beq	@inputloop
 	cmp	#$0D		; If RETURN has been pressed, we exit
 	beq	@end
 	cmp	#$14		; We need to handle backspace
