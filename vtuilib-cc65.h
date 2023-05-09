@@ -37,8 +37,9 @@
 #define LIGHTBLUE	14
 #define LIGHTGRAY	15
 
-// Load a file identified by filename from device 8 to address given in addr
-extern void	__fastcall__ vtui_load(char *addr, char *filename);
+// Load a file identified by filename from device 8 to address given in addr,
+// returns true on success
+extern char	__fastcall__ vtui_load(char *addr, char *filename);
 // Initialize the rest of the library, defining the address where VTUI is loaded
 extern void	__fastcall__ vtui_initialize(char *addr);
 // Set screen mode to one of VERA's supported modes, returns true on success

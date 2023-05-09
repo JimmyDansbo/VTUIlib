@@ -97,7 +97,13 @@ _vtui_load:
 	jsr	popa
 	tay
 	lda	#0			; 0=load, 1=verify
-	jmp	$FFD5			; LOAD
+	jsr	$FFD5			; LOAD
+	ldx	#0			; Must return 16bits even though return
+					; type is only 8 bits.
+	lda	#0			; Move Carry bit to acumulator and
+	rol				; invert it to correspond to C-style
+	eor	#1			; true=1 or false=0
+	rts
 
 ; *****************************************************************************
 ; Initialize internal jump-table with starting address given as argument.
@@ -247,7 +253,7 @@ _vtui_vline:
 ; Get arguments into correct registers and ZP variables before calling 
 ; vtui_print_str
 ; *****************************************************************************
-_vtui_print_str:
+_vtui_print_str:.byte $db
 	pha				; Store PETSCII conversion value on 
 					; stack while fetching other parameters
 	jsr	popa
