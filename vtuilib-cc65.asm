@@ -253,7 +253,7 @@ _vtui_vline:
 ; Get arguments into correct registers and ZP variables before calling 
 ; vtui_print_str
 ; *****************************************************************************
-_vtui_print_str:.byte $db
+_vtui_print_str:
 	pha				; Store PETSCII conversion value on 
 					; stack while fetching other parameters
 	jsr	popa
