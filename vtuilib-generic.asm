@@ -814,24 +814,13 @@ vtui_get_bank:
 	rts
 
 ; *****************************************************************************
-; Get the current VERA stride value
+; Get the current VERA stride and decrement value
 ; *****************************************************************************
-; Returns the current stride value in .A
-; *****************************************************************************
-vtui_get_stride:
-	lda	VERA_ADDR_H
-	lsr
-	lsr
-	lsr
-	lsr
-	rts
-
-; *****************************************************************************
-; Get the current decrement value
-; *****************************************************************************
-; Returns decrement value in .C, 0 = increment, 1 = decrement
+; Returns the current stride value in .A and decrement value in .C
+;                                           0 = increment, 1 = decrement
 ; *****************************************************************************
 vtui_get_decr:
+vtui_get_stride:
 	lda	VERA_ADDR_H
 	lsr
 	lsr
