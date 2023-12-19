@@ -730,7 +730,8 @@ vtui_rest_rect:
 ;		.Y = maximum length of string
 ;		.X = color information for input characters
 ; OUPUTS:	.Y = actual length of input
-; USES:		.A & r1l
+;		.A = last key pressed (RETURN or ESC)
+; USES:		r1l
 ; *****************************************************************************
 vtui_input_str:
 @ptr	= r0
@@ -755,6 +756,8 @@ vtui_input_str:
 	cmp	#$00
 	beq	@inputloop
 	cmp	#$0D		; If RETURN has been pressed, we exit
+	beq	@end
+	cmp	#$1B		; If ESC has been pressed, we exit
 	beq	@end
 	cmp	#$14		; We need to handle backspace
 	bne	@istext
@@ -799,8 +802,10 @@ vtui_input_str:
 	iny			; Inc .Y to show a char has been added
 	bra	@inputloop
 
-@end:	lda	#' '
+@end:	pha
+	lda	#' '
 	sta	VERA_DATA0
+	pla
 	rts
 
 ; *****************************************************************************
