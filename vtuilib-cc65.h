@@ -88,6 +88,7 @@ extern void	__fastcall__ vtui_rest_rect(unsigned srcaddr, char srcram, char widt
 // str = pre-allocated buffer to contain the typed string.
 // maxlen is the maximum length allowed for the string.
 // Typed characters will have 'color'
-extern char	__fastcall__ vtui_input_str(char *str, char maxlen, char color);
+// High-byte = last key pressed (ENTER or ESC), low-byte = actual length
+extern unsigned	__fastcall__ vtui_input_str(char *str, char maxlen, char color);
 
 #endif

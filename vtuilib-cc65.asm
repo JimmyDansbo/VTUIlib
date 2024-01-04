@@ -364,8 +364,8 @@ _vtui_input_str:
 	jsr	popa
 	sta	r0h
 	jsr	vtui_input_str
-	tya
-	ldx	#0
+	tax				; Last key in high-byte
+	tya				; Actual length in low-byte
 	rts
 
 ; Jump table into jumptable in actual VTUI library :(
