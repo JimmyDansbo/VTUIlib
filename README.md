@@ -280,7 +280,7 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Write the screencode character in .A to the screen at current address. If VERA increment is set to 2, the value in .X will not be written, essentially letting the character use the color already set in VRAM. If VERA increment is 1, the value in .X will be written as the colorcode. Any other increment value is unsupported.<br>
+**Description** Write the screencode character in .A to the screen at current address. If VERA increment is set to 1, the value in .X will be written as the colorcode. Any other increment will leave the existing colorcode.<br>
 
 |Registers | Purpose               |
 |------|-----------------------|
@@ -303,7 +303,7 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: none<br>
 ZP registers affected: none<br>
 
-**Description** Read the screencode character at current VERA address into .A. If VERA increment is set to 2, colorcode will not be read into .X. If VERA increment is 1, the colorcode will be read into .X. Any other increment value is unsupported.<br>
+**Description** Read the screencode character at current VERA address into .A. If VERA increment is set to 1, colorcode will be read into .X.<br>
 
 |Registers | Purpose               |
 |------|-----------------------|
