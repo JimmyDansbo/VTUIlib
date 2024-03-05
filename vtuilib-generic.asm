@@ -29,7 +29,7 @@ GETD:	jmp	vtui_get_decr	; Return current decrement value in .C
 	jmp	$0000		; Show that there are no more jumps
 
 border_modes:;	 TR  TL  BR  BL TOP BOT  L   R
-	!byte	$20,$20,$20,$20,$20,$20,$20,$20
+	!byte	$A0,$A0,$A0,$A0,$A0,$A0,$A0,$A0
 	!byte	$66,$66,$66,$66,$66,$66,$66,$66
 	!byte	$6E,$70,$7D,$6D,$40,$40,$42,$42
 	!byte	$49,$55,$4B,$4A,$40,$40,$42,$42
