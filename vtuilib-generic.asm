@@ -729,8 +729,7 @@ vtui_rest_rect:
 ; INPUTS:	r0 = pointer to buffer to hold string (must be pre-allocated)
 ;		.Y = maximum length of string
 ;		.X = color information for input characters
-; OUPUTS:	.Y = actual length of input
-;		.A = last key pressed (RETURN or ESC)
+; OUPUTS:	.Y = actual length of input (0 if user pressed ESC)
 ; USES:		r1l
 ; *****************************************************************************
 vtui_input_str:
@@ -757,9 +756,11 @@ vtui_input_str:
 	beq	@inputloop
 	cmp	#$0D		; If RETURN has been pressed, we exit
 	beq	@end
-	cmp	#$1B		; If ESC has been pressed, we exit
-	beq	@end
-	cmp	#$14		; We need to handle backspace
+	cmp	#$1B		; If ESC has been pressed,
+	bne	+
+	ldy	#0		; we set length to 0 and exit
+	bra	@end
++	cmp	#$14		; We need to handle backspace
 	bne	@istext
 	cpy	#0		; If .Y is 0, we can not delete
 	beq	@inputloop
@@ -802,10 +803,9 @@ vtui_input_str:
 	iny			; Inc .Y to show a char has been added
 	bra	@inputloop
 
-@end:	pha
+@end:
 	lda	#' '
 	sta	VERA_DATA0
-	pla
 	rts
 
 ; *****************************************************************************

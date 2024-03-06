@@ -375,12 +375,12 @@ Preparatory routines: gotoxy (optional)<br>
 Registers affected: .A & .Y<br>
 ZP registers affected: r1 ($04-05)<br>
 
-**Description** Show a cursor and get input from keyboard. The routine supports characters in the range $20-$5F and backspace. Input is written to screen and stored in the buffer at r0. The function does not return until enter/return or ESC is pressed. At that time the buffer will contain the entered string as PETSCII, .Y will contain the actual length of the input string and .A will contain the last key pressed.
+**Description** Show a cursor and get input from keyboard. The routine supports characters in the range $20-$5F and backspace. Input is written to screen and stored in the buffer at r0. The function does not return until enter/return or ESC is pressed. At that time the buffer will contain the entered string as PETSCII, .Y will contain the actual length of the input string or 0 if ESC was pressed.
 
 |Registers | Purpose               |
 |------|-----------------------|
 |  .X  | bg-/fg-color |
-|  .Y  | maximum length of string / Actual length on return |
+|  .Y  | maximum length of string / Actual length or 0 on return |
 |  r0  | Pointer to pre-allocated buffer |
 
 ## Function name: fill_box
