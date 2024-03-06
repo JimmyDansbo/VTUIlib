@@ -255,7 +255,7 @@ main:
 	rts
 
 Libname		!text	"VTUI LIBRARY"
-Verstr		!text	"VERSION 1.1"
+Verstr		!text	"VERSION 1.2"
 Boxstr		!text	"BOXES WITH OR WITHOUT BORDERS"
 Hlinestr	!text	"HORIZONTAL LINES"
 Vlinestr	!text	"VERTICAL LINES"
@@ -263,4 +263,4 @@ Plotstr		!text	"PLOT OR SCAN CHARACTERS"
 Dramstr		!text	"DIRECTLY TO/FROM SCREEN RAM"
 Morestr		!text	"***** WITH CC65 SUPPORT *****"
 
-VTUI		!bin	"VTUI1.1.BIN"
+VTUI		!bin	"VTUI1.2.BIN"

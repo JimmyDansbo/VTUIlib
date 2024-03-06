@@ -332,6 +332,6 @@ vtui_get_decr	= VTUI_LIB+62
 	jsr	vtui_input_str
 .endmacro
 
-VTUI:	.incbin	"VTUI1.1.BIN"
+VTUI:	.incbin	"VTUI1.2.BIN"
 
 VTUI_LIB_END:
