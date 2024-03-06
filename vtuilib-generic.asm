@@ -393,7 +393,7 @@ vtui_scr2pet:
 ; INPUTS	.A = Convert string (0 = Convert from PETSCII, $80 = no conversion)
 ;		r0 = pointer to string
 ;		.Y = length of string
-;		.X  = bg-/fg color (only used if stride=0,decr=0&bank=0)
+;		.X  = bg-/fg color (only used if stride=1,decr=0&bank=0)
 ; USES:		.A, .Y & r1
 ; *****************************************************************************
 vtui_print_str:
