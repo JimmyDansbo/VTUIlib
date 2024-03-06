@@ -9,7 +9,7 @@ int main() {
 //	vtui_initialize(vtui);
 
 	// Load VTUI library to address 0x0400 and initialize it
-	vtui_load((char*)0x0400, "vtui1.0.bin");
+	vtui_load((char*)0x0400, "vtui1.1.bin");
 	vtui_initialize((char*)0x0400);
 
 	// Switch to standard PETSCII character set
@@ -48,7 +48,7 @@ int main() {
 		// Write a character to show header starts
 		vtui_plot_char(0x73, 0x74);
 		// Write box header
-		vtui_print_str("version 1.0", 11, (YELLOW<<4)+PURPLE, PETSCII_TRUE);
+		vtui_print_str("version 1.1", 11, (YELLOW<<4)+PURPLE, PETSCII_TRUE);
 		// Write a character to show header ends
 		vtui_plot_char(0x6B, 0x74);
 		vtui_gotoxy(3, 17);
@@ -70,7 +70,7 @@ int main() {
 		vtui_print_str("directly to/from screen ram", 27, 0x74, PETSCII_TRUE);
 		vtui_gotoxy(5, 23);
 		vtui_set_stride(2);
-		vtui_print_str("*** now with cc65 support ***", 29, 0xFF, PETSCII_TRUE);
+		vtui_print_str("***** with cc65 support *****", 29, 0xFF, PETSCII_TRUE);
 	}
 
 	return 0;
