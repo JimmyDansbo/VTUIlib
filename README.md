@@ -1,6 +1,6 @@
 # VTUI library Programmers Reference
 
-Version 1.0
+Version 1.2
 
 *Author: Jimmy Dansbo*
 
