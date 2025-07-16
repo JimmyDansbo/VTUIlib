@@ -209,8 +209,9 @@ _vtui_clr_scr:
 ; Get x and y coordinates into registers and call vtui_gotoxy
 ; *****************************************************************************
 _vtui_gotoxy:
-	tay
-	jsr	popa
+	pha
+	jsr	popa		; popa clobbers .Y
+	ply
 	jmp	vtui_gotoxy
 
 ; *****************************************************************************
@@ -235,8 +236,9 @@ _vtui_scan_char:
 _vtui_hline:
 	tax
 	jsr	popa
-	tay
-	jsr	popa
+	pha
+	jsr	popa		; popa clobbers .Y
+	ply
 	jmp	vtui_hline
 
 ; *****************************************************************************
@@ -245,8 +247,9 @@ _vtui_hline:
 _vtui_vline:
 	tax
 	jsr	popa
-	tay
-	jsr	popa
+	pha
+	jsr	popa		; popa clobbers .Y
+	ply
 	jmp	vtui_vline
 
 ; *****************************************************************************
@@ -259,12 +262,14 @@ _vtui_print_str:
 	jsr	popa
 	tax				; Color
 	jsr	popa
-	tay				; Length
+	pha				; Length
 	jsr	popa
 	sta	r0			; String pointer low byte
 	jsr	popa
 	sta	r0+1			; String pointer high byte
+	ply
 	pla				; Conversion value from normal stack
+	tya
 	jmp	vtui_print_str
 
 ; *****************************************************************************
@@ -314,7 +319,7 @@ _vtui_border:
 ; vtui_save_rect
 ; *****************************************************************************
 _vtui_save_rect:
-	tay				; VRAM bank
+	pha				; VRAM bank
 	jsr	popa
 	sta	r2l
 	jsr	popa
@@ -325,9 +330,10 @@ _vtui_save_rect:
 	sta	r0l
 	jsr	popa
 	sta	r0h
-	tya
-	ror				; Set .C = VRAM bank
+	ply
 	pla
+	ror				; Set .C = VRAM bank
+	tya
 	jmp	vtui_save_rect
 
 ; *****************************************************************************
@@ -335,7 +341,7 @@ _vtui_save_rect:
 ; vtui_rest_rect
 ; *****************************************************************************
 _vtui_rest_rect:
-	tay				; VRAM bank
+	pha				; VRAM bank
 	jsr	popa
 	sta	r2l
 	jsr	popa
@@ -346,9 +352,10 @@ _vtui_rest_rect:
 	sta	r0l
 	jsr	popa
 	sta	r0h
-	tya
-	ror				; Set .C = VRAM bank
+	ply
 	pla
+	ror				; Set .C = VRAM bank
+	tya
 	jmp	vtui_rest_rect
 
 ; *****************************************************************************
@@ -358,11 +365,12 @@ _vtui_rest_rect:
 _vtui_input_str:
 	tax
 	jsr	popa
-	tay
+	pha
 	jsr	popa
 	sta	r0l
 	jsr	popa
 	sta	r0h
+	ply
 	jsr	vtui_input_str
 	tax				; Last key in high-byte
 	tya				; Actual length in low-byte
