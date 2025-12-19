@@ -131,6 +131,11 @@ ZP registers affected: none<br>
 |  $04 | 40x15 text  |
 |  $05 | 20x30 text  |
 |  $06 | 20x15 text  |
+|  $07 | 22x23 text  |
+|  $08 | 64x50 text  |
+|  $09 | 64x25 text  |
+|  $0A | 32x50 text  |
+|  $0B | 32x25 text  |
 |  $FF | Swap 0 & 3  |
 
 Unsupported modes will fail with .C set.
