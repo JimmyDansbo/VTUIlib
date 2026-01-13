@@ -1,5 +1,5 @@
-#ifndef _vtuilib-cc65_h_
-#define _vtuilib-cc65_h_
+#ifndef _vtuilib_cc65_h_
+#define _vtuilib_cc65_h_
 
 // Constants meant to be used in VTUI functions
 #define VIDRAM 0x80
